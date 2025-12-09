@@ -1,0 +1,104 @@
+---
+import ContentLayout from '@layouts/ContentLayout.astro';
+import { supabase, type Program } from '@lib/supabase';
+import { getTranslations, type Language } from '@lib/i18n';
+
+export const prerender = false; // Edge SSR
+
+const lang = Astro.params.lang as Language || 'en';
+const slug = Astro.params.slug || '';
+const t = getTranslations(lang);
+
+let program: Program | null = null;
+
+try {
+  const { data } = await supabase
+    .from('programs')
+    .select('*')
+    .eq('slug', slug)
+    .eq('language', lang)
+    .eq('is_published', true)
+    .single();
+
+  program = data;
+} catch (error) {
+  console.error('Error fetching program:', error);
+}
+
+if (!program) {
+  return Astro.redirect(`/${lang}/programs/`, 404);
+}
+
+const canonical = `https://plademy.com/${lang}/programs/${slug}`;
+---
+
+<ContentLayout
+  title={program.title}
+  description={program.description || program.excerpt || undefined}
+  image={program.cover_image_url || undefined}
+  lang={lang}
+  publishedTime={program.published_at}
+  canonical={canonical}
+>
+  {program.cover_image_url && (
+    <img
+      src={program.cover_image_url}
+      alt={program.title}
+      class="w-full h-96 object-cover rounded-lg mb-8"
+      loading="eager"
+    />
+  )}
+
+  {program.keypoints && program.keypoints.length > 0 && (
+    <div class="bg-blue-50 border-l-4 border-primary p-6 mb-8">
+      <h2 class="text-2xl font-bold mb-4">Key Points</h2>
+      <ul class="space-y-2">
+        {program.keypoints.map((point) => (
+          <li class="flex items-start">
+            <span class="text-primary mr-2">✓</span>
+            <span>{point}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )}
+
+  {program.goal && (
+    <div class="bg-green-50 border-l-4 border-secondary p-6 mb-8">
+      <h2 class="text-2xl font-bold mb-2">Program Goal</h2>
+      <p>{program.goal}</p>
+    </div>
+  )}
+
+  {program.audience && (
+    <div class="bg-yellow-50 border-l-4 border-yellow-500 p-6 mb-8">
+      <h2 class="text-2xl font-bold mb-2">Target Audience</h2>
+      <p>{program.audience}</p>
+    </div>
+  )}
+
+  {program.content && (
+    <div set:html={program.content} />
+  )}
+
+  {program.faqs && program.faqs.length > 0 && (
+    <div class="mt-12">
+      <h2 class="text-3xl font-bold mb-6">Frequently Asked Questions</h2>
+      <div class="space-y-4">
+        {program.faqs.map((faq: any) => (
+          <div class="card">
+            <h3 class="text-xl font-bold mb-2">{faq.question}</h3>
+            <p class="text-gray-600">{faq.answer}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  )}
+
+  <div class="mt-8 pt-8 border-t">
+    <a href={`/${lang}/programs/`} class="text-primary hover:underline">
+      ← {t.common.back} to Programs
+    </a>
+  </div>
+</ContentLayout>
+

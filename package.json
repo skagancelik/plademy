@@ -1,0 +1,41 @@
+{
+  "name": "plademy",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "Plademy.com - Human-Centered, AI-Powered Learning & Development Platform",
+  "scripts": {
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro check && astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "test": "vitest",
+    "test:e2e": "playwright test",
+    "test:ui": "playwright test --ui",
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx,.astro",
+    "format": "prettier --write ."
+  },
+  "dependencies": {
+    "@astrojs/check": "^0.9.3",
+    "@astrojs/netlify": "^5.3.0",
+    "@astrojs/sitemap": "^3.2.0",
+    "@astrojs/tailwind": "^5.1.2",
+    "@supabase/supabase-js": "^2.39.3",
+    "astro": "^4.5.0",
+    "fuse.js": "^7.0.0",
+    "tailwindcss": "^3.4.0",
+    "typescript": "^5.3.3"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.41.0",
+    "@types/node": "^20.11.5",
+    "eslint": "^8.56.0",
+    "eslint-plugin-astro": "^0.32.0",
+    "prettier": "^3.2.4",
+    "prettier-plugin-astro": "^0.12.0",
+    "vitest": "^1.2.1"
+  },
+  "optionalDependencies": {
+    "sharp": "^0.34.5"
+  }
+}

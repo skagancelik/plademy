@@ -1,0 +1,89 @@
+{
+  "site": {
+    "name": "Plademy",
+    "tagline": "Ihmiskeskeinen, tekoälyllä toteutettu oppiminen ja kehitys"
+  },
+  "nav": {
+    "home": "Etusivu",
+    "programs": "Ohjelmat",
+    "resources": "Resurssit",
+    "integrations": "Integraatiot",
+    "start": "Aloita",
+    "contact": "Yhteystiedot"
+  },
+  "home": {
+    "hero": {
+      "title": "Muunna organisaatiosi työntekijä- ja yhteisöohjelmilla",
+      "subtitle": "Lisää sitoutumista, paranna taitoja ja aja kasvua Plademyn tekoälyllä toteutetulla alustalla. Tutustu eroon tänään."
+    },
+    "features": {
+      "title": "Alustasi parhailla työkaluilla!",
+      "subtitle": "Luo ja hallinnoi ohjelmaasi helposti!"
+    },
+    "latestResources": "Uusimmat resurssit",
+    "latestPrograms": "Uusimmat ohjelmat"
+  },
+  "programs": {
+    "title": "Ohjelmat",
+    "description": "Tutustu kattaviin ohjelmiimme, jotka on suunniteltu muuttamaan organisaatiosi.",
+    "allPrograms": "Kaikki ohjelmat",
+    "categories": "Kategoriat",
+    "noPrograms": "Ohjelmia ei löytynyt."
+  },
+  "resources": {
+    "title": "Resurssit",
+    "description": "Tutustu oivalluksiin, oppaisiin ja työkaluihin, jotka parantavat työntekijä- tai yhteisöohjelmiasi.",
+    "allResources": "Kaikki resurssit",
+    "categories": "Kategoriat",
+    "noResources": "Resursseja ei löytynyt.",
+    "readMore": "Lue lisää"
+  },
+  "search": {
+    "title": "Haku",
+    "placeholder": "Hae resursseja ja ohjelmia...",
+    "noResults": "Tuloksia ei löytynyt.",
+    "results": "tulosta löytyi"
+  },
+  "forms": {
+    "contact": {
+      "title": "Ota yhteyttä",
+      "name": "Koko nimi",
+      "email": "Sähköposti",
+      "message": "Viesti",
+      "submit": "Lähetä viesti",
+      "success": "Kiitos! Otamme sinuun yhteyttä pian."
+    },
+    "start": {
+      "title": "Aloitetaan",
+      "subtitle": "Kerro meille organisaatiostasi ja siitä, mitä etsit. Aloita parempien kehitysohjelmien rakentaminen tänään!",
+      "name": "Nimesi",
+      "email": "Työsähköposti",
+      "organization": "Organisaation nimi",
+      "needs": "Ohjelmasi ja organisaatiosi tarpeet.",
+      "privacy": "Lähettämällä viestin hyväksyt tietosuojakäytäntömme.",
+      "submit": "Lähetä",
+      "success": "Kiitos! Otamme sinuun yhteyttä pian."
+    }
+  },
+  "footer": {
+    "description": "Plademy on tekoälyllä toteutettu integraatiokeskus, joka on räätälöity sekä työntekijä- että yhteisökehitysohjelmille.",
+    "links": {
+      "security": "Turvallisuus",
+      "privacy": "Tietosuojakäytäntö",
+      "cookies": "Evästekäytäntö"
+    },
+    "address": "Maria 01, Lapinlahdenkatu 16, 00180 Helsinki, Suomi",
+    "businessId": "Y-tunnus",
+    "vat": "ALV-nro",
+    "rights": "© Kaikki oikeudet pidätetään"
+  },
+  "common": {
+    "readMore": "Lue lisää",
+    "back": "Takaisin",
+    "next": "Seuraava",
+    "previous": "Edellinen",
+    "loading": "Ladataan...",
+    "error": "Tapahtui virhe"
+  }
+}
+

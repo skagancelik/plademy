@@ -1,0 +1,52 @@
+---
+import PageLayout from './PageLayout.astro';
+import type { Language } from '@lib/i18n';
+import { formatDate } from '@lib/utils';
+
+interface Props {
+  title: string;
+  description?: string;
+  image?: string;
+  lang: Language;
+  publishedTime?: string;
+  modifiedTime?: string;
+  canonical?: string;
+}
+
+const {
+  title,
+  description,
+  image,
+  lang,
+  publishedTime,
+  modifiedTime,
+  canonical,
+} = Astro.props;
+---
+
+<PageLayout
+  title={title}
+  description={description}
+  image={image}
+  type="article"
+  lang={lang}
+  canonical={canonical}
+  publishedTime={publishedTime}
+  modifiedTime={modifiedTime}
+>
+  <article class="container py-12">
+    <header class="mb-8">
+      <h1 class="text-4xl md:text-5xl font-bold mb-4">{title}</h1>
+      {description && <p class="text-xl text-gray-600 mb-4">{description}</p>}
+      {publishedTime && (
+        <time class="text-gray-500" datetime={publishedTime}>
+          {formatDate(publishedTime, lang)}
+        </time>
+      )}
+    </header>
+    <div class="prose prose-lg max-w-none">
+      <slot />
+    </div>
+  </article>
+</PageLayout>
+

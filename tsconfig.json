@@ -1,0 +1,17 @@
+{
+  "extends": "astro/tsconfigs/strict",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@components/*": ["./src/components/*"],
+      "@layouts/*": ["./src/layouts/*"],
+      "@lib/*": ["./src/lib/*"],
+      "@i18n/*": ["./src/i18n/*"]
+    },
+    "types": ["vitest/globals", "@testing-library/jest-dom"]
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}
+

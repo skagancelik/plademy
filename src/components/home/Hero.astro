@@ -1,0 +1,32 @@
+---
+import { getTranslations, type Language } from '@lib/i18n';
+
+interface Props {
+  lang: Language;
+}
+
+const { lang } = Astro.props;
+const t = getTranslations(lang);
+---
+
+<section class="bg-gradient-to-br from-primary to-primary-dark text-white py-20">
+  <div class="container">
+    <div class="max-w-3xl mx-auto text-center">
+      <h1 class="text-5xl md:text-6xl font-bold mb-6">
+        {t.home.hero.title}
+      </h1>
+      <p class="text-xl md:text-2xl mb-8 text-blue-100">
+        {t.home.hero.subtitle}
+      </p>
+      <div class="flex gap-4 justify-center">
+        <a href={`/${lang}/start`} class="btn bg-white text-primary hover:bg-gray-100">
+          {t.nav.start}
+        </a>
+        <a href={`/${lang}/programs/`} class="btn bg-transparent border-2 border-white text-white hover:bg-white/10">
+          {t.nav.programs}
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+

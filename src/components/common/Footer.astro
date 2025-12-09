@@ -1,0 +1,118 @@
+---
+import { supabase, type Resource, type Program } from '@lib/supabase';
+import { getTranslations, type Language } from '@lib/i18n';
+
+interface Props {
+  lang: Language;
+}
+
+const { lang } = Astro.props;
+const t = getTranslations(lang);
+
+// Fetch latest content for footer
+let latestResources: Resource[] = [];
+let latestPrograms: Program[] = [];
+
+try {
+  const { data: resources } = await supabase
+    .from('resources')
+    .select('*')
+    .eq('language', lang)
+    .eq('is_published', true)
+    .order('published_at', { ascending: false })
+    .limit(5);
+
+  const { data: programs } = await supabase
+    .from('programs')
+    .select('*')
+    .eq('language', lang)
+    .eq('is_published', true)
+    .order('published_at', { ascending: false })
+    .limit(5);
+
+  latestResources = resources || [];
+  latestPrograms = programs || [];
+} catch (error) {
+  console.error('Error fetching footer content:', error);
+}
+---
+
+<footer class="bg-gray-900 text-gray-300 mt-16">
+  <div class="container py-12">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+      <!-- About -->
+      <div>
+        <h3 class="text-white font-bold text-lg mb-4">{t.site.name}</h3>
+        <p class="text-sm">{t.footer.description}</p>
+      </div>
+
+      <!-- Latest Resources -->
+      <div>
+        <h4 class="text-white font-semibold mb-4">{t.home.latestResources}</h4>
+        <ul class="space-y-2 text-sm">
+          {latestResources.length > 0 ? (
+            latestResources.map((resource) => (
+              <li>
+                <a
+                  href={`/${lang}/resources/${resource.slug}`}
+                  class="hover:text-white transition-colors"
+                >
+                  {resource.title}
+                </a>
+              </li>
+            ))
+          ) : (
+            <li class="text-gray-500">{t.resources.noResources}</li>
+          )}
+        </ul>
+      </div>
+
+      <!-- Latest Programs -->
+      <div>
+        <h4 class="text-white font-semibold mb-4">{t.home.latestPrograms}</h4>
+        <ul class="space-y-2 text-sm">
+          {latestPrograms.length > 0 ? (
+            latestPrograms.map((program) => (
+              <li>
+                <a
+                  href={`/${lang}/programs/${program.slug}`}
+                  class="hover:text-white transition-colors"
+                >
+                  {program.title}
+                </a>
+              </li>
+            ))
+          ) : (
+            <li class="text-gray-500">{t.programs.noPrograms}</li>
+          )}
+        </ul>
+      </div>
+
+      <!-- Links -->
+      <div>
+        <h4 class="text-white font-semibold mb-4">Links</h4>
+        <ul class="space-y-2 text-sm">
+          <li>
+            <a href={`/${lang}/privacy`} class="hover:text-white transition-colors">
+              {t.footer.links.privacy}
+            </a>
+          </li>
+          <li>
+            <a href={`/${lang}/contact`} class="hover:text-white transition-colors">
+              {t.nav.contact}
+            </a>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="border-t border-gray-800 mt-8 pt-8 text-sm text-center">
+      <p>{t.footer.address}</p>
+      <p class="mt-2">
+        {t.footer.businessId}: 3386328-3 | {t.footer.vat}: FI33863283
+      </p>
+      <p class="mt-4">{t.footer.rights}</p>
+    </div>
+  </div>
+</footer>
+

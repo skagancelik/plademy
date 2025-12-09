@@ -1,0 +1,89 @@
+{
+  "site": {
+    "name": "Plademy",
+    "tagline": "Människocentrerad, AI-driven lärande och utveckling"
+  },
+  "nav": {
+    "home": "Hem",
+    "programs": "Program",
+    "resources": "Resurser",
+    "integrations": "Integrationer",
+    "start": "Starta",
+    "contact": "Kontakt"
+  },
+  "home": {
+    "hero": {
+      "title": "Förvandla din organisation med medarbetar- och gemenskapsprogram",
+      "subtitle": "Öka engagemanget, förbättra färdigheter och driv tillväxt med Plademys AI-drivna plattform. Upptäck skillnaden idag."
+    },
+    "features": {
+      "title": "Din plattform med de bästa verktygen!",
+      "subtitle": "Skapa och hantera ditt program enkelt!"
+    },
+    "latestResources": "Senaste resurser",
+    "latestPrograms": "Senaste program"
+  },
+  "programs": {
+    "title": "Program",
+    "description": "Upptäck våra omfattande program designade för att förvandla din organisation.",
+    "allPrograms": "Alla program",
+    "categories": "Kategorier",
+    "noPrograms": "Inga program hittades."
+  },
+  "resources": {
+    "title": "Resurser",
+    "description": "Utforska insikter, guider och verktyg för att förbättra dina medarbetar- eller gemenskapsprogram.",
+    "allResources": "Alla resurser",
+    "categories": "Kategorier",
+    "noResources": "Inga resurser hittades.",
+    "readMore": "Läs mer"
+  },
+  "search": {
+    "title": "Sök",
+    "placeholder": "Sök resurser och program...",
+    "noResults": "Inga resultat hittades.",
+    "results": "resultat hittades"
+  },
+  "forms": {
+    "contact": {
+      "title": "Kontakta oss",
+      "name": "Fullständigt namn",
+      "email": "E-post",
+      "message": "Meddelande",
+      "submit": "Skicka meddelande",
+      "success": "Tack! Vi återkommer snart."
+    },
+    "start": {
+      "title": "Låt oss börja",
+      "subtitle": "Berätta för oss om din organisation och vad du letar efter. Börja bygga bättre utvecklingsprogram idag!",
+      "name": "Ditt namn",
+      "email": "Företagse-post",
+      "organization": "Organisationsnamn",
+      "needs": "Dina program- och organisationsbehov.",
+      "privacy": "Genom att klicka på Skicka-knappen godkänner du vår integritetspolicy.",
+      "submit": "Skicka",
+      "success": "Tack! Vi kontaktar dig snart."
+    }
+  },
+  "footer": {
+    "description": "Plademy är en AI-driven integrationsnav anpassad för både medarbetar- och gemenskapsutvecklingsprogram.",
+    "links": {
+      "security": "Säkerhet",
+      "privacy": "Integritetspolicy",
+      "cookies": "Cookiepolicy"
+    },
+    "address": "Maria 01, Lapinlahdenkatu 16, 00180 Helsingfors, Finland",
+    "businessId": "Företags-ID",
+    "vat": "MOMS-nr",
+    "rights": "© Alla rättigheter förbehållna"
+  },
+  "common": {
+    "readMore": "Läs mer",
+    "back": "Tillbaka",
+    "next": "Nästa",
+    "previous": "Föregående",
+    "loading": "Laddar...",
+    "error": "Ett fel uppstod"
+  }
+}
+

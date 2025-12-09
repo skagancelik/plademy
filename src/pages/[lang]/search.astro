@@ -1,0 +1,149 @@
+---
+import PageLayout from '@layouts/PageLayout.astro';
+import { getTranslations, type Language } from '@lib/i18n';
+
+export function getStaticPaths() {
+  return [
+    { params: { lang: 'en' } },
+    { params: { lang: 'fi' } },
+    { params: { lang: 'sv' } },
+  ];
+}
+
+const lang = Astro.params.lang as Language || 'en';
+const t = getTranslations(lang);
+---
+
+<PageLayout
+  title={t.search.title}
+  description="Search resources and programs"
+  lang={lang}
+>
+  <div class="container py-12">
+    <div class="max-w-4xl mx-auto">
+      <h1 class="text-4xl font-bold mb-8 text-center">{t.search.title}</h1>
+      
+      <div class="mb-8">
+        <input
+          type="search"
+          id="search-input"
+          placeholder={t.search.placeholder}
+          class="w-full px-6 py-4 text-lg border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+          data-testid="search-input"
+        />
+      </div>
+
+      <div id="search-results" class="space-y-4" data-testid="search-results">
+        <p class="text-center text-gray-500">{t.search.noResults}</p>
+      </div>
+    </div>
+  </div>
+</PageLayout>
+
+<script>
+  import Fuse from 'fuse.js';
+  import { supabase } from '@lib/supabase';
+
+  const lang = '{{ lang }}';
+  const searchInput = document.getElementById('search-input') as HTMLInputElement;
+  const resultsDiv = document.getElementById('search-results') as HTMLDivElement;
+
+  let allResources: any[] = [];
+  let allPrograms: any[] = [];
+
+  // Fetch all content
+  async function loadContent() {
+    try {
+      const { data: resources } = await supabase
+        .from('resources')
+        .select('*')
+        .eq('language', lang)
+        .eq('is_published', true);
+
+      const { data: programs } = await supabase
+        .from('programs')
+        .select('*')
+        .eq('language', lang)
+        .eq('is_published', true);
+
+      allResources = resources || [];
+      allPrograms = programs || [];
+    } catch (error) {
+      console.error('Error loading content:', error);
+    }
+  }
+
+  // Initialize Fuse.js
+  let fuseResources: Fuse<any>;
+  let fusePrograms: Fuse<any>;
+
+  async function initSearch() {
+    await loadContent();
+
+    fuseResources = new Fuse(allResources, {
+      keys: ['title', 'description', 'excerpt', 'content'],
+      threshold: 0.3,
+    });
+
+    fusePrograms = new Fuse(allPrograms, {
+      keys: ['title', 'description', 'excerpt', 'content'],
+      threshold: 0.3,
+    });
+  }
+
+  function renderResults(query: string) {
+    if (!query.trim()) {
+      resultsDiv.innerHTML = '<p class="text-center text-gray-500">No results found.</p>';
+      return;
+    }
+
+    const resourceResults = fuseResources.search(query);
+    const programResults = fusePrograms.search(query);
+
+    if (resourceResults.length === 0 && programResults.length === 0) {
+      resultsDiv.innerHTML = '<p class="text-center text-gray-500">No results found.</p>';
+      return;
+    }
+
+    let html = '';
+
+    if (resourceResults.length > 0) {
+      html += '<h2 class="text-2xl font-bold mb-4">Resources</h2>';
+      html += '<div class="space-y-4 mb-8">';
+      resourceResults.slice(0, 10).forEach((result) => {
+        html += `
+          <a href="/${lang}/resources/${result.item.slug}" class="card block hover:shadow-lg transition-shadow">
+            <h3 class="text-xl font-bold mb-2">${result.item.title}</h3>
+            ${result.item.excerpt ? `<p class="text-gray-600">${result.item.excerpt}</p>` : ''}
+          </a>
+        `;
+      });
+      html += '</div>';
+    }
+
+    if (programResults.length > 0) {
+      html += '<h2 class="text-2xl font-bold mb-4">Programs</h2>';
+      html += '<div class="space-y-4">';
+      programResults.slice(0, 10).forEach((result) => {
+        html += `
+          <a href="/${lang}/programs/${result.item.slug}" class="card block hover:shadow-lg transition-shadow">
+            <h3 class="text-xl font-bold mb-2">${result.item.title}</h3>
+            ${result.item.excerpt ? `<p class="text-gray-600">${result.item.excerpt}</p>` : ''}
+          </a>
+        `;
+      });
+      html += '</div>';
+    }
+
+    resultsDiv.innerHTML = html;
+  }
+
+  // Initialize and set up search
+  initSearch().then(() => {
+    searchInput.addEventListener('input', (e) => {
+      const query = (e.target as HTMLInputElement).value;
+      renderResults(query);
+    });
+  });
+</script>
+

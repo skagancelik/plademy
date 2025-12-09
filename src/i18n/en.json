@@ -1,0 +1,89 @@
+{
+  "site": {
+    "name": "Plademy",
+    "tagline": "Human-Centered, AI-Powered, Learning & Development"
+  },
+  "nav": {
+    "home": "Home",
+    "programs": "Programs",
+    "resources": "Resources",
+    "integrations": "Integrations",
+    "start": "Start",
+    "contact": "Contact"
+  },
+  "home": {
+    "hero": {
+      "title": "Transform Your Organization With Employee And Community Programs",
+      "subtitle": "Boost engagement, enhance skills, and drive growth with Plademy's AI-powered platform. Discover the difference today."
+    },
+    "features": {
+      "title": "Your Platform With The Best Tools!",
+      "subtitle": "Create and Manage Your Program Easily!"
+    },
+    "latestResources": "Latest Resources",
+    "latestPrograms": "Latest Programs"
+  },
+  "programs": {
+    "title": "Programs",
+    "description": "Discover our comprehensive programs designed to transform your organization.",
+    "allPrograms": "All Programs",
+    "categories": "Categories",
+    "noPrograms": "No programs found."
+  },
+  "resources": {
+    "title": "Resources",
+    "description": "Explore insights, guides, and tools to enhance your employee or community programs.",
+    "allResources": "All Resources",
+    "categories": "Categories",
+    "noResources": "No resources found.",
+    "readMore": "Read More"
+  },
+  "search": {
+    "title": "Search",
+    "placeholder": "Search resources and programs...",
+    "noResults": "No results found.",
+    "results": "results found"
+  },
+  "forms": {
+    "contact": {
+      "title": "Contact Us",
+      "name": "Full Name",
+      "email": "Email",
+      "message": "Message",
+      "submit": "Send Message",
+      "success": "Thank you! We'll get back to you soon."
+    },
+    "start": {
+      "title": "Let's Start",
+      "subtitle": "Tell us about your organization and what you're looking for. Start building better development programs today!",
+      "name": "Your name",
+      "email": "Business email",
+      "organization": "Organization name",
+      "needs": "Your program and organization needs.",
+      "privacy": "By clicking the Send button, you agree to our Privacy Policy.",
+      "submit": "Send",
+      "success": "Thank you! We'll contact you soon."
+    }
+  },
+  "footer": {
+    "description": "Plademy is an AI-driven integration hub tailored for both employee and community development programs.",
+    "links": {
+      "security": "Security",
+      "privacy": "Privacy Policy",
+      "cookies": "Cookie Policy"
+    },
+    "address": "Maria 01, Lapinlahdenkatu 16, 00180 Helsinki, Finland",
+    "businessId": "Business-ID",
+    "vat": "VAT NO",
+    "rights": "© All rights reserved"
+  },
+  "common": {
+    "readMore": "Read More",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "loading": "Loading...",
+    "error": "An error occurred"
+  }
+}
+

@@ -1,0 +1,75 @@
+---
+import PageLayout from '@layouts/PageLayout.astro';
+import { getTranslations, type Language } from '@lib/i18n';
+
+export function getStaticPaths() {
+  return [
+    { params: { lang: 'en' } },
+    { params: { lang: 'fi' } },
+    { params: { lang: 'sv' } },
+  ];
+}
+
+const lang = Astro.params.lang as Language || 'en';
+const t = getTranslations(lang);
+---
+
+<PageLayout
+  title={t.nav.integrations}
+  description="Connect with LMS, HR platforms, and tools to streamline program management"
+  lang={lang}
+>
+  <div class="container py-12">
+    <div class="max-w-4xl mx-auto">
+      <h1 class="text-4xl font-bold mb-6">Integrations</h1>
+      <p class="text-xl text-gray-600 mb-8">
+        Connect with LMS, HR platforms, and tools to streamline program management, enhance learning and mentoring
+      </p>
+
+      <div class="grid md:grid-cols-2 gap-6">
+        <div class="card">
+          <h3 class="text-2xl font-bold mb-4">Single Sign On</h3>
+          <p class="text-gray-600">
+            Integrate with your preferred user portal to provide secure and seamless SAML-based login.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3 class="text-2xl font-bold mb-4">HR & User Platforms</h3>
+          <p class="text-gray-600">
+            Streamline workflows by integrating with HR, LMS and community platforms.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3 class="text-2xl font-bold mb-4">Google Calendar</h3>
+          <p class="text-gray-600">
+            Sync your program schedules effortlessly with Google Calendar.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3 class="text-2xl font-bold mb-4">Google Meet</h3>
+          <p class="text-gray-600">
+            Conduct online sessions directly through Google Meet.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3 class="text-2xl font-bold mb-4">Microsoft Teams</h3>
+          <p class="text-gray-600">
+            Enable collaborative mentoring and training sessions with Teams integration.
+          </p>
+        </div>
+
+        <div class="card">
+          <h3 class="text-2xl font-bold mb-4">Zoom</h3>
+          <p class="text-gray-600">
+            Seamlessly schedule and host virtual meetings for mentoring and training sessions.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+</PageLayout>
+

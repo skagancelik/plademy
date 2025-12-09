@@ -1,0 +1,109 @@
+---
+import { supabase, type Resource, type Program } from '@lib/supabase';
+import { getTranslations, type Language } from '@lib/i18n';
+import { truncate } from '@lib/utils';
+
+interface Props {
+  lang: Language;
+}
+
+const { lang } = Astro.props;
+const t = getTranslations(lang);
+
+let latestResources: Resource[] = [];
+let latestPrograms: Program[] = [];
+
+try {
+  const { data: resources } = await supabase
+    .from('resources')
+    .select('*')
+    .eq('language', lang)
+    .eq('is_published', true)
+    .order('published_at', { ascending: false })
+    .limit(5);
+
+  const { data: programs } = await supabase
+    .from('programs')
+    .select('*')
+    .eq('language', lang)
+    .eq('is_published', true)
+    .order('published_at', { ascending: false })
+    .limit(5);
+
+  latestResources = resources || [];
+  latestPrograms = programs || [];
+} catch (error) {
+  console.error('Error fetching latest content:', error);
+}
+---
+
+<section class="py-16">
+  <div class="container">
+    <!-- Latest Resources -->
+    {latestResources.length > 0 && (
+      <div class="mb-12">
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-3xl font-bold">{t.home.latestResources}</h2>
+          <a href={`/${lang}/resources/`} class="text-primary hover:underline">
+            {t.resources.allResources} →
+          </a>
+        </div>
+        <div class="grid md:grid-cols-3 gap-6">
+          {latestResources.map((resource) => (
+            <a
+              href={`/${lang}/resources/${resource.slug}`}
+              class="card hover:shadow-lg transition-shadow"
+            >
+              {resource.cover_image_url && (
+                <img
+                  src={resource.cover_image_url}
+                  alt={resource.title}
+                  class="w-full h-48 object-cover rounded-lg mb-4"
+                  loading="lazy"
+                />
+              )}
+              <h3 class="text-xl font-bold mb-2">{resource.title}</h3>
+              {resource.excerpt && (
+                <p class="text-gray-600">{truncate(resource.excerpt, 100)}</p>
+              )}
+            </a>
+          ))}
+        </div>
+      </div>
+    )}
+
+    <!-- Latest Programs -->
+    {latestPrograms.length > 0 && (
+      <div>
+        <div class="flex justify-between items-center mb-6">
+          <h2 class="text-3xl font-bold">{t.home.latestPrograms}</h2>
+          <a href={`/${lang}/programs/`} class="text-primary hover:underline">
+            {t.programs.allPrograms} →
+          </a>
+        </div>
+        <div class="grid md:grid-cols-3 gap-6">
+          {latestPrograms.map((program) => (
+            <a
+              href={`/${lang}/programs/${program.slug}`}
+              class="card hover:shadow-lg transition-shadow"
+            >
+              {program.cover_image_url && (
+                <img
+                  src={program.cover_image_url}
+                  alt={program.title}
+                  class="w-full h-48 object-cover rounded-lg mb-4"
+                  loading="lazy"
+                />
+              )}
+              <h3 class="text-xl font-bold mb-2">{program.title}</h3>
+              {program.excerpt && (
+                <p class="text-gray-600">{truncate(program.excerpt, 100)}</p>
+              )}
+            </a>
+          ))}
+        </div>
+      </div>
+    )}
+  </div>
+</section>
+

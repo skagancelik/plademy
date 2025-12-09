@@ -1,0 +1,115 @@
+---
+import PageLayout from '@layouts/PageLayout.astro';
+import type { Language } from '@lib/i18n';
+
+export function getStaticPaths() {
+  return [
+    { params: { lang: 'en' } },
+    { params: { lang: 'fi' } },
+    { params: { lang: 'sv' } },
+  ];
+}
+
+const lang = Astro.params.lang as Language || 'en';
+---
+
+<PageLayout
+  title="Privacy Policy"
+  description="Plademy Privacy Policy"
+  lang={lang}
+>
+  <div class="container py-12">
+    <article class="max-w-4xl mx-auto prose prose-lg">
+      <h1>Privacy Policy</h1>
+      
+      <p><strong>Effective Date:</strong> 27 May 2024</p>
+      <p><strong>Last Updated:</strong> 06 Dec 2024</p>
+
+      <p>
+        Plademy Oy ("we," "our," or "us") is committed to protecting your privacy and ensuring your personal data is handled securely and transparently.
+      </p>
+
+      <p>
+        This Privacy Policy outlines how we collect, use, store, and share your information in compliance with Finland's privacy laws, including the General Data Protection Regulation (GDPR).
+      </p>
+
+      <h2>1. Data Controller</h2>
+      <p>
+        Plademy Oy is the data controller responsible for the processing of your personal data.
+      </p>
+      <p>
+        <strong>Contact Email:</strong> info@plademy.com
+      </p>
+
+      <h2>2. Personal Data We Collect</h2>
+      <p>We collect and process the following types of personal data:</p>
+      <ul>
+        <li><strong>Contact Information:</strong> Name, email address, phone number, and organization details.</li>
+        <li><strong>Usage Data:</strong> Information about your interactions with our platform, such as pages visited and time spent.</li>
+        <li><strong>Communication Data:</strong> Messages and inquiries sent through our forms or support channels.</li>
+      </ul>
+
+      <h2>3. How We Use Your Data</h2>
+      <p>We use your data to:</p>
+      <ul>
+        <li>Provide and maintain our services.</li>
+        <li>Customize and improve your experience.</li>
+        <li>Respond to your inquiries and provide support.</li>
+        <li>Fulfill legal obligations.</li>
+      </ul>
+
+      <h2>4. Third-Party Services</h2>
+      <p>
+        We use trusted third-party services to support our operations. These services may process your data under their respective privacy policies:
+      </p>
+      <ul>
+        <li><strong>Brizy:</strong> Used for website building and maintenance.</li>
+        <li><strong>Make:</strong> Used for automation and workflow integration.</li>
+        <li><strong>Google Drive:</strong> Used for secure file storage and collaboration.</li>
+        <li><strong>AWS:</strong> Used for cloud hosting and data security.</li>
+      </ul>
+
+      <h2>5. Data Storage and Security</h2>
+      <p>
+        Your data is securely stored using industry-standard encryption methods on AWS servers located within the European Economic Area (EEA) and US. We implement robust technical and organizational measures to protect your data against unauthorized access, alteration, or destruction.
+      </p>
+
+      <h2>6. Your Rights</h2>
+      <p>Under GDPR, you have the following rights regarding your personal data:</p>
+      <ul>
+        <li><strong>Right to Access:</strong> Request a copy of the data we hold about you.</li>
+        <li><strong>Right to Rectification:</strong> Correct inaccuracies in your personal data.</li>
+        <li><strong>Right to Erasure:</strong> Request the deletion of your data (subject to legal obligations).</li>
+        <li><strong>Right to Restrict Processing:</strong> Limit how we process your data.</li>
+        <li><strong>Right to Data Portability:</strong> Obtain your data in a transferable format.</li>
+        <li><strong>Right to Object:</strong> Opt-out of specific data processing activities.</li>
+      </ul>
+      <p>To exercise these rights, please contact us at info@plademy.com</p>
+
+      <h2>7. Data Retention</h2>
+      <p>
+        We retain your data only for as long as necessary to fulfill the purposes outlined in this policy or as required by law.
+      </p>
+
+      <h2>8. Cookies and Tracking</h2>
+      <p>
+        Our website uses cookies to enhance user experience and analyze traffic. For more details on how cookies are used, refer to our Cookie Policy.
+      </p>
+
+      <h2>9. Updates to This Policy</h2>
+      <p>
+        We may update this Privacy Policy from time to time. Changes will be posted on this page with an updated "Effective Date."
+      </p>
+
+      <h2>10. Contact Us</h2>
+      <p>If you have any questions or concerns about this Privacy Policy, please reach out to us:</p>
+      <p>
+        <strong>Plademy Oy</strong><br />
+        info@plademy.com
+      </p>
+
+      <p>Thank you for trusting Plademy Oy. Your privacy is our priority.</p>
+    </article>
+  </div>
+</PageLayout>
+

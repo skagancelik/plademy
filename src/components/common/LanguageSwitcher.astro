@@ -1,0 +1,41 @@
+---
+import type { Language } from '@lib/i18n';
+import { getLocalizedPath } from '@lib/i18n';
+
+interface Props {
+  currentLang: Language;
+  currentPath: string;
+}
+
+const { currentLang, currentPath } = Astro.props;
+
+const languages: { code: Language; name: string }[] = [
+  { code: 'en', name: 'English' },
+  { code: 'fi', name: 'Suomi' },
+  { code: 'sv', name: 'Svenska' },
+];
+
+// Remove language prefix from path
+const pathWithoutLang = currentPath.replace(/^\/(en|fi|sv)/, '') || '/';
+---
+
+<nav aria-label="Language selector" class="language-switcher">
+  <ul class="flex gap-2">
+    {languages.map((lang) => (
+      <li>
+        <a
+          href={getLocalizedPath(pathWithoutLang, lang.code)}
+          class={`px-3 py-1 rounded text-sm transition-colors ${
+            currentLang === lang.code
+              ? 'bg-primary text-white'
+              : 'text-gray-600 hover:bg-gray-100'
+          }`}
+          aria-current={currentLang === lang.code ? 'page' : undefined}
+        >
+          {lang.name}
+        </a>
+      </li>
+    ))}
+  </ul>
+</nav>
+

@@ -1,0 +1,119 @@
+---
+alwaysApply: true
+---
+
+# Plademy Project Rules
+
+## Core Philosophy & Safety
+
+1. **Security First:** Always use RLS policies, never expose SERVICE_ROLE_KEY
+2. **Production Quality:** Write clean, maintainable, production-ready code
+3. **KISS & YAGNI:** Keep it simple, don't over-engineer
+4. **No Regressions:** Never break existing functionality when adding features
+5. **Self-Testing:** ALWAYS test everything yourself before asking user. Never ask user to test. Test:
+   - File structure and organization
+   - Import/export statements
+   - Syntax errors (linter)
+   - TypeScript types
+   - Build process (if Node.js version allows)
+   - Dependencies installation
+   - Configuration files
+   - All code changes must be verified before completion
+
+## Code Standards
+
+### TypeScript
+- Use strict mode
+- Type everything explicitly
+- Use path aliases (`@/`, `@components/`, etc.)
+
+### Astro
+- Use `export const prerender = false` for Edge SSR pages
+- Use `export const prerender = true` (default) for static pages
+- Always handle errors in async data fetching
+
+### Supabase
+- Always use RLS policies
+- Use ANON_KEY for reads (public)
+- Use SERVICE_ROLE_KEY only in n8n (never expose)
+- Check `is_published` before displaying content
+
+### Styling
+- Use Tailwind utility classes
+- Follow mobile-first approach
+- Use semantic HTML
+- Add `data-testid` for testable elements
+
+## Testing
+
+- Write tests for all critical paths
+- Use Playwright for E2E tests
+- Use Vitest for unit tests
+- Test accessibility (WCAG 2.1 AA)
+- Test performance (PageSpeed 95+)
+
+## Git & Deployment
+
+- Never push to main directly
+- Always create feature branches
+- Never use `git push --force`
+- Test locally before committing
+- Wait for approval before pushing
+
+## Environment Variables
+
+- Never commit `.env` files
+- Use `.env.example` for documentation
+- `PUBLIC_` prefix = browser-visible
+- No `PUBLIC_` prefix = server-only (secret)
+
+## Performance
+
+- Target PageSpeed 95+ (Edge SSR overhead acceptable)
+- Use lazy loading for images
+- Cache Edge SSR responses (60s + stale-while-revalidate 300s)
+- Optimize images (WebP, Netlify CDN)
+
+## SEO
+
+- Always include meta tags (title, description, OG, Twitter)
+- Use JSON-LD structured data
+- Generate dynamic sitemap for Edge SSR pages
+- Use hreflang for multi-language
+
+## i18n
+
+- Always support 3 languages: en, fi, sv
+- Use JSON translation files
+- Check language from URL path
+- Fallback to English if translation missing
+
+## Content Management
+
+- Resources and Programs are Edge SSR (from Supabase)
+- Static pages are SSG (Home, Integrations, etc.)
+- Footer shows latest content (live from Supabase)
+- n8n inserts content via SERVICE_ROLE_KEY
+
+## Security Checklist
+
+- [ ] RLS enabled on all tables
+- [ ] Public can only read published content
+- [ ] SERVICE_ROLE_KEY never exposed
+- [ ] Forms validate input
+- [ ] No SQL injection risks
+- [ ] CORS properly configured
+
+## Error Handling
+
+- Always handle async errors (try/catch)
+- Show user-friendly error messages
+- Log errors for debugging
+- Never expose sensitive error details
+
+## Documentation
+
+- Keep project-plan/ docs updated
+- Comment complex logic
+- Document API endpoints
+- Update README with setup instructions

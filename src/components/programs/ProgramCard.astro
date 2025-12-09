@@ -1,0 +1,39 @@
+---
+import type { Program } from '@lib/supabase';
+import { truncate } from '@lib/utils';
+import type { Language } from '@lib/i18n';
+
+interface Props {
+  program: Program;
+  lang: Language;
+}
+
+const { program, lang } = Astro.props;
+---
+
+<a
+  href={`/${lang}/programs/${program.slug}`}
+  class="card block hover:shadow-lg transition-shadow"
+  data-testid="program-card"
+>
+  {program.cover_image_url && (
+    <img
+      src={program.cover_image_url}
+      alt={program.title}
+      class="w-full h-48 object-cover rounded-lg mb-4"
+      loading="lazy"
+    />
+  )}
+  <h3 class="text-xl font-bold mb-2">{program.title}</h3>
+  {program.excerpt && (
+    <p class="text-gray-600 mb-4">{truncate(program.excerpt, 150)}</p>
+  )}
+  {program.keypoints && program.keypoints.length > 0 && (
+    <ul class="space-y-1 text-sm text-gray-500">
+      {program.keypoints.slice(0, 3).map((point) => (
+        <li>• {point}</li>
+      ))}
+    </ul>
+  )}
+</a>
+
