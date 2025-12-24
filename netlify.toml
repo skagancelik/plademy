@@ -7,19 +7,11 @@
 
 # Image transformation configuration for Netlify Image CDN
 # Remote image patterns for allowed external image sources
-[[images.remote_patterns]]
-protocol = "https"
-hostname = "**.supabase.co"
-
-[[images.remote_patterns]]
-protocol = "https"
-hostname = "oaidalleapiprodscus.blob.core.windows.net"
-
-[[images.remote_patterns]]
-protocol = "https"
-hostname = "images.unsplash.com"
-
-[[images.remote_patterns]]
-protocol = "https"
-hostname = "**.netlify.app"
+[images]
+  remote_patterns = [
+    { protocol = "https", hostname = "**.supabase.co", pathname = "/**" },
+    { protocol = "https", hostname = "oaidalleapiprodscus.blob.core.windows.net", pathname = "/**" },
+    { protocol = "https", hostname = "images.unsplash.com", pathname = "/**" },
+    { protocol = "https", hostname = "**.netlify.app", pathname = "/**" }
+  ]
 
