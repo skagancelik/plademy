@@ -46,7 +46,7 @@ try {
     resource = resourceData;
     
     // Get category for resource
-    if (resource.category) {
+    if (resource && resource.category) {
       // Try to find category by ID first
       let { data: catData } = await supabase
         .from('categories')
@@ -156,7 +156,7 @@ const canonical = `https://plademy.com/${slug}`;
   } : undefined}
   tableOfContents={tableOfContents}
   relatedResources={relatedResources}
-  relatedResourcesLabel={resourceCategory ? t.resources.relatedArticles.replace('{category}', resourceCategory[`name_${lang}` as keyof Category] || resourceCategory.name_en) : undefined}
+  relatedResourcesLabel={resourceCategory ? (t.resources.relatedArticles || 'Related Articles').replace('{category}', String(resourceCategory[`name_${lang}` as keyof Category] || resourceCategory.name_en)) : undefined}
 >
   <Fragment slot="after-description">
     {resourceCategory && (
@@ -240,7 +240,6 @@ const canonical = `https://plademy.com/${slug}`;
   {resource.content && (
     <div 
       set:html={marked.parse(resource.content, {
-        headerIds: true,
         mangle: false,
       })
       .replace(/<h3([^>]*)>(.*?)<\/h3>/gi, (match, attrs, text) => {
@@ -371,7 +370,7 @@ const canonical = `https://plademy.com/${slug}`;
     })();
   </script>
 
-  {(() => {
+  {resource && (() => {
     const validCitations = resource.citations && Array.isArray(resource.citations) 
       ? resource.citations.filter(c => c && c.url && c.url.trim())
       : [];

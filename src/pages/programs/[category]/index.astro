@@ -268,7 +268,7 @@ const canonicalProgram = programForSlug ? `https://plademy.com/programs/${progra
     publishedTime={programForSlug.published_at}
     canonical={canonicalProgram}
     relatedPrograms={relatedPrograms}
-    relatedProgramsLabel={programCategory ? t.programs.relatedProgramsInterest?.replace('{category}', programCategory[`name_${lang}` as keyof Category] || programCategory.name_en) || 'You might be interested in programs' : undefined}
+    relatedProgramsLabel={programCategory ? ((t.programs.relatedProgramsInterest || 'You might be interested in programs').replace('{category}', String(programCategory[`name_${lang}` as keyof Category] || programCategory.name_en))) : undefined}
     programGoal={programForSlug.goal || undefined}
     programDuration={programForSlug.duration || undefined}
     programAudience={programForSlug.audience || undefined}
@@ -366,7 +366,6 @@ const canonicalProgram = programForSlug ? `https://plademy.com/programs/${progra
       <div 
         class="prose prose-lg max-w-none content-prose"
         set:html={marked.parse(programForSlug.content, {
-          headerIds: true,
           mangle: false,
         })
         .replace(/<h3([^>]*)>(.*?)<\/h3>/gi, (match, attrs, text) => {
@@ -855,7 +854,7 @@ const canonicalProgram = programForSlug ? `https://plademy.com/programs/${progra
             name: formData.get('name'),
             email: formData.get('email'),
             source: 'program-category-page',
-            category: {category ? (category.name_en || '') : ''},
+            category: category ? (category.name_en || '') : '',
             page_url: window.location.href,
           };
 
@@ -901,7 +900,7 @@ const canonicalProgram = programForSlug ? `https://plademy.com/programs/${progra
             name: formData.get('name'),
             email: formData.get('email'),
             source: 'program-category-page-bottom',
-            category: {category ? (category.name_en || '') : ''},
+            category: category ? (category.name_en || '') : '',
             page_url: window.location.href,
           };
 

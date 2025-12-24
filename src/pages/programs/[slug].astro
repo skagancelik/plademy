@@ -134,7 +134,7 @@ const canonical = `https://plademy.com/programs/${slug}`;
   publishedTime={program.published_at}
   canonical={canonical}
     relatedPrograms={relatedPrograms}
-    relatedProgramsLabel={category ? t.programs.relatedProgramsInterest?.replace('{category}', category[`name_${lang}` as keyof Category] || category.name_en) || 'You might be interested in programs' : undefined}
+    relatedProgramsLabel={category ? ((t.programs.relatedProgramsInterest || 'You might be interested in programs').replace('{category}', String(category[`name_${lang}` as keyof Category] || category.name_en))) : undefined}
     programGoal={program.goal || undefined}
     programDuration={program.duration || undefined}
     programAudience={program.audience || undefined}
@@ -191,8 +191,8 @@ const canonical = `https://plademy.com/programs/${slug}`;
             {t.programs.formTitle || 'Start implementing this program today'}
           </h3>
           <p class="text-black">
-            {programForSlug?.title 
-              ? (t.programs.formDescription || 'AI Powered Solutions For Your {programTitle}').replace('{programTitle}', programForSlug.title)
+            {program?.title 
+              ? (t.programs.formDescription || 'AI Powered Solutions For Your {programTitle}').replace('{programTitle}', program.title)
               : 'AI Powered Mentoring, Coaching, Community Management and Training Platforms'}
           </p>
         </div>
@@ -232,7 +232,6 @@ const canonical = `https://plademy.com/programs/${slug}`;
     <div 
       class="prose prose-lg max-w-none content-prose"
       set:html={marked.parse(program.content, {
-        headerIds: true,
         mangle: false,
       })
       .replace(/<h3([^>]*)>(.*?)<\/h3>/gi, (match, attrs, text) => {
@@ -289,8 +288,8 @@ const canonical = `https://plademy.com/programs/${slug}`;
             {t.programs.formTitle || 'Start implementing this program today'}
           </h3>
           <p class="text-black">
-            {programForSlug?.title 
-              ? (t.programs.formDescription || 'AI Powered Solutions For Your {programTitle}').replace('{programTitle}', programForSlug.title)
+            {program?.title 
+              ? (t.programs.formDescription || 'AI Powered Solutions For Your {programTitle}').replace('{programTitle}', program.title)
               : 'AI Powered Mentoring, Coaching, Community Management and Training Platforms'}
           </p>
         </div>

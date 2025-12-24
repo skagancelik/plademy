@@ -145,7 +145,7 @@ const canonical = `https://plademy.com/resources/${slug}`;
   publishedTime={resource.published_at}
   canonical={canonical}
   relatedResources={relatedResources}
-  relatedResourcesLabel={category ? t.resources.relatedArticles?.replace('{category}', category[`name_${lang}` as keyof Category] || category.name_en) || 'Related Articles' : undefined}
+  relatedResourcesLabel={category ? ((t.resources.relatedArticles || 'Related Articles').replace('{category}', String(category[`name_${lang}` as keyof Category] || category.name_en))) : undefined}
 >
   <Fragment slot="after-description">
     {category && (
@@ -233,7 +233,6 @@ const canonical = `https://plademy.com/resources/${slug}`;
   {resource.content && (
     <div 
       set:html={marked.parse(resource.content, {
-        headerIds: true,
         mangle: false,
       })
       .replace(/<ol([^>]*)>/gi, '<ol$1 style="padding: 30px 30px 30px 80px !important; background-color: #f6f7fb !important; border-radius: 20px !important; list-style-position: outside !important;">')

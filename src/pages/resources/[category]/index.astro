@@ -61,13 +61,13 @@ try {
         const resourceCategory = resource.category ? categoryMap.get(resource.category) || null : null;
         
         // If we found a category via categoryMap, check if it matches
-        if (resourceCategory) {
+        if (resourceCategory && category) {
           return resourceCategory.id === category.id;
         }
         
         // If categoryMap.get() returned null, resource.category might be stored differently
         // Try direct matches as fallback
-        if (resource.category) {
+        if (resource.category && category) {
           return resource.category === category.id || 
                  resource.category === category.slug || 
                  resource.category === category.name_en;
