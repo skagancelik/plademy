@@ -1,5 +1,21 @@
 ---
-// Redirect root to /en/
-return Astro.redirect('/en/', 301);
+import PageLayout from '@layouts/PageLayout.astro';
+import Hero from '@components/home/Hero.astro';
+import Solutions from '@components/home/Solutions.astro';
+import LatestContent from '@components/home/LatestContent.astro';
+import { getTranslations, type Language, getLanguageFromCookie } from '@lib/i18n';
+
+// Get language from cookie or default to 'en'
+const lang = getLanguageFromCookie(Astro.cookies, Astro.url) || 'en';
+const t = getTranslations(lang);
 ---
 
+<PageLayout
+  title={t.home.hero.title}
+  description={t.home.hero.subtitle}
+  lang={lang}
+>
+  <Hero lang={lang} />
+  <Solutions lang={lang} />
+  <LatestContent lang={lang} />
+</PageLayout>

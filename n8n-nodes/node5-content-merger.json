@@ -1,0 +1,91 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "title-assignment",
+              "name": "title",
+              "value": "={{ $('Resources').item.json.Title }}",
+              "type": "string"
+            },
+            {
+              "id": "slug-assignment",
+              "name": "slug",
+              "value": "={{ $('Validator').item.json.original.slug }}",
+              "type": "string"
+            },
+            {
+              "id": "language-assignment",
+              "name": "language",
+              "value": "={{ $('Language').item.json.language }}",
+              "type": "string"
+            },
+            {
+              "id": "description-assignment",
+              "name": "description",
+              "value": "={{ $('Validator').item.json.original.description }}",
+              "type": "string"
+            },
+            {
+              "id": "excerpt-assignment",
+              "name": "excerpt",
+              "value": "={{ $('Validator').item.json.original.excerpt }}",
+              "type": "string"
+            },
+            {
+              "id": "content-assignment",
+              "name": "content",
+              "value": "={{ $('MD Cleaner').item.json.cleanContent }}",
+              "type": "string"
+            },
+            {
+              "id": "keypoints-assignment",
+              "name": "keypoints",
+              "value": "={{ [$('Validator').item.json.original.keypoint1, $('Validator').item.json.original.keypoint2, $('Validator').item.json.original.keypoint3].filter(kp => kp && kp.trim().length > 0) }}",
+              "type": "array"
+            },
+            {
+              "id": "category-assignment",
+              "name": "category",
+              "value": "={{ $('Category').item.json.category }}",
+              "type": "string"
+            },
+            {
+              "id": "faqs-assignment",
+              "name": "faqs",
+              "value": "={{ (() => { const faqs = []; for (let i = 1; i <= 7; i++) { const faq = $('Validator').item.json.original['faq' + i]; if (faq && faq.question && faq.answer) { faqs.push({ question: faq.question.trim(), answer: faq.answer.trim() }); } } return faqs.length > 0 ? faqs : null; })() }}",
+              "type": "array"
+            },
+            {
+              "id": "cover-image-assignment",
+              "name": "cover_image_url",
+              "value": "={{ $('Cover Image').item.json.url || null }}",
+              "type": "string"
+            },
+            {
+              "id": "is-published-assignment",
+              "name": "is_published",
+              "value": "true",
+              "type": "boolean"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "id": "content-merger-node",
+      "name": "Content Merger"
+    }
+  ],
+  "connections": {
+    "Content Merger": {
+      "main": [
+        []
+      ]
+    }
+  }
+}
+

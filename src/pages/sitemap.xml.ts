@@ -40,7 +40,7 @@ export const GET: APIRoute = async () => {
     // Add resource pages
     if (resources) {
       for (const resource of resources) {
-        urls.push(`${baseUrl}/${resource.language}/resources/${resource.slug}`);
+        urls.push(`${baseUrl}/${resource.slug}`);
       }
     }
 

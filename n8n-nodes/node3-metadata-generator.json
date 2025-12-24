@@ -1,0 +1,76 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "model": "deepseek-reasoner",
+        "options": {
+          "responseFormat": "json_object"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatDeepSeek",
+      "typeVersion": 1,
+      "id": "deepseek-model-metadata",
+      "name": "DeepSeek Chat Model",
+      "credentials": {
+        "deepSeekApi": {
+          "id": "xEtower0uh8ZMl2b",
+          "name": "DeepSeek API  n8n-plademy-com-001"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"slug\": \"example-slug\",\n  \"description\": \"Example description\",\n  \"excerpt\": \"Example excerpt\",\n  \"keypoint1\": \"Example keypoint 1\",\n  \"keypoint2\": \"Example keypoint 2\",\n  \"keypoint3\": \"Example keypoint 3\",\n  \"faq1\": {\n    \"question\": \"Example question 1\",\n    \"answer\": \"Example answer 1\"\n  },\n  \"faq2\": {\n    \"question\": \"Example question 2\",\n    \"answer\": \"Example answer 2\"\n  },\n  \"faq3\": {\n    \"question\": \"Example question 3\",\n    \"answer\": \"Example answer 3\"\n  },\n  \"faq4\": {\n    \"question\": \"Example question 4\",\n    \"answer\": \"Example answer 4\"\n  },\n  \"faq5\": {\n    \"question\": \"Example question 5\",\n    \"answer\": \"Example answer 5\"\n  },\n  \"faq6\": {\n    \"question\": \"Example question 6\",\n    \"answer\": \"Example answer 6\"\n  },\n  \"faq7\": {\n    \"question\": \"Example question 7\",\n    \"answer\": \"Example answer 7\"\n  }\n}"
+      },
+      "id": "structured-output-parser",
+      "name": "Structured Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=# TASK\nFor the following content, create SEO-optimized slug, description, excerpt, 3 key points, and 7 FAQ sections.\n\n# INPUTS\n\n# CONTENT TITLE (already exists, use for context):\n{{ $('Resources').item.json.Title }}\n\n# CONTENT (already exists, analyze this):\n{{ $('MD Cleaner').item.json.cleanContent }}\n\n## LANGUAGE\n{{ $('Language').item.json.language }} (en, fi, or sv)\n\n## CATEGORY\n{{ $('Category').item.json.category }}\n\n# REQUIREMENTS\n\n## SLUG\n- Clean, keyword-rich, lowercase\n- Use hyphens to separate words\n- 3-6 words maximum\n- SEO-friendly and descriptive\n- No special characters or spaces\n\n## DESCRIPTION\n- Meta description for SEO\n- Summarizes the unique value proposition\n- Includes focus keyword naturally\n- Under 160 characters\n- Clear call-to-action or benefit statement\n\n## EXCERPT\n- Short summary (2-3 sentences)\n- Engaging and informative\n- Highlights key value or benefit\n- Under 200 characters\n- Used for preview cards and listings\n\n## KEYPOINTS (3 required)\n- Three concise, actionable points\n- Highlight critical insights, skills, or takeaways\n- Role- and program-focused (not generic)\n- Plain text, no HTML or formatting\n- Each point should be 1-2 sentences\n\n## FAQS (7 required)\n- 7 question-answer pairs\n- Questions address practical concerns and common questions\n- Answers are clear, helpful, and specific to the content\n- Plain text, no HTML or formatting\n- Each answer should be 2-4 sentences\n- Cover different aspects: implementation, benefits, challenges, best practices\n\n# OUTPUT FORMAT\nReturn ONLY the following JSON object (DO NOT include title or content):\n\n{\n  \"slug\": \"seo-friendly-slug-here\",\n  \"description\": \"Meta description under 160 characters\",\n  \"excerpt\": \"Short engaging excerpt under 200 characters\",\n  \"keypoint1\": \"First actionable key point\",\n  \"keypoint2\": \"Second actionable key point\",\n  \"keypoint3\": \"Third actionable key point\",\n  \"faq1\": {\n    \"question\": \"First practical question?\",\n    \"answer\": \"Clear, helpful answer (2-4 sentences)\"\n  },\n  \"faq2\": {\n    \"question\": \"Second practical question?\",\n    \"answer\": \"Clear, helpful answer (2-4 sentences)\"\n  },\n  \"faq3\": {\n    \"question\": \"Third practical question?\",\n    \"answer\": \"Clear, helpful answer (2-4 sentences)\"\n  },\n  \"faq4\": {\n    \"question\": \"Fourth practical question?\",\n    \"answer\": \"Clear, helpful answer (2-4 sentences)\"\n  },\n  \"faq5\": {\n    \"question\": \"Fifth practical question?\",\n    \"answer\": \"Clear, helpful answer (2-4 sentences)\"\n  },\n  \"faq6\": {\n    \"question\": \"Sixth practical question?\",\n    \"answer\": \"Clear, helpful answer (2-4 sentences)\"\n  },\n  \"faq7\": {\n    \"question\": \"Seventh practical question?\",\n    \"answer\": \"Clear, helpful answer (2-4 sentences)\"\n  }\n}\n\n# VERY IMPORTANT\n- Output MUST be only the JSON object\n- Do NOT include code blocks (```json) or markdown\n- Return ONLY the JSON object\n- DO NOT include title or content - they already exist\n- Content must be in {{ $('Language').item.json.language }} language\n!!!! Output ONLY a valid JSON object, with no explanations, no markdown, and no extra markers.",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=You are an expert content and SEO specialist for Plademy. Create compelling, SEO-optimized metadata for the provided content.\n\nTitle and content are already provided - DO NOT generate them. Only create slug, description, excerpt, keypoints, and FAQs.\n\nAll elements must be tailored for professional readers seeking practical guidance.\n\n- Slug: Clean, keyword-rich, lowercase, hyphens, max 6 words\n- Description: Meta description, under 160 characters, includes keyword\n- Excerpt: Short summary, under 200 characters\n- Key Points: 3 concrete, actionable points (plain text)\n- FAQ: 7 specific Q&A pairs (plain text)\n\nDO NOT include title or content in the output. Output ONLY the JSON object with slug, description, excerpt, keypoint1-3, and faq1-7, nothing else."
+        }
+      },
+      "id": "metadata-generator",
+      "name": "Metadata Generator",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.8,
+      "retryOnFail": true
+    }
+  ],
+  "connections": {
+    "DeepSeek Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Metadata Generator",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Metadata Generator",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Metadata Generator": {
+      "main": [
+        []
+      ]
+    }
+  }
+}
+

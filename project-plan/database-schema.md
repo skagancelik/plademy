@@ -19,6 +19,7 @@ Stores resource content (articles, guides, etc.)
 | category | TEXT | Category ID (FK to categories) |
 | faqs | JSONB | Array of {question, answer} objects |
 | cover_image_url | TEXT | Cover image URL |
+| citations | JSONB | Citations from Perplexity API (array of {url, title, snippet}) |
 | is_published | BOOLEAN | Publication status |
 | published_at | TIMESTAMPTZ | Publication date |
 | created_at | TIMESTAMPTZ | Creation date |
@@ -27,6 +28,7 @@ Stores resource content (articles, guides, etc.)
 - `(language, category)`
 - `(is_published, published_at DESC)`
 - `(slug, language)` (unique)
+- `citations` (GIN index for JSONB queries)
 
 ---
 
@@ -46,6 +48,7 @@ Stores program content
 | keypoints | TEXT[] | Array of 3 key points |
 | goal | TEXT | Program goal |
 | audience | TEXT | Target audience |
+| duration | TEXT | Program duration (e.g., "6 weeks", "3 months") |
 | category | TEXT | Category ID (FK to categories) |
 | faqs | JSONB | Array of {question, answer} objects |
 | cover_image_url | TEXT | Cover image URL |
@@ -103,6 +106,7 @@ Stores category information (multilingual)
 1. `001_initial_schema.sql` - Create tables and indexes
 2. `002_rls_policies.sql` - Enable RLS and create policies
 3. `003_seed_categories.sql` - Seed category data
+4. `004_add_citations_to_resources.sql` - Add citations column to resources table
 
 ---
 

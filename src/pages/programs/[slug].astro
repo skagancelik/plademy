@@ -1,0 +1,458 @@
+---
+import { Fragment } from 'astro/jsx-runtime';
+import ContentLayout from '@layouts/ContentLayout.astro';
+import { supabase, type Program, type Category } from '@lib/supabase';
+import { getTranslations, type Language, getLanguageFromCookie } from '@lib/i18n';
+import { marked } from 'marked';
+import { slugify } from '@lib/utils';
+
+export const prerender = false; // Edge SSR
+
+const lang = getLanguageFromCookie(Astro.cookies, Astro.url) || 'en';
+const slug = (Astro.params.slug || '').trim();
+const t = getTranslations(lang);
+
+let program: Program | null = null;
+let category: Category | null = null;
+let relatedPrograms: Program[] = [];
+
+try {
+  // First try: get ALL programs without any filters to find the program
+  const { data: allProgramsUnfiltered } = await supabase
+    .from('programs')
+    .select('*')
+    .order('published_at', { ascending: false });
+
+  // Find by slug in all programs (case-insensitive, trimmed)
+  if (allProgramsUnfiltered && allProgramsUnfiltered.length > 0) {
+    const normalizedSlug = slug.toLowerCase().trim();
+    program = allProgramsUnfiltered.find(p => {
+      const programSlug = (p.slug || '').toLowerCase().trim();
+      return programSlug === normalizedSlug;
+    }) || null;
+  }
+
+  // Get category info if program found
+  if (program?.category) {
+    // Try to fetch by ID first (category.id is TEXT, e.g., "mentoring-program")
+    let categoryData = null;
+    const { data: dataById } = await supabase
+      .from('categories')
+      .select('*')
+      .eq('id', program.category)
+      .eq('type', 'program')
+      .maybeSingle();
+    
+    if (dataById) {
+      categoryData = dataById;
+    } else {
+      // If ID lookup fails, try by slug
+      const { data: dataBySlug } = await supabase
+        .from('categories')
+        .select('*')
+        .eq('slug', program.category)
+        .eq('type', 'program')
+        .maybeSingle();
+      
+      if (dataBySlug) {
+        categoryData = dataBySlug;
+      } else {
+        // If slug lookup fails, try by name_en (category name might be stored)
+        const { data: dataByNameEn } = await supabase
+          .from('categories')
+          .select('*')
+          .eq('name_en', program.category)
+          .eq('type', 'program')
+          .maybeSingle();
+        
+        if (dataByNameEn) {
+          categoryData = dataByNameEn;
+        } else {
+          // Try name_fi and name_sv as well
+          const { data: dataByNameFi } = await supabase
+            .from('categories')
+            .select('*')
+            .eq('name_fi', program.category)
+            .eq('type', 'program')
+            .maybeSingle();
+          
+          if (dataByNameFi) {
+            categoryData = dataByNameFi;
+          } else {
+            const { data: dataByNameSv } = await supabase
+              .from('categories')
+              .select('*')
+              .eq('name_sv', program.category)
+              .eq('type', 'program')
+              .maybeSingle();
+            
+            if (dataByNameSv) {
+              categoryData = dataByNameSv;
+            }
+          }
+        }
+      }
+    }
+    
+    category = categoryData || null;
+  }
+
+  // Get related programs (same category, excluding current program)
+  if (program && category) {
+    try {
+      const { data: relatedData } = await supabase
+        .from('programs')
+        .select('*')
+        .eq('language', lang)
+        .eq('is_published', true)
+        .eq('category', category.id)
+        .neq('id', program.id)
+        .order('published_at', { ascending: false })
+        .limit(10);
+
+      relatedPrograms = relatedData || [];
+    } catch (error) {
+      console.error('Error fetching related programs:', error);
+    }
+  }
+} catch (error) {
+  console.error('Error fetching program:', error);
+}
+
+if (!program) {
+  return new Response(null, { status: 404 });
+}
+
+const canonical = `https://plademy.com/programs/${slug}`;
+---
+
+<ContentLayout
+  title={program.title}
+  description={program.description || program.excerpt || undefined}
+  image={program.cover_image_url || undefined}
+  lang={lang}
+  publishedTime={program.published_at}
+  canonical={canonical}
+    relatedPrograms={relatedPrograms}
+    relatedProgramsLabel={category ? t.programs.relatedProgramsInterest?.replace('{category}', category[`name_${lang}` as keyof Category] || category.name_en) || 'You might be interested in programs' : undefined}
+    programGoal={program.goal || undefined}
+    programDuration={program.duration || undefined}
+    programAudience={program.audience || undefined}
+>
+  <Fragment slot="after-description">
+    {category && (
+      <div class="mb-6">
+        <a
+          href={`/programs/${category.slug}`}
+          class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm bg-white border border-gray-200 text-black hover:opacity-80 transition-opacity"
+        >
+          {category[`name_${lang}` as keyof Category] || category.name_en}
+        </a>
+      </div>
+    )}
+  </Fragment>
+
+  {program.cover_image_url && (
+    <img
+      src={program.cover_image_url}
+      alt={program.title}
+      class="w-full h-96 object-cover rounded-3xl mb-8"
+      loading="eager"
+      width="1200"
+      height="600"
+      decoding="async"
+      fetchpriority="high"
+    />
+  )}
+
+  {program.keypoints && program.keypoints.length > 0 && (
+    <div class="bg-blue-50 rounded-3xl p-12 mb-8">
+      <h2 class="text-2xl font-bold mb-4">Key Points</h2>
+      <ul class="space-y-4 keypoints-list">
+        {program.keypoints.map((point) => (
+          <li class="flex items-start">
+            <span class="text-primary mr-2">✓</span>
+            <span>{point}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )}
+
+    <!-- Resource Form (After Keypoints) -->
+    <div class="card mb-8 p-8 md:p-12" id="resource-form-container">
+      <form
+        id="resource-form"
+        name="resource form"
+        class="grid md:grid-cols-2 gap-8 items-center"
+      >
+        <div>
+          <h3 class="text-2xl font-bold mb-3">
+            {t.programs.formTitle || 'Start implementing this program today'}
+          </h3>
+          <p class="text-black">
+            {programForSlug?.title 
+              ? (t.programs.formDescription || 'AI Powered Solutions For Your {programTitle}').replace('{programTitle}', programForSlug.title)
+              : 'AI Powered Mentoring, Coaching, Community Management and Training Platforms'}
+          </p>
+        </div>
+      <div class="space-y-4">
+        <div>
+          <input
+            type="text"
+            id="resource-form-name"
+            name="name"
+            placeholder="Full Name"
+            required
+            class="w-full px-4 py-3 border border-gray-300 rounded-full focus:ring-2 focus:ring-primary focus:border-transparent h-12"
+          />
+        </div>
+        <div>
+          <input
+            type="email"
+            id="resource-form-email"
+            name="email"
+            placeholder="Email"
+            required
+            class="w-full px-4 py-3 border border-gray-300 rounded-full focus:ring-2 focus:ring-primary focus:border-transparent h-12"
+          />
+        </div>
+        <button
+          type="submit"
+          class="btn btn-primary w-full"
+        >
+          Get Started For Free
+        </button>
+      </div>
+    </form>
+    <div id="resource-form-message" class="hidden text-center mt-4"></div>
+  </div>
+
+  {program.content && (
+    <div 
+      class="prose prose-lg max-w-none content-prose"
+      set:html={marked.parse(program.content, {
+        headerIds: true,
+        mangle: false,
+      })
+      .replace(/<h3([^>]*)>(.*?)<\/h3>/gi, (match, attrs, text) => {
+        const id = slugify(text.replace(/<[^>]*>/g, ''));
+        return `<h3${attrs} id="${id}">${text}</h3>`;
+      })
+      .replace(/<input[^>]*type=["']checkbox["'][^>]*>/gi, '<span class="text-primary mr-2">✓</span>')
+      .replace(/<ol([^>]*)>/gi, '<ol$1 style="padding: 30px 30px 30px 80px !important; background-color: #f6f7fb !important; border-radius: 20px !important; list-style-position: outside !important;">')
+      .replace(/<ul([^>]*)>/gi, '<ul$1 style="padding: 30px 30px 30px 80px !important; background-color: #f6f7fb !important; border-radius: 20px !important; list-style-position: outside !important;">')}
+    />
+  )}
+
+  {program.faqs && program.faqs.length > 0 && (
+    <div id="frequently-asked-questions" class="mt-12">
+      <h2 class="text-3xl font-bold mb-6">Frequently Asked Questions</h2>
+      <div class="space-y-4">
+        {program.faqs.map((faq: any, index: number) => (
+          <div class="rounded-3xl overflow-hidden faq-item hover:border-black transition-colors border border-gray-200 bg-white" data-faq-item={index}>
+            <button
+              class="w-full text-left flex items-center justify-between py-[15px] px-6 faq-toggle"
+              data-faq-index={index}
+              aria-expanded="false"
+            >
+              <h3 class="text-xl font-bold pr-4">{faq.question}</h3>
+              <svg
+                class="w-5 h-5 text-gray-500 flex-shrink-0 faq-icon transition-transform"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            <div class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out" data-faq-content={index}>
+              <div class="px-6 pb-6 text-black">
+                <p>{faq.answer}</p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )}
+
+    <!-- Resource Form (Bottom) -->
+    <div class="card mb-8 p-8 md:p-12 mt-12" id="resource-form-bottom-container">
+      <form
+        id="resource-form-bottom"
+        name="resource form"
+        class="grid md:grid-cols-2 gap-8 items-center"
+      >
+        <div>
+          <h3 class="text-2xl font-bold mb-3">
+            {t.programs.formTitle || 'Start implementing this program today'}
+          </h3>
+          <p class="text-black">
+            {programForSlug?.title 
+              ? (t.programs.formDescription || 'AI Powered Solutions For Your {programTitle}').replace('{programTitle}', programForSlug.title)
+              : 'AI Powered Mentoring, Coaching, Community Management and Training Platforms'}
+          </p>
+        </div>
+      <div class="space-y-4">
+        <div>
+          <input
+            type="text"
+            id="resource-form-bottom-name"
+            name="name"
+            placeholder="Full Name"
+            required
+            class="w-full px-4 py-3 border border-gray-300 rounded-full focus:ring-2 focus:ring-primary focus:border-transparent h-12"
+          />
+        </div>
+        <div>
+          <input
+            type="email"
+            id="resource-form-bottom-email"
+            name="email"
+            placeholder="Email"
+            required
+            class="w-full px-4 py-3 border border-gray-300 rounded-full focus:ring-2 focus:ring-primary focus:border-transparent h-12"
+          />
+        </div>
+        <button
+          type="submit"
+          class="btn btn-primary w-full"
+        >
+          Get Started For Free
+        </button>
+      </div>
+    </form>
+    <div id="resource-form-bottom-message" class="hidden text-center mt-4"></div>
+  </div>
+
+  <div class="mt-8 pt-8 border-t">
+    <a href="/programs/" class="text-primary hover:underline">
+      ← {t.common.back} to Programs
+    </a>
+  </div>
+</ContentLayout>
+
+<script is:inline>
+  (function() {
+    function initFAQ() {
+      var faqToggles = document.querySelectorAll('.faq-toggle');
+      
+      for (var i = 0; i < faqToggles.length; i++) {
+        var toggle = faqToggles[i];
+        toggle.addEventListener('click', function(e) {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          var index = this.getAttribute('data-faq-index');
+          var content = document.querySelector('[data-faq-content="' + index + '"]');
+          var icon = this.querySelector('.faq-icon');
+          var faqItem = document.querySelector('[data-faq-item="' + index + '"]');
+          var isExpanded = this.getAttribute('aria-expanded') === 'true';
+          
+          // Toggle current FAQ (don't close others)
+          if (content && icon && faqItem) {
+            if (isExpanded) {
+              content.style.maxHeight = '0';
+              icon.style.transform = 'rotate(0deg)';
+              this.setAttribute('aria-expanded', 'false');
+              faqItem.style.backgroundColor = '';
+            } else {
+              content.style.maxHeight = content.scrollHeight + 'px';
+              icon.style.transform = 'rotate(180deg)';
+              this.setAttribute('aria-expanded', 'true');
+              faqItem.style.backgroundColor = '#f9fafb';
+            }
+          }
+        });
+      }
+    }
+    
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initFAQ);
+    } else {
+      initFAQ();
+    }
+  })();
+</script>
+<script is:inline>
+  (function() {
+    // Handle first form (after keypoints)
+    const form = document.getElementById('resource-form');
+    const messageDiv = document.getElementById('resource-form-message');
+    
+    if (form && messageDiv) {
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const formData = new FormData(form);
+        const data = {
+          type: 'program form',
+          name: formData.get('name'),
+          email: formData.get('email'),
+          program_slug: window.location.pathname.split('/').pop() || '',
+          program_title: document.querySelector('h1')?.textContent || '',
+          page_url: window.location.href,
+        };
+        
+        try {
+          const response = await fetch('/api/form', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data),
+          });
+          
+          if (response.ok) {
+            messageDiv.className = 'block text-green-600 font-semibold';
+            messageDiv.textContent = 'Thank you! We\'ll contact you soon.';
+            form.reset();
+          } else {
+            throw new Error('Form submission failed');
+          }
+        } catch (error) {
+          messageDiv.className = 'block text-red-600 font-semibold';
+          messageDiv.textContent = 'An error occurred. Please try again.';
+        }
+      });
+    }
+
+    // Handle bottom form
+    const formBottom = document.getElementById('resource-form-bottom');
+    const messageDivBottom = document.getElementById('resource-form-bottom-message');
+    
+    if (formBottom && messageDivBottom) {
+      formBottom.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const formData = new FormData(formBottom);
+        const data = {
+          type: 'program form bottom',
+          name: formData.get('name'),
+          email: formData.get('email'),
+          program_slug: window.location.pathname.split('/').pop() || '',
+          program_title: document.querySelector('h1')?.textContent || '',
+          page_url: window.location.href,
+        };
+        
+        try {
+          const response = await fetch('/api/form', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(data),
+          });
+          
+          if (response.ok) {
+            messageDivBottom.className = 'block text-green-600 font-semibold';
+            messageDivBottom.textContent = 'Thank you! We\'ll contact you soon.';
+            formBottom.reset();
+          } else {
+            throw new Error('Form submission failed');
+          }
+        } catch (error) {
+          messageDivBottom.className = 'block text-red-600 font-semibold';
+          messageDivBottom.textContent = 'An error occurred. Please try again.';
+        }
+      });
+    }
+  })();
+</script>

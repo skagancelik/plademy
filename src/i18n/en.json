@@ -6,6 +6,7 @@
   "nav": {
     "home": "Home",
     "programs": "Programs",
+    "solutions": "Solutions",
     "resources": "Resources",
     "integrations": "Integrations",
     "start": "Start",
@@ -13,12 +14,24 @@
   },
   "home": {
     "hero": {
-      "title": "Transform Your Organization With Employee And Community Programs",
-      "subtitle": "Boost engagement, enhance skills, and drive growth with Plademy's AI-powered platform. Discover the difference today."
+      "title": "Your Programs Deserve Better Than Spreadsheets",
+      "subtitle": "Design, run, and measure mentoring, coaching, and training programs—all in one AI-powered platform."
     },
     "features": {
       "title": "Your Platform With The Best Tools!",
-      "subtitle": "Create and Manage Your Program Easily!"
+      "subtitle": "Create and Manage Your Program Easily!",
+      "engagement": {
+        "title": "Employee Engagement",
+        "description": "Boost engagement with personalized programs and measurable results!"
+      },
+      "mentoring": {
+        "title": "Mentoring & Coaching",
+        "description": "Facilitate impactful mentoring and coaching with AI-driven matching!"
+      },
+      "diversity": {
+        "title": "Diversity & Inclusion",
+        "description": "Promote inclusion with tailored learning and development initiatives!"
+      }
     },
     "latestResources": "Latest Resources",
     "latestPrograms": "Latest Programs"
@@ -27,8 +40,23 @@
     "title": "Programs",
     "description": "Discover our comprehensive programs designed to transform your organization.",
     "allPrograms": "All Programs",
+    "allAudiences": "All Audiences",
     "categories": "Categories",
-    "noPrograms": "No programs found."
+    "noPrograms": "No programs found.",
+    "duration": "Program Duration",
+    "formTitle": "Start implementing this program",
+    "formDescription": "AI Powered Solutions For Your {programTitle}",
+    "categoryFormTitle": "Start implementing {categoryName} programs",
+    "categoryFormDescription": "AI Powered Solutions For Your {categoryName} Programs",
+    "filterByCategory": "Filter by Category",
+    "filterByAudience": "Filter by Target Audience",
+    "filterByGoal": "Filter by Program Goal",
+    "clearFilters": "Clear Filters",
+    "filters": "Filters",
+    "relatedPrograms": "Related {category} Programs",
+    "relatedProgramsInterest": "You might be interested in {category}",
+    "searchGoal": "Search Program Goal",
+    "searchGoalPlaceholder": "Type to search program goals..."
   },
   "resources": {
     "title": "Resources",
@@ -36,7 +64,9 @@
     "allResources": "All Resources",
     "categories": "Categories",
     "noResources": "No resources found.",
-    "readMore": "Read More"
+    "readMore": "Read More",
+    "seeMore": "See More {category} Articles",
+    "relatedArticles": "You might be interested in {category} articles"
   },
   "search": {
     "title": "Search",
@@ -67,6 +97,7 @@
   },
   "footer": {
     "description": "Plademy is an AI-driven integration hub tailored for both employee and community development programs.",
+    "stayConnected": "Stay Connected on Social Media",
     "links": {
       "security": "Security",
       "privacy": "Privacy Policy",
@@ -76,6 +107,43 @@
     "businessId": "Business-ID",
     "vat": "VAT NO",
     "rights": "© All rights reserved"
+  },
+  "solutions": {
+    "title": "Solutions",
+    "description": "Discover our comprehensive solutions for your organization.",
+    "viewAll": "View All Solutions",
+    "mentorshipCenter": {
+      "title": "Mentorship Center",
+      "description": "AI-powered mentoring and coaching platform that connects mentors and mentees for impactful professional development.",
+      "shortDescription": "AI-powered mentoring and coaching platform.",
+      "ctaText": "Learn More",
+      "ctaLink": "/solutions",
+      "image": ""
+    },
+    "membershipCenter": {
+      "title": "Membership Center",
+      "description": "Comprehensive membership management platform for building and engaging communities.",
+      "shortDescription": "Comprehensive membership management platform.",
+      "ctaText": "Learn More",
+      "ctaLink": "/solutions",
+      "image": ""
+    },
+    "ergCenter": {
+      "title": "ERG Center",
+      "description": "Employee Resource Group management platform to support diversity, equity, and inclusion initiatives.",
+      "shortDescription": "Employee Resource Group management platform.",
+      "ctaText": "Learn More",
+      "ctaLink": "/solutions",
+      "image": ""
+    },
+    "securedIntegrations": {
+      "title": "Secured Integrations",
+      "description": "Secure and seamless integrations with your existing tools and platforms.",
+      "shortDescription": "Secure and seamless integrations.",
+      "ctaText": "Learn More",
+      "ctaLink": "/solutions",
+      "image": ""
+    }
   },
   "common": {
     "readMore": "Read More",

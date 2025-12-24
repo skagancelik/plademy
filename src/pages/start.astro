@@ -1,0 +1,28 @@
+---
+import PageLayout from '@layouts/PageLayout.astro';
+import StartForm from '@components/forms/StartForm.astro';
+import { getTranslations, type Language, getLanguageFromCookie } from '@lib/i18n';
+
+const lang = getLanguageFromCookie(Astro.cookies, Astro.url) || 'en';
+const t = getTranslations(lang);
+---
+
+<PageLayout
+  title={t.forms.start.title}
+  description={t.forms.start.subtitle}
+  lang={lang}
+>
+  <div class="container py-12">
+    <div class="max-w-2xl mx-auto">
+      <div class="text-center mb-8">
+        <h1 class="text-4xl font-bold mb-4">{t.forms.start.title}</h1>
+        <p class="text-xl text-black">{t.forms.start.subtitle}</p>
+      </div>
+
+      <div class="card">
+        <StartForm lang={lang} />
+      </div>
+    </div>
+  </div>
+</PageLayout>
+

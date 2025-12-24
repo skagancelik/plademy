@@ -1,0 +1,95 @@
+---
+import PageLayout from '@layouts/PageLayout.astro';
+import ResourceCard from '@components/resources/ResourceCard.astro';
+import { supabase, type Resource, type Category } from '@lib/supabase';
+import { getTranslations } from '@lib/i18n';
+
+export const prerender = false; // Edge SSR
+
+const lang = 'fi'; // Force Finnish
+const t = getTranslations(lang);
+
+let resources: Resource[] = [];
+let categories: Category[] = [];
+let categoryMap: Map<string, Category> = new Map();
+
+try {
+  const { data: resourcesData } = await supabase
+    .from('resources')
+    .select('*')
+    .eq('language', lang)
+    .eq('is_published', true)
+    .order('published_at', { ascending: false })
+    .limit(20);
+
+  const { data: categoriesData } = await supabase
+    .from('categories')
+    .select('*')
+    .eq('type', 'resource')
+    .order('sort_order', { ascending: true });
+
+  resources = resourcesData || [];
+  categories = categoriesData || [];
+  
+  // Create category map for quick lookup
+  categories.forEach((cat) => {
+    categoryMap.set(cat.id, cat);
+    categoryMap.set(cat.slug, cat);
+    categoryMap.set(cat.name_en, cat);
+  });
+} catch (error) {
+  console.error('Error fetching resources:', error);
+}
+---
+
+<PageLayout
+  title={t.resources.title}
+  description={t.resources.description}
+  lang={lang}
+>
+  <div class="container py-12">
+    <div class="mb-8">
+      <h1 class="text-4xl font-bold mb-4">{t.resources.title}</h1>
+      <p class="text-xl text-black">{t.resources.description}</p>
+    </div>
+
+    {categories.length > 0 && (
+      <div class="mb-8">
+        <h2 class="text-2xl font-bold mb-4">{t.resources.categories}</h2>
+        <div class="flex flex-wrap gap-2">
+          <a
+            href="/resurssit/"
+            class="px-4 py-2 bg-[#2841CF] text-white rounded-lg hover:opacity-90"
+          >
+            {t.resources.allResources}
+          </a>
+          {categories.map((category) => {
+            const categoryName = category[`name_${lang}` as keyof Category] || category.name_en;
+            return (
+              <a
+                href={`/resurssit/${category.slug}`}
+                class="px-4 py-2 bg-[#F6F7FB] text-black rounded-lg hover:opacity-80"
+              >
+                {categoryName}
+              </a>
+            );
+          })}
+        </div>
+      </div>
+    )}
+
+    {resources.length > 0 ? (
+      <div class="grid md:grid-cols-3 gap-6">
+        {resources.map((resource) => {
+          const resourceCategory = resource.category ? categoryMap.get(resource.category) || null : null;
+          return (
+            <ResourceCard resource={resource} lang={lang} category={resourceCategory} />
+          );
+        })}
+      </div>
+    ) : (
+      <p class="text-center text-gray-500 py-12">{t.resources.noResources}</p>
+    )}
+  </div>
+</PageLayout>
+

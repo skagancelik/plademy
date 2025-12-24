@@ -83,12 +83,20 @@ Body:
   "keypoints": ["Point 1", "Point 2", "Point 3"],
   "goal": "Program goal description",
   "audience": "Target audience description",
+  "duration": "6 weeks",
   "category": "talent-career-starter",
   "faqs": [
     {"question": "Q1", "answer": "A1"},
     // ... up to 7 FAQs
   ],
   "cover_image_url": "https://...",
+  "citations": [
+    {
+      "url": "https://example.com",
+      "title": "Example Title",
+      "snippet": "Example snippet"
+    }
+  ],
   "is_published": true
 }
 ```
@@ -148,8 +156,10 @@ SUPABASE_URL=https://[project-ref].supabase.co
 - `keypoints` - Array of 3 strings
 - `faqs` - Array of {question, answer} objects (max 7)
 - `cover_image_url` - Image URL
+- `citations` - Array of {url, title, snippet} objects (resources only)
 - `goal` - Program goal (programs only)
 - `audience` - Target audience (programs only)
+- `duration` - Program duration, e.g., "6 weeks" (programs only)
 
 ---
 

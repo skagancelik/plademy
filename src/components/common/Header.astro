@@ -1,5 +1,5 @@
 ---
-import { getTranslations, type Language } from '@lib/i18n';
+import { getTranslations, type Language, getLocalizedPath } from '@lib/i18n';
 import LanguageSwitcher from './LanguageSwitcher.astro';
 
 interface Props {
@@ -14,71 +14,83 @@ const t = getTranslations(lang);
 <header class="border-b border-gray-200 bg-white sticky top-0 z-50">
   <nav class="container py-4" aria-label="Main navigation">
     <div class="flex items-center justify-between">
-      <a href={`/${lang}/`} class="text-2xl font-bold text-primary">
-        {t.site.name}
+      <a href="/" class="flex items-center">
+        <img src="/plademy-black-logo.svg" alt="Plademy" class="h-8" />
       </a>
 
       <div class="flex items-center gap-6">
-        <ul class="hidden md:flex gap-6">
-          <li>
-            <a
-              href={`/${lang}/`}
-              class={`hover:text-primary ${
-                currentPath === `/${lang}/` || currentPath === `/${lang}`
-                  ? 'text-primary font-semibold'
-                  : 'text-gray-700'
-              }`}
-            >
-              {t.nav.home}
-            </a>
-          </li>
-          <li>
-            <a
-              href={`/${lang}/programs/`}
-              class={`hover:text-primary ${
-                currentPath.startsWith(`/${lang}/programs`)
-                  ? 'text-primary font-semibold'
-                  : 'text-gray-700'
-              }`}
-            >
-              {t.nav.programs}
-            </a>
-          </li>
-          <li>
-            <a
-              href={`/${lang}/resources/`}
-              class={`hover:text-primary ${
-                currentPath.startsWith(`/${lang}/resources`)
-                  ? 'text-primary font-semibold'
-                  : 'text-gray-700'
-              }`}
-            >
-              {t.nav.resources}
-            </a>
-          </li>
-          <li>
-            <a
-              href={`/${lang}/integrations`}
-              class={`hover:text-primary ${
-                currentPath.startsWith(`/${lang}/integrations`)
-                  ? 'text-primary font-semibold'
-                  : 'text-gray-700'
-              }`}
-            >
-              {t.nav.integrations}
-            </a>
-          </li>
-          <li>
-            <a
-              href={`/${lang}/start`}
-              class="btn btn-primary"
-            >
-              {t.nav.start}
-            </a>
-          </li>
-        </ul>
+            <ul class="hidden md:flex gap-6">
+              <li>
+                <a
+                  href={getLocalizedPath('/programs', lang)}
+                  class={`hover:text-primary ${
+                    currentPath.startsWith('/programs') || currentPath.startsWith('/ohjelmat') || currentPath.startsWith('/program')
+                      ? 'text-primary font-semibold'
+                      : 'text-black'
+                  }`}
+                >
+                  {t.nav.programs}
+                </a>
+              </li>
+              <li>
+                <a
+                  href={getLocalizedPath('/solutions', lang)}
+                  class={`hover:text-primary ${
+                    currentPath.startsWith('/solutions')
+                      ? 'text-primary font-semibold'
+                      : 'text-black'
+                  }`}
+                >
+                  {t.nav.solutions}
+                </a>
+              </li>
+              <li>
+                <a
+                  href={getLocalizedPath('/resources', lang)}
+                  class={`hover:text-primary ${
+                    currentPath.startsWith('/resources') || currentPath.startsWith('/resurssit') || currentPath.startsWith('/resurser')
+                      ? 'text-primary font-semibold'
+                      : 'text-black'
+                  }`}
+                >
+                  {t.nav.resources}
+                </a>
+              </li>
+              <li>
+                <a
+                  href={getLocalizedPath('/integrations', lang)}
+                  class={`hover:text-primary ${
+                    currentPath.startsWith('/integrations') || currentPath.startsWith('/integraatiot') || currentPath.startsWith('/integrationer')
+                      ? 'text-primary font-semibold'
+                      : 'text-black'
+                  }`}
+                >
+                  {t.nav.integrations}
+                </a>
+              </li>
+              <li>
+                <a
+                  href={getLocalizedPath('/contact', lang)}
+                  class={`hover:text-primary ${
+                    currentPath.startsWith('/contact') || currentPath.startsWith('/yhteystiedot') || currentPath.startsWith('/kontakt')
+                      ? 'text-primary font-semibold'
+                      : 'text-black'
+                  }`}
+                >
+                  {t.nav.contact}
+                </a>
+              </li>
+            </ul>
 
-        <LanguageSwitcher currentLang={lang} currentPath={currentPath} />
+        <div class="flex items-center gap-4">
+          <LanguageSwitcher currentLang={lang} currentPath={currentPath} />
+          <a
+            href={getLocalizedPath('/start', lang)}
+            class="btn btn-primary"
+          >
+            {t.nav.start}
+          </a>
+        </div>
       </div>
     </div>
   </nav>

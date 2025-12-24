@@ -1,39 +1,52 @@
 ---
-import type { Program } from '@lib/supabase';
-import { truncate } from '@lib/utils';
+import type { Program, Category } from '@lib/supabase';
 import type { Language } from '@lib/i18n';
 
 interface Props {
   program: Program;
   lang: Language;
+  category?: Category | null;
+  hideCategory?: boolean;
+  homepageStyle?: boolean;
 }
 
-const { program, lang } = Astro.props;
+const { program, lang, category, hideCategory = false, homepageStyle = false } = Astro.props;
+
+// Ensure slug exists
+if (!program.slug) {
+  console.error('[ProgramCard] Program missing slug:', program.id, program.title);
+}
 ---
 
 <a
-  href={`/${lang}/programs/${program.slug}`}
-  class="card block hover:shadow-lg transition-shadow"
+  href={program.slug ? `/programs/${program.slug}` : '#'}
+  class={`block transition-opacity hover:opacity-80 h-full flex flex-col ${homepageStyle ? 'bg-blue-50 rounded-[25px] p-6' : 'card'}`}
   data-testid="program-card"
 >
   {program.cover_image_url && (
     <img
       src={program.cover_image_url}
       alt={program.title}
-      class="w-full h-48 object-cover rounded-lg mb-4"
+      class="w-full h-48 object-cover rounded-lg mb-4 flex-shrink-0"
       loading="lazy"
+      width="400"
+      height="192"
+      decoding="async"
     />
   )}
-  <h3 class="text-xl font-bold mb-2">{program.title}</h3>
-  {program.excerpt && (
-    <p class="text-gray-600 mb-4">{truncate(program.excerpt, 150)}</p>
+  
+  {category && !hideCategory && (
+    <div class="mb-3 flex-shrink-0">
+      <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm bg-white border border-gray-200 text-black">
+        {category[`name_${lang}` as keyof Category] || category.name_en}
+      </span>
+    </div>
   )}
-  {program.keypoints && program.keypoints.length > 0 && (
-    <ul class="space-y-1 text-sm text-gray-500">
-      {program.keypoints.slice(0, 3).map((point) => (
-        <li>• {point}</li>
-      ))}
-    </ul>
+  
+  <h3 class="text-xl font-bold mb-3 flex-shrink-0">{program.title}</h3>
+  
+  {program.goal && (
+    <p class="text-black text-sm mb-0 line-clamp-2 flex-grow">{program.goal}</p>
   )}
 </a>
 

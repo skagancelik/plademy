@@ -1,0 +1,491 @@
+---
+import { Fragment } from 'astro/jsx-runtime';
+import PageLayout from '@layouts/PageLayout.astro';
+import ContentLayout from '@layouts/ContentLayout.astro';
+import { supabase, type Resource, type Category } from '@lib/supabase';
+import { getTranslations, type Language, getLanguageFromCookie } from '@lib/i18n';
+import { marked } from 'marked';
+import { slugify } from '@lib/utils';
+
+export const prerender = false; // Edge SSR
+
+const lang = getLanguageFromCookie(Astro.cookies, Astro.url) || 'en';
+const slug = Astro.params.slug || '';
+const t = getTranslations(lang);
+
+let resource: Resource | null = null;
+let resourceCategory: Category | null = null;
+let categoryMap: Map<string, Category> = new Map();
+
+try {
+  // Get all categories first for mapping
+  const { data: categoriesData } = await supabase
+    .from('categories')
+    .select('*')
+    .eq('type', 'resource')
+    .order('sort_order', { ascending: true });
+
+  const categories = categoriesData || [];
+  
+  // Create category map for quick lookup
+  categories.forEach((cat) => {
+    categoryMap.set(cat.id, cat);
+    categoryMap.set(cat.slug, cat);
+    categoryMap.set(cat.name_en, cat);
+  });
+
+  // Get resource by slug
+  const { data: resourceData } = await supabase
+    .from('resources')
+    .select('*')
+    .eq('slug', slug)
+    .eq('is_published', true)
+    .maybeSingle();
+  
+  if (resourceData) {
+    resource = resourceData;
+    
+    // Get category for resource
+    if (resource.category) {
+      // Try to find category by ID first
+      let { data: catData } = await supabase
+        .from('categories')
+        .select('*')
+        .eq('id', resource.category)
+        .eq('type', 'resource')
+        .maybeSingle();
+      
+      // If not found by ID, try by slug (in case category is stored as slug)
+      if (!catData && resource.category) {
+        const { data: catDataBySlug } = await supabase
+          .from('categories')
+          .select('*')
+          .eq('slug', resource.category)
+          .eq('type', 'resource')
+          .maybeSingle();
+        catData = catDataBySlug;
+      }
+      
+      // If not found by slug, try by name_en (in case category is stored as name)
+      if (!catData && resource.category) {
+        const { data: catDataByName } = await supabase
+          .from('categories')
+          .select('*')
+          .eq('name_en', resource.category)
+          .eq('type', 'resource')
+          .maybeSingle();
+        catData = catDataByName;
+      }
+      
+      resourceCategory = catData || null;
+    }
+  }
+} catch (error) {
+  console.error('Error fetching resource:', error);
+}
+
+// If resource not found, return 404
+if (!resource) {
+  return Astro.redirect('/resources/', 404);
+}
+
+// Extract h3 headings from content for table of contents
+let tableOfContents: Array<{ id: string; text: string }> = [];
+if (resource.content) {
+  const h3Regex = /^###\s+(.+)$/gm;
+  const matches = resource.content.matchAll(h3Regex);
+  for (const match of matches) {
+    const text = match[1].trim();
+    const id = slugify(text);
+    tableOfContents.push({ id, text });
+  }
+}
+
+// Add FAQ section to table of contents if it exists
+if (resource.faqs && resource.faqs.length > 0) {
+  tableOfContents.push({ id: 'frequently-asked-questions', text: 'Frequently Asked Questions' });
+}
+
+// Get related resources (same category, excluding current resource)
+let relatedResources: Resource[] = [];
+if (resourceCategory) {
+  try {
+    // Get more resources to ensure we have enough after filtering
+    const { data: relatedData } = await supabase
+      .from('resources')
+      .select('*')
+      .eq('language', lang)
+      .eq('is_published', true)
+      .neq('id', resource.id)
+      .order('published_at', { ascending: false })
+      .limit(50);
+
+    if (relatedData) {
+      // Filter by category using same logic
+      const filtered = relatedData.filter((r) => {
+        if (!r.category) return false;
+        const rCategory = categoryMap.get(r.category);
+        if (rCategory) {
+          return rCategory.id === resourceCategory.id;
+        }
+        return r.category === resourceCategory.id || 
+               r.category === resourceCategory.slug || 
+               r.category === resourceCategory.name_en;
+      });
+      
+      // Take first 7
+      relatedResources = filtered.slice(0, 7);
+    }
+  } catch (error) {
+    console.error('Error fetching related resources:', error);
+  }
+}
+
+const canonical = `https://plademy.com/${slug}`;
+---
+
+<ContentLayout
+  title={resource.title}
+  description={resource.description || resource.excerpt || undefined}
+  image={resource.cover_image_url || undefined}
+  lang={lang}
+  canonical={canonical}
+  category={resourceCategory ? {
+    name: resourceCategory[`name_${lang}` as keyof Category] || resourceCategory.name_en,
+    slug: resourceCategory.slug
+  } : undefined}
+  tableOfContents={tableOfContents}
+  relatedResources={relatedResources}
+  relatedResourcesLabel={resourceCategory ? t.resources.relatedArticles.replace('{category}', resourceCategory[`name_${lang}` as keyof Category] || resourceCategory.name_en) : undefined}
+>
+  <Fragment slot="after-description">
+    {resourceCategory && (
+      <div class="mb-6">
+        <a
+          href={`/resources/${resourceCategory.slug}`}
+          class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm bg-white border border-gray-200 text-black hover:opacity-80 transition-opacity"
+        >
+          {resourceCategory[`name_${lang}` as keyof Category] || resourceCategory.name_en}
+        </a>
+      </div>
+    )}
+  </Fragment>
+
+  {resource.cover_image_url && (
+    <img
+      src={resource.cover_image_url}
+      alt={resource.title}
+      class="w-full h-96 object-cover rounded-3xl mb-8"
+      loading="eager"
+    />
+  )}
+
+  {resource.keypoints && resource.keypoints.length > 0 && (
+    <div class="bg-blue-50 rounded-3xl p-12 mb-8">
+      <h2 class="text-2xl font-bold mb-4">Key Points</h2>
+      <ul class="space-y-4 keypoints-list">
+        {resource.keypoints.map((point) => (
+          <li class="flex items-start">
+            <span class="text-primary mr-2">✓</span>
+            <span>{point}</span>
+          </li>
+        ))}
+      </ul>
+    </div>
+  )}
+
+  <!-- Resource Form -->
+  <div class="card mb-8 p-8 md:p-12" id="resource-form-container">
+    <form
+      id="resource-form"
+      name="resource form"
+      class="grid md:grid-cols-2 gap-8 items-center"
+    >
+      <div>
+        <h3 class="text-2xl font-bold mb-3">Boost your organization with Plademy solutions</h3>
+        <p class="text-black">AI Powered Mentoring, Coaching, Community Management and Training Platforms</p>
+      </div>
+      <div class="space-y-4">
+        <div>
+          <input
+            type="text"
+            id="resource-form-name"
+            name="name"
+            placeholder="Full Name"
+            required
+            class="w-full px-4 py-3 border border-gray-300 rounded-full focus:ring-2 focus:ring-primary focus:border-transparent h-12"
+          />
+        </div>
+        <div>
+          <input
+            type="email"
+            id="resource-form-email"
+            name="email"
+            placeholder="Email"
+            required
+            class="w-full px-4 py-3 border border-gray-300 rounded-full focus:ring-2 focus:ring-primary focus:border-transparent h-12"
+          />
+        </div>
+        <button
+          type="submit"
+          class="btn btn-primary w-full"
+        >
+          Get Started For Free
+        </button>
+      </div>
+    </form>
+    <div id="resource-form-message" class="hidden text-center mt-4"></div>
+  </div>
+
+  {resource.content && (
+    <div 
+      set:html={marked.parse(resource.content, {
+        headerIds: true,
+        mangle: false,
+      })
+      .replace(/<h3([^>]*)>(.*?)<\/h3>/gi, (match, attrs, text) => {
+        const id = slugify(text.replace(/<[^>]*>/g, ''));
+        return `<h3${attrs} id="${id}">${text}</h3>`;
+      })
+      .replace(/<input[^>]*type=["']checkbox["'][^>]*>/gi, '<span class="text-primary mr-2">✓</span>')
+      .replace(/<ol([^>]*)>/gi, '<ol$1 style="padding: 30px 30px 30px 80px !important; background-color: #f6f7fb !important; border-radius: 20px !important; list-style-position: outside !important;">')
+      .replace(/<ul([^>]*)>/gi, '<ul$1 style="padding: 30px 30px 30px 80px !important; background-color: #f6f7fb !important; border-radius: 20px !important; list-style-position: outside !important;">')}
+    />
+  )}
+
+  {resource.faqs && resource.faqs.length > 0 && (
+    <div id="frequently-asked-questions" class="mt-12">
+      <h2 class="text-3xl font-bold mb-6">Frequently Asked Questions</h2>
+      <div class="space-y-4">
+        {resource.faqs.map((faq: any, index: number) => (
+          <div class="rounded-3xl overflow-hidden faq-item hover:border-black transition-colors border border-gray-200 bg-white" data-faq-item={index}>
+            <button
+              class="w-full text-left flex items-center justify-between py-[15px] px-6 faq-toggle"
+              data-faq-index={index}
+              aria-expanded="false"
+            >
+              <h3 class="text-xl font-bold pr-4">{faq.question}</h3>
+              <svg
+                class="w-5 h-5 text-gray-500 flex-shrink-0 faq-icon transition-transform"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            <div class="faq-content max-h-0 overflow-hidden transition-all duration-300 ease-in-out" data-faq-content={index}>
+              <div class="px-6 pb-6 text-black">
+                <p>{faq.answer}</p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )}
+
+  <!-- Resource Form (Bottom) -->
+  <div class="card mb-8 p-8 md:p-12 mt-12" id="resource-form-bottom-container">
+    <form
+      id="resource-form-bottom"
+      name="resource form"
+      class="grid md:grid-cols-2 gap-8 items-center"
+    >
+      <div>
+        <h3 class="text-2xl font-bold mb-3">Would you like to design, track and measure your programs with our Ai-agent?</h3>
+        <p class="text-black">AI Powered Mentoring, Coaching, Community Management and Training Platforms</p>
+      </div>
+      <div class="space-y-4">
+        <div>
+          <input
+            type="text"
+            id="resource-form-bottom-name"
+            name="name"
+            placeholder="Full Name"
+            required
+            class="w-full px-4 py-3 border border-gray-300 rounded-full focus:ring-2 focus:ring-primary focus:border-transparent h-12"
+          />
+        </div>
+        <div>
+          <input
+            type="email"
+            id="resource-form-bottom-email"
+            name="email"
+            placeholder="Email"
+            required
+            class="w-full px-4 py-3 border border-gray-300 rounded-full focus:ring-2 focus:ring-primary focus:border-transparent h-12"
+          />
+        </div>
+        <button
+          type="submit"
+          class="btn btn-primary w-full"
+        >
+          Get Started For Free
+        </button>
+      </div>
+    </form>
+    <div id="resource-form-bottom-message" class="hidden text-center mt-4"></div>
+  </div>
+
+  <script is:inline>
+    (function() {
+      function initFAQ() {
+        var faqToggles = document.querySelectorAll('.faq-toggle');
+        
+        for (var i = 0; i < faqToggles.length; i++) {
+          var toggle = faqToggles[i];
+          toggle.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            
+            var index = this.getAttribute('data-faq-index');
+            var content = document.querySelector('[data-faq-content="' + index + '"]');
+            var icon = this.querySelector('.faq-icon');
+            var faqItem = document.querySelector('[data-faq-item="' + index + '"]');
+            var isExpanded = this.getAttribute('aria-expanded') === 'true';
+            
+            // Toggle current FAQ (don't close others)
+            if (content && icon && faqItem) {
+              if (isExpanded) {
+                content.style.maxHeight = '0';
+                icon.style.transform = 'rotate(0deg)';
+                this.setAttribute('aria-expanded', 'false');
+                faqItem.style.backgroundColor = '';
+              } else {
+                content.style.maxHeight = content.scrollHeight + 'px';
+                icon.style.transform = 'rotate(180deg)';
+                this.setAttribute('aria-expanded', 'true');
+                faqItem.style.backgroundColor = '#f9fafb';
+              }
+            }
+          });
+        }
+      }
+      
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initFAQ);
+      } else {
+        initFAQ();
+      }
+    })();
+  </script>
+
+  {(() => {
+    const validCitations = resource.citations && Array.isArray(resource.citations) 
+      ? resource.citations.filter(c => c && c.url && c.url.trim())
+      : [];
+    return validCitations.length > 0;
+  })() && (
+    <div class="mt-12 pt-8 border-t">
+      <h2 class="text-2xl font-bold mb-4">References</h2>
+      <ul class="space-y-2">
+        {resource.citations
+          .filter(citation => citation && citation.url && citation.url.trim())
+          .map((citation) => (
+            <li>
+              <a
+                href={citation.url}
+                target="_blank"
+                rel="nofollow noopener noreferrer"
+                class="text-primary hover:underline"
+              >
+                {citation.title || citation.url}
+              </a>
+            </li>
+          ))}
+      </ul>
+    </div>
+  )}
+
+  <div class="mt-8 pt-8 border-t">
+    <a href="/resources/" class="text-primary hover:underline">
+      ← {t.common.back} to Resources
+    </a>
+  </div>
+</ContentLayout>
+
+{/* Resource Form Scripts */}
+<script is:inline>
+  (function() {
+    const form = document.getElementById('resource-form');
+    const messageDiv = document.getElementById('resource-form-message');
+    
+    if (!form || !messageDiv) return;
+    
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const formData = new FormData(form);
+      const data = {
+        type: 'resource form',
+        name: formData.get('name'),
+        email: formData.get('email'),
+        resource_slug: window.location.pathname.split('/').pop() || '',
+        resource_title: document.querySelector('h1')?.textContent || '',
+        page_url: window.location.href,
+      };
+
+      try {
+        const response = await fetch('/api/form', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        });
+
+        if (response.ok) {
+          messageDiv.className = 'block text-green-600 font-semibold';
+          messageDiv.textContent = 'Thank you! We\'ll contact you soon.';
+          form.reset();
+        } else {
+          throw new Error('Form submission failed');
+        }
+      } catch (error) {
+        messageDiv.className = 'block text-red-600 font-semibold';
+        messageDiv.textContent = 'An error occurred. Please try again.';
+      }
+    });
+  })();
+</script>
+<script is:inline>
+  (function() {
+    const form = document.getElementById('resource-form-bottom');
+    const messageDiv = document.getElementById('resource-form-bottom-message');
+    
+    if (!form || !messageDiv) return;
+    
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const formData = new FormData(form);
+      const data = {
+        type: 'resource form bottom',
+        name: formData.get('name'),
+        email: formData.get('email'),
+        resource_slug: window.location.pathname.split('/').pop() || '',
+        resource_title: document.querySelector('h1')?.textContent || '',
+        page_url: window.location.href,
+      };
+
+      try {
+        const response = await fetch('/api/form', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data),
+        });
+
+        if (response.ok) {
+          messageDiv.className = 'block text-green-600 font-semibold';
+          messageDiv.textContent = 'Thank you! We\'ll contact you soon.';
+          form.reset();
+        } else {
+          throw new Error('Form submission failed');
+        }
+      } catch (error) {
+        messageDiv.className = 'block text-red-600 font-semibold';
+        messageDiv.textContent = 'An error occurred. Please try again.';
+      }
+    });
+  })();
+</script>
+

@@ -1,5 +1,6 @@
 ---
 import type { Language } from '@lib/i18n';
+import { getLocalizedPath } from '@lib/i18n';
 
 interface Props {
   title: string;
@@ -26,13 +27,34 @@ const {
 const siteUrl = import.meta.env.PUBLIC_SITE_URL || 'https://plademy.com';
 const fullTitle = title.includes('Plademy') ? title : `${title} | Plademy`;
 const canonicalUrl = canonical || Astro.url.href;
-const ogImage = image.startsWith('http') ? image : `${siteUrl}${image}`;
+// Ensure ogImage is always an absolute URL
+// If image is empty/undefined, use default logo
+const defaultImage = `${siteUrl}/plademy-white-logo.svg`;
+const ogImage = !image || image.trim() === '' 
+  ? defaultImage 
+  : image.startsWith('http') || image.startsWith('https')
+  ? image 
+  : image.startsWith('/')
+  ? `${siteUrl}${image}`
+  : `${siteUrl}/${image}`;
+const siteName = 'Plademy';
+
+// Generate hreflang URLs
+const currentPath = Astro.url.pathname;
+const hreflangUrls = {
+  en: `${siteUrl}${getLocalizedPath(currentPath, 'en')}`,
+  fi: `${siteUrl}${getLocalizedPath(currentPath, 'fi')}`,
+  sv: `${siteUrl}${getLocalizedPath(currentPath, 'sv')}`,
+};
 ---
 
 <!-- Primary Meta Tags -->
 <title>{fullTitle}</title>
 <meta name="title" content={fullTitle} />
 <meta name="description" content={description} />
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+<meta name="author" content="Plademy" />
+<meta name="theme-color" content="#2841CF" />
 <link rel="canonical" href={canonicalUrl} />
 
 <!-- Open Graph / Facebook -->
@@ -41,6 +63,9 @@ const ogImage = image.startsWith('http') ? image : `${siteUrl}${image}`;
 <meta property="og:title" content={fullTitle} />
 <meta property="og:description" content={description} />
 <meta property="og:image" content={ogImage} />
+<meta property="og:image:alt" content={fullTitle} />
+<meta property="og:image:secure_url" content={ogImage} />
+<meta property="og:site_name" content={siteName} />
 <meta property="og:locale" content={lang === 'fi' ? 'fi_FI' : lang === 'sv' ? 'sv_SE' : 'en_US'} />
 
 <!-- Twitter -->
@@ -49,6 +74,9 @@ const ogImage = image.startsWith('http') ? image : `${siteUrl}${image}`;
 <meta name="twitter:title" content={fullTitle} />
 <meta name="twitter:description" content={description} />
 <meta name="twitter:image" content={ogImage} />
+<meta name="twitter:image:alt" content={fullTitle} />
+<meta name="twitter:site" content="@plademyoy" />
+<meta name="twitter:creator" content="@plademyoy" />
 
 <!-- Article specific -->
 {type === 'article' && publishedTime && (
@@ -59,13 +87,86 @@ const ogImage = image.startsWith('http') ? image : `${siteUrl}${image}`;
 )}
 
 <!-- Language alternates -->
-<link rel="alternate" hreflang="en" href={canonicalUrl.replace(/^\/(fi|sv)\//, '/en/')} />
-<link rel="alternate" hreflang="fi" href={canonicalUrl.replace(/^\/(en|sv)\//, '/fi/')} />
-<link rel="alternate" hreflang="sv" href={canonicalUrl.replace(/^\/(en|fi)\//, '/sv/')} />
-<link rel="alternate" hreflang="x-default" href={canonicalUrl.replace(/^\/(fi|sv)\//, '/en/')} />
+<link rel="alternate" hreflang="en" href={hreflangUrls.en} />
+<link rel="alternate" hreflang="fi" href={hreflangUrls.fi} />
+<link rel="alternate" hreflang="sv" href={hreflangUrls.sv} />
+<link rel="alternate" hreflang="x-default" href={hreflangUrls.en} />
 
 <!-- Preconnect for performance -->
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link rel="dns-prefetch" href={import.meta.env.PUBLIC_SUPABASE_URL} />
+<link rel="dns-prefetch" href="https://www.googletagmanager.com" />
+<link rel="dns-prefetch" href="https://res.cloudinary.com" />
+
+<!-- JSON-LD Structured Data for LLM and Search Engines -->
+<script type="application/ld+json" set:html={JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": type === 'article' ? "Article" : "WebPage",
+  "headline": fullTitle,
+  "description": description,
+  "image": ogImage,
+  "url": canonicalUrl,
+  "inLanguage": lang,
+  "isPartOf": {
+    "@type": "WebSite",
+    "name": siteName,
+    "url": siteUrl
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": siteName,
+    "url": siteUrl,
+    "logo": {
+      "@type": "ImageObject",
+      "url": `${siteUrl}/plademy-white-logo.svg`
+    },
+    "sameAs": [
+      "https://x.com/plademyoy",
+      "https://www.facebook.com/plademycom",
+      "https://www.linkedin.com/company/plademy",
+      "https://www.instagram.com/plademycom"
+    ],
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "Lapinlahdenkatu 16",
+      "addressLocality": "Helsinki",
+      "postalCode": "00180",
+      "addressCountry": "FI"
+    }
+  },
+  ...(type === 'article' && publishedTime ? {
+    "datePublished": publishedTime,
+    "dateModified": modifiedTime || publishedTime
+  } : {})
+})} />
+
+<!-- Organization Schema (Site-wide) -->
+<script type="application/ld+json" set:html={JSON.stringify({
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": siteName,
+  "url": siteUrl,
+  "logo": `${siteUrl}/plademy-white-logo.svg`,
+  "description": "AI-driven integration hub tailored for both employee and community development programs.",
+  "foundingDate": "2024",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Maria 01, Lapinlahdenkatu 16",
+    "addressLocality": "Helsinki",
+    "postalCode": "00180",
+    "addressCountry": "FI"
+  },
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "contactType": "Customer Service",
+    "url": `${siteUrl}/contact`
+  },
+  "sameAs": [
+    "https://x.com/plademyoy",
+    "https://www.facebook.com/plademycom",
+    "https://www.linkedin.com/company/plademy",
+    "https://www.instagram.com/plademycom"
+  ]
+})} />
 

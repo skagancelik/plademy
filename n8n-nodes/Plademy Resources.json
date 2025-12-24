@@ -1,0 +1,1240 @@
+{
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        6128,
+        -672
+      ],
+      "id": "de73ae84-9768-4636-ac0f-ff4413addb06",
+      "name": "When clicking ‘Test workflow’",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "23b8e8c4-9191-415a-9661-1b60d413528a",
+              "name": "research",
+              "type": "string",
+              "value": "={{ $json.choices[0].message.content }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "aad7efcf-2ddd-45b9-b70a-4bcd08af14d8",
+      "name": "Cleanup Links1",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        7408,
+        -672
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c59e8718-807a-495f-969c-cbb2bd6f8b9f",
+              "leftValue": "={{$json.status}}",
+              "rightValue": "COMPLETED",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        7600,
+        -368
+      ],
+      "id": "4768f4a3-bd50-4dce-a56c-a38fced5b706",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "amount": 3
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        7184,
+        -128
+      ],
+      "id": "9c207cf3-2580-4dca-b5e7-9d5d8d660ad9",
+      "name": "Wait1",
+      "webhookId": "f1a9e989-f77b-4a3f-a52c-b4e4e1f23d5b"
+    },
+    {
+      "parameters": {
+        "url": "=https://queue.fal.run/fal-ai/hidream-i1-fast/requests/{{ $json.request_id }}/status",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        7168,
+        -368
+      ],
+      "id": "37e67080-7a12-4b89-9f9e-b7f8ef7dde66",
+      "name": "FAL.ai Image Control1",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "hWjUoEKI1jiVF5lm",
+          "name": "Fal.ai"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://queue.fal.run/fal-ai/hidream-i1-fast/requests/{{ $json.request_id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        7872,
+        -384
+      ],
+      "id": "62b4b2de-e07b-47e3-824b-bf448421368e",
+      "name": "FAL.ai Image Link1",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "hWjUoEKI1jiVF5lm",
+          "name": "Fal.ai"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.images[0].url }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        8128,
+        -368
+      ],
+      "id": "3ecd0d8e-642f-4b49-a1a5-38ada0e7de45",
+      "name": "HTTP Request",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "operation": "resize",
+        "width": 800,
+        "height": 450,
+        "options": {
+          "format": "jpeg"
+        }
+      },
+      "type": "n8n-nodes-base.editImage",
+      "typeVersion": 1,
+      "position": [
+        8560,
+        -384
+      ],
+      "id": "17699ae2-192f-4adc-8488-6ed3acb158fe",
+      "name": "Edit Image"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatDeepSeek",
+      "typeVersion": 1,
+      "position": [
+        6384,
+        -112
+      ],
+      "id": "ef37e31c-b98d-4aa2-b041-e02df1eb0c2f",
+      "name": "DeepSeek Chat Model3",
+      "credentials": {
+        "deepSeekApi": {
+          "id": "xEtower0uh8ZMl2b",
+          "name": "DeepSeek API  n8n-plademy-com-001"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "deepseek-reasoner",
+        "options": {
+          "responseFormat": "json_object"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatDeepSeek",
+      "typeVersion": 1,
+      "position": [
+        5568,
+        592
+      ],
+      "id": "73a2825f-9947-4453-90c3-7949b749a361",
+      "name": "DeepSeek Chat Model4",
+      "credentials": {
+        "deepSeekApi": {
+          "id": "xEtower0uh8ZMl2b",
+          "name": "DeepSeek API  n8n-plademy-com-001"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1vG1t1s4UG_ubGrmZwSPT-o-GzufOIBUkISnDTSas1Cc",
+          "mode": "list",
+          "cachedResultName": "Resources",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1vG1t1s4UG_ubGrmZwSPT-o-GzufOIBUkISnDTSas1Cc/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Posts",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1vG1t1s4UG_ubGrmZwSPT-o-GzufOIBUkISnDTSas1Cc/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Title": "={{ $('Resources1').item.json.Title }}",
+            "URL": "=https://plademy.com/{{ $('Create a row1').item.json.slug }}",
+            "Created at": "={{ $json.date_gmt3 }}"
+          },
+          "matchingColumns": [
+            "Title"
+          ],
+          "schema": [
+            {
+              "id": "Title",
+              "displayName": "Title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Category",
+              "displayName": "Category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Created at",
+              "displayName": "Created at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "URL",
+              "displayName": "URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        7984,
+        272
+      ],
+      "id": "9ed75c69-cea1-4768-a135-d966495b109c",
+      "name": "Google Sheets1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "2MflyFLJGceQVKnf",
+          "name": "Google Sheets mentoshipcenter@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Şu anki tarih ve zamanı al (üretim zamanı)\nconst now = new Date();\n\n// UTC zamanını al\nconst utcDate = new Date(now.getTime() + (now.getTimezoneOffset() * 60000));\n\n// GMT+3'e çevir (3 saat ekle)\nconst gmt3Date = new Date(utcDate.getTime() + (3 * 3600000));\n\n// İngilizce ay isimleri\nconst monthNames = [\"Jan\", \"Feb\", \"Mar\", \"Apr\", \"May\", \"Jun\", \"Jul\", \"Aug\", \"Sep\", \"Oct\", \"Nov\", \"Dec\"];\n\n// Saat ve dakikayı iki haneli yap\nconst pad = (n) => n.toString().padStart(2, '0');\n\n// Format: 4 May 2025 - 21:40\nconst formatted = `${gmt3Date.getDate()} ${monthNames[gmt3Date.getMonth()]} ${gmt3Date.getFullYear()} - ${pad(gmt3Date.getHours())}:${pad(gmt3Date.getMinutes())}`;\n\n// UTC formatı için ISO string\nconst utcISO = now.toISOString();\n\nreturn {\n  date_gmt: utcISO,\n  date_gmt3: formatted,\n  production_date: formatted\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        7744,
+        272
+      ],
+      "id": "18db28a7-214c-4418-877c-3dcd0f4768d2",
+      "name": "Date Time GMT+"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://queue.fal.run/fal-ai/hidream-i1-fast",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "=  {\n    \"prompt\": \"{{ $json.output }}\",\n    \"image_size\": {\n      \"width\": 800,\n      \"height\": 400\n    },\n    \"num_images\": 1,\n    \"output_format\": \"jpeg\"\n  }",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        6912,
+        -368
+      ],
+      "id": "777e9dbd-ebab-4a97-915f-5f8a1598021a",
+      "name": "Hidream 1 Fast - FAL.ai1",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "hWjUoEKI1jiVF5lm",
+          "name": "Fal.ai"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Generate a cover image prompt about this post : {{ $('Resources1').item.json.Title }} \n\nIMPORTANT : Give a short answer as plain text only do not use any special characters write only the image generation prompt do not write dimensions. And please note that we dont want any text, number, letter, writing, illustration on the image.",
+        "options": {
+          "systemMessage": "You are an expert image prompt specialist. "
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        6528,
+        -368
+      ],
+      "id": "7fe20cf2-fb86-4d30-a65d-e428facf065f",
+      "name": "Image Prompt Creator1",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"slug\": \"example-slug\",\n  \"description\": \"Example description\",\n  \"excerpt\": \"Example excerpt\",\n  \"keypoint1\": \"Example keypoint 1\",\n  \"keypoint2\": \"Example keypoint 2\",\n  \"keypoint3\": \"Example keypoint 3\",\n  \"faq1\": {\n    \"question\": \"Example question 1\",\n    \"answer\": \"Example answer 1\"\n  },\n  \"faq2\": {\n    \"question\": \"Example question 2\",\n    \"answer\": \"Example answer 2\"\n  },\n  \"faq3\": {\n    \"question\": \"Example question 3\",\n    \"answer\": \"Example answer 3\"\n  },\n  \"faq4\": {\n    \"question\": \"Example question 4\",\n    \"answer\": \"Example answer 4\"\n  },\n  \"faq5\": {\n    \"question\": \"Example question 5\",\n    \"answer\": \"Example answer 5\"\n  },\n  \"faq6\": {\n    \"question\": \"Example question 6\",\n    \"answer\": \"Example answer 6\"\n  },\n  \"faq7\": {\n    \"question\": \"Example question 7\",\n    \"answer\": \"Example answer 7\"\n  }\n}"
+      },
+      "id": "8ff69b75-ab94-4fb5-a01b-14fe66987897",
+      "name": "Structured Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        5744,
+        608
+      ],
+      "typeVersion": 1.2,
+      "notesInFlow": false
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ec0210ce-e582-4282-8907-243c8ca4c92d",
+              "name": "retryCount",
+              "value": "={{Number($json.retryCount || 0) + 1}}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        5984,
+        512
+      ],
+      "id": "9a303f43-fefe-4464-a8c5-f484b03501b4",
+      "name": "Increase Retry"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "96806413-3d9c-4807-884b-11f55a21402e",
+              "leftValue": "={{$json.valid}}",
+              "rightValue": "true",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        6128,
+        288
+      ],
+      "id": "43580dc7-8646-4de1-804b-25f088cf5a51",
+      "name": "Is Output Valid?"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "58507a32-d4f1-4740-84f2-4296dd7aa0d2",
+              "leftValue": "={{$json.retryCount}}",
+              "rightValue": 5,
+              "operator": {
+                "type": "number",
+                "operation": "lt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        5984,
+        752
+      ],
+      "id": "54a96a11-6939-4233-88b2-f24c97b59b83",
+      "name": "Is Retry < 5?"
+    },
+    {
+      "parameters": {
+        "subject": "Title Slug Meta 5 Kez Denedik Olmadı - Plademy Resources",
+        "body": "Uyarı",
+        "fromEmail": "n8n@mentorship.center",
+        "toAddresses": [
+          "skcelik@gmail.com, serkan@mentornity.com"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.awsSes",
+      "typeVersion": 1,
+      "position": [
+        6256,
+        832
+      ],
+      "id": "8f7cf3ca-638f-453e-8bba-cea86086bc98",
+      "name": "AWS SES",
+      "credentials": {
+        "aws": {
+          "id": "S6PR5vNWgy7NshAY",
+          "name": "AWS n8n-plademy-amazonses-full"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// n8n'de binary data'yı doğru şekilde almak\nvar item = items[0];\n\n// Görsel ebatları: 1440 x 720 (yeni ebat)\nvar imageWidth = 1440;\nvar imageHeight = 720;\nvar bottomMargin = 60;\nvar maxY = imageHeight - bottomMargin; // 660px\n\n// Şekilleri görselin EN ALT KISIMDA tut\nvar minY = 550; // Görselin son 110px'lik alanında (550-660px arası)\n\n// Random sayı üretme fonksiyonu\nfunction getRandomInt(min, max) {\n    return Math.floor(Math.random() * (max - min + 1)) + min;\n}\n\n// Şekillerin çakışmamasını kontrol etme fonksiyonu\nfunction checkOverlap(newShape, existingShapes) {\n    var i;\n    for (i = 0; i < existingShapes.length; i++) {\n        var existing = existingShapes[i];\n        var distance = Math.sqrt(\n            Math.pow(newShape.centerX - existing.centerX, 2) + \n            Math.pow(newShape.centerY - existing.centerY, 2)\n        );\n        \n        if (distance < (newShape.size + existing.size + 20)) { // 20px minimum mesafe\n            return true;\n        }\n    }\n    return false;\n}\n\nvar shapes = [];\nvar attempts = 0;\nvar maxAttempts = 100;\n\n// 2 Circle üret - 1440px genişliğe uygun boyutta\nvar circleCount = 0;\nwhile (circleCount < 2 && attempts < maxAttempts) {\n    var radius = getRandomInt(10, 25); // 1440px için uygun boyut\n    var centerX = getRandomInt(radius + 20, imageWidth - radius - 20);\n    var centerY = getRandomInt(minY + radius, maxY - radius); // Son 110px'de\n    \n    var circle = {\n        type: 'circle',\n        centerX: centerX,\n        centerY: centerY,\n        radius: radius,\n        startX: centerX - radius,\n        startY: centerY - radius,\n        endX: centerX + radius,\n        endY: centerY + radius,\n        size: radius\n    };\n    \n    if (!checkOverlap(circle, shapes)) {\n        shapes.push(circle);\n        circleCount++;\n    }\n    attempts++;\n}\n\n// 3 Rectangle üret - RANDOM uzun/kısa boyutlarda\nvar rectCount = 0;\nattempts = 0;\nwhile (rectCount < 3 && attempts < maxAttempts) {\n    var width = getRandomInt(15, 70);  // Daha geniş aralık: uzun-kısa varyasyonu\n    var height = getRandomInt(12, 45); // Daha geniş aralık: uzun-kısa varyasyonu\n    var startX = getRandomInt(20, imageWidth - width - 20);\n    var startY = getRandomInt(minY, maxY - height); // Son 110px'de\n    var endX = startX + width;\n    var endY = startY + height;\n    \n    // Tam yuvarlak için corner radius = min(width, height) / 2\n    var cornerRadius = Math.min(width, height) / 2;\n    \n    var rect = {\n        type: 'rectangle',\n        centerX: startX + width / 2,\n        centerY: startY + height / 2,\n        startX: startX,\n        startY: startY,\n        endX: endX,\n        endY: endY,\n        width: width,\n        height: height,\n        cornerRadius: cornerRadius,\n        size: Math.max(width, height) / 2\n    };\n    \n    if (!checkOverlap(rect, shapes)) {\n        shapes.push(rect);\n        rectCount++;\n    }\n    attempts++;\n}\n\n// n8n formatında output\nreturn [{\n    json: {\n        circles: shapes.filter(function(s) { return s.type === 'circle'; }),\n        rectangles: shapes.filter(function(s) { return s.type === 'rectangle'; }),\n        allShapes: shapes\n    },\n    binary: item.binary || {}\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        8352,
+        -368
+      ],
+      "id": "6f05b587-3581-434d-b657-6c8a86b1c52f",
+      "name": "Generate Random Shapes"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1vG1t1s4UG_ubGrmZwSPT-o-GzufOIBUkISnDTSas1Cc",
+          "mode": "list",
+          "cachedResultName": "Resources",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1vG1t1s4UG_ubGrmZwSPT-o-GzufOIBUkISnDTSas1Cc/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Posts",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1vG1t1s4UG_ubGrmZwSPT-o-GzufOIBUkISnDTSas1Cc/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Created at"
+            }
+          ]
+        },
+        "options": {
+          "returnFirstMatch": true
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        6784,
+        -672
+      ],
+      "id": "e50085d3-cb65-4d2a-a0af-74b9e6f5f8bd",
+      "name": "Resources1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "2MflyFLJGceQVKnf",
+          "name": "Google Sheets mentoshipcenter@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "sonar-pro",
+        "messages": {
+          "message": [
+            {
+              "content": "={{ $json.Title }}"
+            }
+          ]
+        },
+        "options": {
+          "searchDomainFilter": "-chronus.com, -togetherplatform.com, -qooper.io, -mentorloop.com, -mentorcloud.com, -mentorink.com, -pushfar.com, -tenthousandcoffees.com, -mentoringcomplete.com, -mentorcliq.com"
+        },
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.perplexity",
+      "typeVersion": 1,
+      "position": [
+        7072,
+        -672
+      ],
+      "id": "2e4cf7e1-ec9c-44c7-b073-7388112353be",
+      "name": "Perplexity1",
+      "credentials": {
+        "perplexityApi": {
+          "id": "hoMuJPMA4uiKJoWq",
+          "name": "Plademy Perplexity"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "uploadFile",
+        "additionalFieldsFile": {
+          "folder": "PlademyWebsite"
+        }
+      },
+      "type": "n8n-nodes-cloudinary.cloudinary",
+      "typeVersion": 1,
+      "position": [
+        8496,
+        -80
+      ],
+      "id": "639f3eeb-b37c-4788-b7b4-df8ab18982da",
+      "name": "Upload an asset from file data1",
+      "credentials": {
+        "cloudinaryApi": {
+          "id": "As3K4Aue3tCLNGmK",
+          "name": "Cloudinary account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableId": "resources",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "=slug",
+              "fieldValue": "={{ $json.slug }}"
+            },
+            {
+              "fieldId": "=language",
+              "fieldValue": "={{ $json.language }}"
+            },
+            {
+              "fieldId": "=title",
+              "fieldValue": "={{ $json.title }}"
+            },
+            {
+              "fieldId": "=description",
+              "fieldValue": "={{ $json.description }}"
+            },
+            {
+              "fieldId": "=excerpt",
+              "fieldValue": "={{ $json.excerpt }}"
+            },
+            {
+              "fieldId": "=content",
+              "fieldValue": "={{ $json.content }}"
+            },
+            {
+              "fieldId": "=keypoints",
+              "fieldValue": "={{ $json.keypoints }}"
+            },
+            {
+              "fieldId": "=category",
+              "fieldValue": "={{ $json.category }}"
+            },
+            {
+              "fieldId": "=faqs",
+              "fieldValue": "={{ $json.faqs }}"
+            },
+            {
+              "fieldId": "=cover_image_url",
+              "fieldValue": "={{ $json.cover_image_url }}"
+            },
+            {
+              "fieldId": "=is_published",
+              "fieldValue": "={{ $json.is_published }}"
+            },
+            {
+              "fieldId": "=citations",
+              "fieldValue": "={{ $json.citations }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        7472,
+        272
+      ],
+      "id": "8eade08a-e37f-4c3e-8149-61f20e790398",
+      "name": "Create a row1",
+      "credentials": {
+        "supabaseApi": {
+          "id": "4lH5AgCNtycPKcFq",
+          "name": "PlademyWebsite"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=TASK\nGenerate comprehensive Markdown content about \"{{ $('Resources1').item.json.Title }}\" and use the \"RESEARCH RESULTS\". \n\nOutput pure Markdown, no code wrappers.\n\nTONE\nAuthoritative, practical, supportive. Avoid AI jargon and robotic phrasing.\n\nREQUIREMENTS\nPractical focus: Implementation strategies, best practices, actionable steps\nInclude checklists, examples, scenarios from research.\n800-1200 words minimum\nFirst H2 (##): Rephrase title using synonyms—NEVER repeat exact title\nIntegrate focus keyword naturally\nUse heading hierarchy: ##, ###, ####\nShort paragraphs, lists, blockquotes for readability\nDo not add [1] [2] [3]... numbers to the text for citiations.\n\nMARKDOWN FORMAT\nbold, italic, code\n- for bullets, 1. 2. 3. for numbered lists\n> for blockquotes\ntext for links\nNO HTML tags\nFORBIDDEN WORDS\nDo not use cliche words like conclusion, delve, elevate, leverage, journey, seamless, comprehensive, ultimately, profound, in conclusion, to sum up, final thoughts, deep dive, game-changer, revolutionize, transform\n\nRESEARCH RESULTS:\n{{ $('Perplexity1').item.json.choices[0].message.content }}\n\nOUTPUT\nOutput ONLY raw Markdown starting with ## heading. NO code blocks (), NO explanations, NO extra text.\n",
+        "options": {
+          "systemMessage": "=You are a senior content writer for Plademy (https://plademy.com). Write practical, actionable content in pure Markdown for \"\" \nProvide step-by-step guidance, examples, and checklists. Avoid generic statements. Use only research results.\nNever use: conclusion, delve, elevate, leverage, journey, seamless, comprehensive, ultimately, profound, in conclusion, to sum up, final thoughts.\nFirst H2 (##) must rephrase the title using synonyms—NEVER repeat exact title.\nOutput ONLY raw Markdown—no code wrappers (\n), no comments, no explanations.\nUse: ## for H2, ### for H3, bold, italic, - for lists, > for quotes, text for links.\nMinimum 800 words, ideally 1000-1200 words."
+        }
+      },
+      "id": "0372161c-b3cc-434c-8cd0-2384f3ef2dec",
+      "name": "MD Content1",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        4512,
+        288
+      ],
+      "typeVersion": 1.8
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatDeepSeek",
+      "typeVersion": 1,
+      "position": [
+        4480,
+        448
+      ],
+      "id": "5131e47f-2740-47cb-a614-a628c4b644bf",
+      "name": "DeepSeek Chat Model5",
+      "credentials": {
+        "deepSeekApi": {
+          "id": "xEtower0uh8ZMl2b",
+          "name": "DeepSeek API  n8n-plademy-com-001"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// n8n Code Node - Markdown Temizleme\nlet mdString = $input.item.json.output || $input.item.json.text || $input.item.json.content;\n\n// Kod bloğu işaretçilerini temizle\nmdString = mdString\n  .replace(/^```(?:markdown|md)?\\s*/i, '')\n  .replace(/\\s*```$/i, '')\n  .trim();\n\n// Gereksiz escape karakterlerini temizle (ama \\n korunur)\nmdString = mdString.replace(/\\\\(?!n)/g, '');\n\n// Çoklu boş satırları tek boş satıra indir\nmdString = mdString.replace(/\\n{3,}/g, '\\n\\n');\n\nreturn [{\n  json: {\n    cleanContent: mdString\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4912,
+        288
+      ],
+      "id": "2120795b-07ab-4bac-a1eb-14a94ff0cd59",
+      "name": "Clean MD1"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=# TASK\nCreate a complete, SEO-optimized slug, description, excerpt, 3 key points, and 7 FAQ sections for the \"CONTENT\"\n\n# INPUTS\n\n# CONTENT TITLE:\n{{ $('Resources1').item.json.Title }}\n\n# CONTENT:\n{{ $('Clean MD1').item.json.cleanContent }}\n\n## LANGUAGE\nEnglish\n\n# REQUIREMENTS\n\n## SLUG\n- Clean, keyword-rich, lowercase\n- Use hyphens to separate words\n- 3-6 words maximum\n- SEO-friendly and descriptive\n- No special characters or spaces\n\n## DESCRIPTION\n- Meta description for SEO\n- Summarizes the unique value proposition\n- Includes focus keyword naturally\n- Under 160 characters\n- Clear call-to-action or benefit statement\n\n## EXCERPT\n- Short summary (2-3 sentences)\n- Engaging and informative\n- Highlights key value or benefit\n- Under 200 characters\n- Used for preview cards and listings\n\n## KEYPOINTS (3 required)\n- Three concise, actionable points\n- Highlight critical insights, skills, or takeaways\n- Role- and program-focused (not generic)\n- Plain text, no HTML or formatting\n- Each point should be 1-2 sentences\n\n## FAQS (7 required)\n- 7 question-answer pairs\n- Questions address practical concerns and common questions\n- Answers are clear, helpful, and specific to the content\n- Plain text, no HTML or formatting\n- Each answer should be 2-4 sentences\n- Cover different aspects: implementation, benefits, challenges, best practices\n\n# OUTPUT FORMAT\nReturn ONLY the following JSON object, with no explanations, code wrappers, or extra text\n\nVERY IMPORTANT\n- Output MUST be only the JSON object\n- Do NOT include code blocks (```json) or markdown\n- Return ONLY the JSON object\n!!!! Output ONLY a valid JSON object, with no explanations, no markdown, and no extra markers.",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=You are an expert content and SEO specialist for Plademy. Create compelling, SEO-optimized metadata for the \"CONTENT\".\n\nAll elements must be tailored for professional readers seeking practical guidance.\n\n- Title: SEO-optimized, under 80 characters, includes focus keyword\n- Slug: Clean, keyword-rich, lowercase, hyphens, max 6 words\n- Description: Meta description, under 160 characters, includes keyword\n- Excerpt: Short summary, under 200 characters\n- Key Points: 3 concrete, actionable points (plain text)\n- FAQ: 7 specific Q&A pairs (plain text)\n\nOutput ONLY the JSON object, nothing else."
+        }
+      },
+      "id": "81e11046-0c78-406d-b7f4-876ae05a1c7a",
+      "name": "Title, Slug, Meta ..vb1",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        5472,
+        288
+      ],
+      "typeVersion": 1.8,
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// n8n Code Node - Content Validator\nconst obj = $json.output ? $json.output : $json;\n\n// Required fields (title and content come from other nodes, not validated here)\nconst required = [\n  \"slug\",\n  \"description\",\n  \"excerpt\",\n  \"keypoint1\",\n  \"keypoint2\",\n  \"keypoint3\",\n  \"faq1\",\n  \"faq2\",\n  \"faq3\",\n  \"faq4\",\n  \"faq5\",\n  \"faq6\",\n  \"faq7\"\n];\n\nlet valid = true;\nconst errors = [];\n\n// Check if all required fields exist\nfor (const key of required) {\n  if (!(key in obj)) {\n    valid = false;\n    errors.push(`${key} is missing`);\n  }\n}\n\n// Validate FAQ structure (each FAQ must have question and answer)\nfor (let i = 1; i <= 7; i++) {\n  const faq = obj[`faq${i}`];\n  if (faq) {\n    if (!faq.question || !faq.answer) {\n      valid = false;\n      errors.push(`FAQ ${i} is missing question or answer`);\n    }\n  }\n}\n\n// Validate slug format\nif (obj.slug && !/^[a-z0-9-]+$/.test(obj.slug)) {\n  valid = false;\n  errors.push(\"Slug contains invalid characters (only lowercase, numbers, hyphens allowed)\");\n}\n\nreturn [{\n  json: {\n    valid: valid,\n    retryCount: $json.retryCount ?? 0,\n    original: obj,\n    errors: errors\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        5872,
+        288
+      ],
+      "id": "c3ac9cf6-0111-4a11-ac2c-ee29fb7a9770",
+      "name": "Validate JSON Format1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "743259c7-913b-42cd-aa55-de1b1e5f78c4",
+              "name": "title",
+              "value": "={{ $('Resources1').item.json.Title }}",
+              "type": "string"
+            },
+            {
+              "id": "8b7e57ac-6db7-447c-bad9-70bcbb6a41ff",
+              "name": "slug",
+              "value": "={{ $('Validate JSON Format1').item.json.original.slug }}",
+              "type": "string"
+            },
+            {
+              "id": "language-assignment",
+              "name": "language",
+              "value": "={{ $('Resources1').item.json.Language || 'en' }}",
+              "type": "string"
+            },
+            {
+              "id": "description-assignment",
+              "name": "description",
+              "value": "={{ $('Validate JSON Format1').item.json.original.description }}",
+              "type": "string"
+            },
+            {
+              "id": "excerpt-assignment",
+              "name": "excerpt",
+              "value": "={{ $('Validate JSON Format1').item.json.original.excerpt }}",
+              "type": "string"
+            },
+            {
+              "id": "content-assignment",
+              "name": "content",
+              "value": "={{ $('Clean MD1').item.json.cleanContent }}",
+              "type": "string"
+            },
+            {
+              "id": "keypoints-assignment",
+              "name": "keypoints",
+              "value": "={{ [$('Validate JSON Format1').item.json.original.keypoint1, $('Validate JSON Format1').item.json.original.keypoint2, $('Validate JSON Format1').item.json.original.keypoint3].filter(kp => kp && kp.trim().length > 0) }}",
+              "type": "array"
+            },
+            {
+              "id": "category-assignment",
+              "name": "category",
+              "value": "={{ $('Resources1').item.json.Category || 'mentoring-coaching' }}",
+              "type": "string"
+            },
+            {
+              "id": "faqs-assignment",
+              "name": "faqs",
+              "value": "={{ (() => { const faqs = []; for (let i = 1; i <= 7; i++) { const faq = $('Validate JSON Format1').item.json.original['faq' + i]; if (faq && faq.question && faq.answer) { faqs.push({ question: faq.question.trim(), answer: faq.answer.trim() }); } } return faqs.length > 0 ? faqs : null; })() }}",
+              "type": "array"
+            },
+            {
+              "id": "cover-image-assignment",
+              "name": "cover_image_url",
+              "value": "={{ $('Upload an asset from file data1').item.json.secure_url || null }}",
+              "type": "string"
+            },
+            {
+              "id": "is-published-assignment",
+              "name": "is_published",
+              "value": "true",
+              "type": "boolean"
+            },
+            {
+              "id": "citations-assignment",
+              "name": "citations",
+              "value": "={{ (() => { const perplexityData = $('Perplexity1').item.json; const citationsArray = []; if (perplexityData.search_results && Array.isArray(perplexityData.search_results)) { perplexityData.search_results.forEach(item => { if (item && item.url && item.url.trim()) { citationsArray.push({ url: item.url.trim(), title: (item.title || '').trim(), snippet: (item.snippet || item.description || '').trim() }); } }); } if (perplexityData.citations && Array.isArray(perplexityData.citations)) { perplexityData.citations.forEach(item => { if (typeof item === 'string' && item.trim()) { citationsArray.push({ url: item.trim(), title: '', snippet: '' }); } else if (item && typeof item === 'object' && (item.url || item.link)) { const url = (item.url || item.link || '').trim(); if (url) { citationsArray.push({ url: url, title: (item.title || item.name || '').trim(), snippet: (item.snippet || item.description || '').trim() }); } } }); } const uniqueCitations = []; const seenUrls = new Set(); citationsArray.forEach(citation => { const url = citation.url && citation.url.trim(); if (url && !seenUrls.has(url)) { seenUrls.add(url); uniqueCitations.push(citation); } }); return uniqueCitations.length > 0 ? uniqueCitations : null; })() }}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        7216,
+        272
+      ],
+      "id": "ca1b18a5-d77f-4046-b68a-dcc2287f97aa",
+      "name": "Full JSON1"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "id": "116d71d0-f0ac-41a1-a2be-7d94b9e766dd",
+      "name": "Combine Title, Tags, Content1",
+      "type": "n8n-nodes-base.aggregate",
+      "position": [
+        6928,
+        272
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        6576,
+        -816
+      ],
+      "id": "54996040-b9f5-4185-8063-7679c057f5d3",
+      "name": "Schedule Trigger"
+    }
+  ],
+  "connections": {
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Resources1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cleanup Links1": {
+      "main": [
+        [
+          {
+            "node": "Image Prompt Creator1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "FAL.ai Image Link1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "FAL.ai Image Control1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FAL.ai Image Control1": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FAL.ai Image Link1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Generate Random Shapes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Image": {
+      "main": [
+        [
+          {
+            "node": "Upload an asset from file data1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DeepSeek Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Image Prompt Creator1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DeepSeek Chat Model4": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Title, Slug, Meta ..vb1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Date Time GMT+": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hidream 1 Fast - FAL.ai1": {
+      "main": [
+        [
+          {
+            "node": "FAL.ai Image Control1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Image Prompt Creator1": {
+      "main": [
+        [
+          {
+            "node": "Hidream 1 Fast - FAL.ai1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Title, Slug, Meta ..vb1",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Increase Retry": {
+      "main": [
+        [
+          {
+            "node": "Is Retry < 5?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Output Valid?": {
+      "main": [
+        [
+          {
+            "node": "Combine Title, Tags, Content1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Increase Retry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Retry < 5?": {
+      "main": [
+        [
+          {
+            "node": "Title, Slug, Meta ..vb1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AWS SES",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Random Shapes": {
+      "main": [
+        [
+          {
+            "node": "Edit Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resources1": {
+      "main": [
+        [
+          {
+            "node": "Perplexity1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Perplexity1": {
+      "main": [
+        [
+          {
+            "node": "Cleanup Links1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload an asset from file data1": {
+      "main": [
+        [
+          {
+            "node": "MD Content1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a row1": {
+      "main": [
+        [
+          {
+            "node": "Date Time GMT+",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MD Content1": {
+      "main": [
+        [
+          {
+            "node": "Clean MD1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DeepSeek Chat Model5": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "MD Content1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clean MD1": {
+      "main": [
+        [
+          {
+            "node": "Title, Slug, Meta ..vb1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Title, Slug, Meta ..vb1": {
+      "main": [
+        [
+          {
+            "node": "Validate JSON Format1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate JSON Format1": {
+      "main": [
+        [
+          {
+            "node": "Is Output Valid?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Full JSON1": {
+      "main": [
+        [
+          {
+            "node": "Create a row1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combine Title, Tags, Content1": {
+      "main": [
+        [
+          {
+            "node": "Full JSON1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Resources1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateId": "3291",
+    "templateCredsSetupCompleted": true,
+    "instanceId": "62ff186ae164f50f2fc0a3123a1dff04b8f91c15d4689a8eb0413c71a12dd17c"
+  }
+}

@@ -6,6 +6,7 @@
   "nav": {
     "home": "Etusivu",
     "programs": "Ohjelmat",
+    "solutions": "Ratkaisut",
     "resources": "Resurssit",
     "integrations": "Integraatiot",
     "start": "Aloita",
@@ -13,12 +14,24 @@
   },
   "home": {
     "hero": {
-      "title": "Muunna organisaatiosi työntekijä- ja yhteisöohjelmilla",
-      "subtitle": "Lisää sitoutumista, paranna taitoja ja aja kasvua Plademyn tekoälyllä toteutetulla alustalla. Tutustu eroon tänään."
+      "title": "Ohjelmasi ansaitsevat parempaa kuin taulukot",
+      "subtitle": "Suunnittele, toteuta ja mittaa mentorointi-, valmennus- ja koulutusohjelmia—kaikki yhdellä tekoälyalustalla."
     },
     "features": {
       "title": "Alustasi parhailla työkaluilla!",
-      "subtitle": "Luo ja hallinnoi ohjelmaasi helposti!"
+      "subtitle": "Luo ja hallinnoi ohjelmaasi helposti!",
+      "engagement": {
+        "title": "Työntekijöiden sitoutuminen",
+        "description": "Lisää sitoutumista henkilökohtaisilla ohjelmilla ja mitattavilla tuloksilla!"
+      },
+      "mentoring": {
+        "title": "Mentorointi & Valmennus",
+        "description": "Mahdollista vaikuttavaa mentorointia ja valmennusta tekoälyllä toteutetulla parittelulla!"
+      },
+      "diversity": {
+        "title": "Monimuotoisuus & Osallisuus",
+        "description": "Edistä osallisuutta räätälöidyillä oppimis- ja kehitysohjelmilla!"
+      }
     },
     "latestResources": "Uusimmat resurssit",
     "latestPrograms": "Uusimmat ohjelmat"
@@ -27,8 +40,23 @@
     "title": "Ohjelmat",
     "description": "Tutustu kattaviin ohjelmiimme, jotka on suunniteltu muuttamaan organisaatiosi.",
     "allPrograms": "Kaikki ohjelmat",
+    "allAudiences": "Kaikki kohderyhmät",
     "categories": "Kategoriat",
-    "noPrograms": "Ohjelmia ei löytynyt."
+    "noPrograms": "Ohjelmia ei löytynyt.",
+    "duration": "Ohjelman kesto",
+    "formTitle": "Aloita tämän ohjelman toteuttaminen tänään",
+    "formDescription": "Tekoälyllä toteutetut ratkaisut {programTitle}-ohjelmaasi varten",
+    "categoryFormTitle": "Aloita {categoryName}-ohjelmien toteuttaminen tänään",
+    "categoryFormDescription": "Tekoälyllä toteutetut ratkaisut {categoryName}-ohjelmiisi",
+    "filterByCategory": "Suodata kategorian mukaan",
+    "filterByAudience": "Suodata kohderyhmän mukaan",
+    "filterByGoal": "Suodata ohjelman tavoitteen mukaan",
+    "clearFilters": "Tyhjennä suodattimet",
+    "filters": "Suodattimet",
+    "relatedPrograms": "Liittyvät {category} ohjelmat",
+    "relatedProgramsInterest": "Saatat olla kiinnostunut {category}",
+    "searchGoal": "Hae ohjelman tavoitetta",
+    "searchGoalPlaceholder": "Kirjoita hakeaksesi ohjelman tavoitteita..."
   },
   "resources": {
     "title": "Resurssit",
@@ -36,7 +64,9 @@
     "allResources": "Kaikki resurssit",
     "categories": "Kategoriat",
     "noResources": "Resursseja ei löytynyt.",
-    "readMore": "Lue lisää"
+    "readMore": "Lue lisää",
+    "seeMore": "Katso lisää {category} artikkeleita",
+    "relatedArticles": "Saatat olla kiinnostunut {category} artikkeleista"
   },
   "search": {
     "title": "Haku",
@@ -67,6 +97,7 @@
   },
   "footer": {
     "description": "Plademy on tekoälyllä toteutettu integraatiokeskus, joka on räätälöity sekä työntekijä- että yhteisökehitysohjelmille.",
+    "stayConnected": "Pysy yhteydessä sosiaalisessa mediassa",
     "links": {
       "security": "Turvallisuus",
       "privacy": "Tietosuojakäytäntö",
@@ -76,6 +107,43 @@
     "businessId": "Y-tunnus",
     "vat": "ALV-nro",
     "rights": "© Kaikki oikeudet pidätetään"
+  },
+  "solutions": {
+    "title": "Ratkaisut",
+    "description": "Tutustu kattaviin ratkaisuihimme organisaatiolle.",
+    "viewAll": "Näytä kaikki ratkaisut",
+    "mentorshipCenter": {
+      "title": "Mentorointikeskus",
+      "description": "Tekoälyllä toteutettu mentorointi- ja valmennusalusta, joka yhdistää mentorit ja mentoreitavat vaikuttavaa ammatillista kehitystä varten.",
+      "shortDescription": "Tekoälyllä toteutettu mentorointi- ja valmennusalusta.",
+      "ctaText": "Lue lisää",
+      "ctaLink": "/solutions",
+      "image": ""
+    },
+    "membershipCenter": {
+      "title": "Jäsenyyskeskus",
+      "description": "Kattava jäsenyyden hallinta-alusta yhteisöjen rakentamiseen ja sitouttamiseen.",
+      "shortDescription": "Kattava jäsenyyden hallinta-alusta.",
+      "ctaText": "Lue lisää",
+      "ctaLink": "/solutions",
+      "image": ""
+    },
+    "ergCenter": {
+      "title": "ERG-keskus",
+      "description": "Työntekijöiden resurssiryhmien hallinta-alusta monimuotoisuuden, tasa-arvon ja osallisuuden aloitteiden tukemiseen.",
+      "shortDescription": "Työntekijöiden resurssiryhmien hallinta-alusta.",
+      "ctaText": "Lue lisää",
+      "ctaLink": "/solutions",
+      "image": ""
+    },
+    "securedIntegrations": {
+      "title": "Turvalliset integraatiot",
+      "description": "Turvalliset ja saumattomat integraatiot olemassa oleviin työkaluihisi ja alustoihisi.",
+      "shortDescription": "Turvalliset ja saumattomat integraatiot.",
+      "ctaText": "Lue lisää",
+      "ctaLink": "/solutions",
+      "image": ""
+    }
   },
   "common": {
     "readMore": "Lue lisää",

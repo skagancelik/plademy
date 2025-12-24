@@ -1,0 +1,120 @@
+{
+  "resource_example": {
+    "slug": "effective-mentoring-strategies",
+    "language": "en",
+    "title": "Effective Mentoring Strategies for Modern Organizations",
+    "description": "Discover proven mentoring strategies that drive employee engagement and career development in today's dynamic workplace.",
+    "excerpt": "Learn how to implement effective mentoring programs that create lasting impact on employee growth and organizational success.",
+    "content": "# Effective Mentoring Strategies\n\nMentoring is a powerful tool for employee development that can transform organizational culture and drive measurable results.\n\n## The Importance of Structured Programs\n\nStructured mentoring programs provide a framework for meaningful relationships that benefit both mentors and mentees.",
+    "keypoints": [
+      "Structured mentoring programs increase employee retention by 25%",
+      "Regular check-ins and goal setting are critical for success",
+      "Technology platforms can streamline mentor-mentee matching"
+    ],
+    "category": "mentoring-coaching",
+    "faqs": [
+      {
+        "question": "How often should mentors and mentees meet?",
+        "answer": "We recommend monthly meetings with weekly check-ins via messaging platforms for optimal engagement."
+      },
+      {
+        "question": "What makes a successful mentoring relationship?",
+        "answer": "Clear goals, mutual respect, regular communication, and commitment from both parties are essential."
+      },
+      {
+        "question": "How do you measure mentoring program success?",
+        "answer": "Key metrics include employee retention rates, promotion rates, skill development assessments, and participant satisfaction surveys."
+      },
+      {
+        "question": "Can mentoring be done remotely?",
+        "answer": "Yes, virtual mentoring has become increasingly effective with video conferencing tools and digital collaboration platforms."
+      },
+      {
+        "question": "What is the ideal mentor-to-mentee ratio?",
+        "answer": "A 1:1 ratio is ideal, though group mentoring with 1 mentor to 3-4 mentees can also be effective."
+      },
+      {
+        "question": "How long should a mentoring relationship last?",
+        "answer": "Formal mentoring relationships typically last 6-12 months, but informal relationships can continue indefinitely."
+      },
+      {
+        "question": "What training do mentors need?",
+        "answer": "Mentors should receive training on active listening, goal setting, feedback delivery, and understanding different learning styles."
+      }
+    ],
+    "cover_image_url": "https://images.unsplash.com/photo-1522202176988-66273c2fd55f",
+    "is_published": true
+  },
+  "program_example": {
+    "slug": "leadership-development-program",
+    "language": "en",
+    "title": "Leadership Development Program",
+    "description": "A comprehensive 12-month program designed to develop next-generation leaders through mentorship, training, and hands-on experience.",
+    "excerpt": "Transform emerging leaders into confident, effective managers with our structured leadership development program.",
+    "content": "# Leadership Development Program\n\nOur program is designed to develop confident, effective leaders who can drive organizational success.\n\n## Program Structure\n\n1. Monthly workshops\n2. One-on-one coaching\n3. Real-world projects",
+    "keypoints": [
+      "12-month structured program with monthly workshops",
+      "One-on-one executive coaching sessions",
+      "Real-world project leadership opportunities"
+    ],
+    "goal": "To develop confident, effective leaders who can drive organizational success and inspire their teams.",
+    "audience": "High-potential employees with 3+ years of experience who are ready to take on leadership roles.",
+    "category": "leadership",
+    "faqs": [
+      {
+        "question": "Who is eligible for this program?",
+        "answer": "Employees with 3+ years of experience who demonstrate leadership potential and are recommended by their managers."
+      },
+      {
+        "question": "How long does the program last?",
+        "answer": "The program runs for 12 months with monthly workshops and ongoing mentorship."
+      },
+      {
+        "question": "What is the time commitment?",
+        "answer": "Participants should expect to dedicate 4-6 hours per month to program activities."
+      },
+      {
+        "question": "Is there a cost to participate?",
+        "answer": "The program is fully sponsored by the organization with no cost to participants."
+      },
+      {
+        "question": "What happens after program completion?",
+        "answer": "Graduates receive a certificate and are prioritized for leadership role opportunities within the organization."
+      },
+      {
+        "question": "Can I apply if I'm in a different department?",
+        "answer": "Yes, the program is open to all departments. Cross-functional leadership experience is encouraged."
+      },
+      {
+        "question": "What support is available during the program?",
+        "answer": "Each participant is paired with an executive mentor and has access to program coordinators for ongoing support."
+      }
+    ],
+    "cover_image_url": "https://images.unsplash.com/photo-1521737604893-d14cc237f11d",
+    "is_published": true
+  },
+  "field_descriptions": {
+    "slug": "URL-friendly identifier (lowercase, hyphens, 3-6 words)",
+    "language": "Must be 'en', 'fi', or 'sv'",
+    "title": "Full title of the resource/program (required)",
+    "description": "Meta description for SEO (max 160 chars recommended)",
+    "excerpt": "Short summary for previews (max 200 chars recommended)",
+    "content": "Full Markdown content (800-1200 words recommended)",
+    "keypoints": "Array of 3 strings (required)",
+    "category": "Category ID from categories table (required)",
+    "faqs": "Array of {question, answer} objects (7 required)",
+    "goal": "Program goal (only for programs, nullable)",
+    "audience": "Target audience (only for programs, nullable)",
+    "cover_image_url": "Image URL (nullable)",
+    "is_published": "Boolean, default true"
+  },
+  "required_fields": {
+    "resource": ["slug", "language", "title", "category", "keypoints"],
+    "program": ["slug", "language", "title", "category", "keypoints"]
+  },
+  "optional_fields": {
+    "resource": ["description", "excerpt", "content", "faqs", "cover_image_url", "is_published"],
+    "program": ["description", "excerpt", "content", "goal", "audience", "faqs", "cover_image_url", "is_published"]
+  }
+}
+

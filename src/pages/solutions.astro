@@ -1,0 +1,97 @@
+---
+import PageLayout from '@layouts/PageLayout.astro';
+import { getTranslations, type Language, getLanguageFromCookie } from '@lib/i18n';
+
+export const prerender = true; // Static page
+
+const lang = getLanguageFromCookie(Astro.cookies, Astro.url) || 'en';
+const t = getTranslations(lang);
+---
+
+<PageLayout
+  title={t.solutions.title || 'Solutions'}
+  description={t.solutions.description || 'Discover our comprehensive solutions for your organization.'}
+  lang={lang}
+>
+  <div class="container py-12">
+    <div class="mb-12 text-center">
+      <h1 class="text-4xl md:text-5xl font-bold mb-4">{t.solutions.title || 'Solutions'}</h1>
+      <p class="text-xl text-black max-w-3xl mx-auto">
+        {t.solutions.description || 'Discover our comprehensive solutions for your organization.'}
+      </p>
+    </div>
+
+    <div class="grid md:grid-cols-2 gap-8">
+      <!-- Mentorship Center -->
+      <a href="https://mentorship.center" target="_blank" rel="noopener noreferrer" class="card hover:shadow-lg transition-shadow block rounded-[30px]">
+        <div class="mb-6">
+          <div class="mt-5 mb-[40px] flex justify-center">
+            <img 
+              src="/mentorship.center logo.svg" 
+              alt="Mentorship Center" 
+              class="h-16 object-contain"
+            />
+          </div>
+          <h2 class="text-3xl font-bold mb-4 text-center">{t.solutions.mentorshipCenter.title}</h2>
+          <p class="text-black text-lg mb-6 text-center">
+            {t.solutions.mentorshipCenter.description}
+          </p>
+        </div>
+      </a>
+
+      <!-- Membership Center -->
+      <a href="https://membership.center" target="_blank" rel="noopener noreferrer" class="card hover:shadow-lg transition-shadow block rounded-[30px]">
+        <div class="mb-6">
+          <div class="mt-5 mb-[40px] flex justify-center">
+            <img 
+              src="/membership-center-logo.svg" 
+              alt="Membership Center" 
+              class="h-16 object-contain"
+            />
+          </div>
+          <h2 class="text-3xl font-bold mb-4 text-center">{t.solutions.membershipCenter.title}</h2>
+          <p class="text-black text-lg mb-6 text-center">
+            {t.solutions.membershipCenter.description}
+          </p>
+        </div>
+      </a>
+
+      <!-- ERG Center -->
+      <a href="https://erg.center" target="_blank" rel="noopener noreferrer" class="card hover:shadow-lg transition-shadow block rounded-[30px]">
+        <div class="mb-6">
+          <div class="mt-5 mb-[40px] flex justify-center">
+            <img 
+              src="/erg-center-logo.svg" 
+              alt="ERG Center" 
+              class="h-16 object-contain"
+            />
+          </div>
+          <h2 class="text-3xl font-bold mb-4 text-center">{t.solutions.ergCenter.title}</h2>
+          <p class="text-black text-lg mb-6 text-center">
+            {t.solutions.ergCenter.description}
+          </p>
+        </div>
+      </a>
+
+      <!-- Secured Integrations -->
+      <a href="https://securedintegration.com" target="_blank" rel="noopener noreferrer" class="card hover:shadow-lg transition-shadow block rounded-[30px]">
+        <div class="mb-6">
+          <div class="mt-5 mb-[40px] flex justify-center">
+            <img 
+              src="/secured-integration-logo.svg" 
+              alt="Secured Integrations" 
+              class="h-16 object-contain"
+            />
+          </div>
+          <h2 class="text-3xl font-bold mb-4 text-center">{t.solutions.securedIntegrations.title}</h2>
+          <p class="text-black text-lg mb-6 text-center">
+            {t.solutions.securedIntegrations.description}
+          </p>
+        </div>
+      </a>
+    </div>
+  </div>
+</PageLayout>
+
+
+

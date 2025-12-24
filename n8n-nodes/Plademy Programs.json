@@ -1,0 +1,1291 @@
+{
+  "name": "Plademy Programs",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        8704,
+        3168
+      ],
+      "id": "555b231d-005c-477c-b0a1-56c7f1a5a5af",
+      "name": "When clicking ‘Test workflow’"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "23b8e8c4-9191-415a-9661-1b60d413528a",
+              "name": "research",
+              "type": "string",
+              "value": "={{ $json.choices[0].message.content }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "f8a16cb9-5fd3-41ec-9315-f83b6094742c",
+      "name": "Cleanup Links1",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        9984,
+        3168
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c59e8718-807a-495f-969c-cbb2bd6f8b9f",
+              "leftValue": "={{$json.status}}",
+              "rightValue": "COMPLETED",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        10176,
+        3472
+      ],
+      "id": "57d9b3d7-937a-41b2-a571-8bdc45f20978",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "amount": 3
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        9760,
+        3712
+      ],
+      "id": "41de5fe9-9e03-4ae1-8f5d-01e674693071",
+      "name": "Wait1",
+      "webhookId": "eecbd140-3c76-44a1-b3af-f41ec1ecca5f"
+    },
+    {
+      "parameters": {
+        "url": "=https://queue.fal.run/fal-ai/gpt-image-1.5/requests/{{ $json.request_id }}/status",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        9744,
+        3472
+      ],
+      "id": "53c68d2b-bc45-4b24-93ff-fdcb2b28eeba",
+      "name": "FAL.ai Image Control1",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "hWjUoEKI1jiVF5lm",
+          "name": "Fal.ai"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://queue.fal.run/fal-ai/gpt-image-1.5/requests/{{ $json.request_id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        10448,
+        3456
+      ],
+      "id": "a0bf5967-f65e-4851-a024-fe4c16d472be",
+      "name": "FAL.ai Image Link1",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "hWjUoEKI1jiVF5lm",
+          "name": "Fal.ai"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.images[0].url }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        10704,
+        3472
+      ],
+      "id": "c2259f90-f33b-407e-b0ff-5338a94cd9e0",
+      "name": "HTTP Request",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "operation": "resize",
+        "width": 800,
+        "height": 450,
+        "options": {
+          "format": "jpeg"
+        }
+      },
+      "type": "n8n-nodes-base.editImage",
+      "typeVersion": 1,
+      "position": [
+        11136,
+        3456
+      ],
+      "id": "4b85a504-051b-4264-a8dd-d4e393a0c227",
+      "name": "Edit Image"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatDeepSeek",
+      "typeVersion": 1,
+      "position": [
+        8960,
+        3728
+      ],
+      "id": "09519df2-07a9-46f6-bd24-e6568876c69e",
+      "name": "DeepSeek Chat Model3",
+      "credentials": {
+        "deepSeekApi": {
+          "id": "xEtower0uh8ZMl2b",
+          "name": "DeepSeek API  n8n-plademy-com-001"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1iuXDzgbeQj8welpVJn5MezUDMe-VOHjjDs5hPVBzps4",
+          "mode": "list",
+          "cachedResultName": "Programs",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1iuXDzgbeQj8welpVJn5MezUDMe-VOHjjDs5hPVBzps4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1588210553,
+          "mode": "list",
+          "cachedResultName": "Programs",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1iuXDzgbeQj8welpVJn5MezUDMe-VOHjjDs5hPVBzps4/edit#gid=1588210553"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "URL": "=https://plademy.com/{{ $('Create a row1').item.json.slug }}",
+            "Program Goal": "={{ $('Programs').item.json['Program Goal'] }}",
+            "Created On": "={{ $json.date_gmt3 }}",
+            "Program Title": "={{ $('Full JSON1').item.json.title }}"
+          },
+          "matchingColumns": [
+            "Program Goal"
+          ],
+          "schema": [
+            {
+              "id": "Program Category",
+              "displayName": "Program Category",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Program Goal",
+              "displayName": "Program Goal",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Program Audience",
+              "displayName": "Program Audience",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Program Duration",
+              "displayName": "Program Duration",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Program Title",
+              "displayName": "Program Title",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Created On",
+              "displayName": "Created On",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "URL",
+              "displayName": "URL",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        10560,
+        4112
+      ],
+      "id": "f28f8c5f-b375-4f58-b12f-7c6744f99319",
+      "name": "Google Sheets1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "2MflyFLJGceQVKnf",
+          "name": "Google Sheets mentoshipcenter@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Şu anki tarih ve zamanı al (üretim zamanı)\nconst now = new Date();\n\n// UTC zamanını al\nconst utcDate = new Date(now.getTime() + (now.getTimezoneOffset() * 60000));\n\n// GMT+3'e çevir (3 saat ekle)\nconst gmt3Date = new Date(utcDate.getTime() + (3 * 3600000));\n\n// İngilizce ay isimleri\nconst monthNames = [\"Jan\", \"Feb\", \"Mar\", \"Apr\", \"May\", \"Jun\", \"Jul\", \"Aug\", \"Sep\", \"Oct\", \"Nov\", \"Dec\"];\n\n// Saat ve dakikayı iki haneli yap\nconst pad = (n) => n.toString().padStart(2, '0');\n\n// Format: 4 May 2025 - 21:40\nconst formatted = `${gmt3Date.getDate()} ${monthNames[gmt3Date.getMonth()]} ${gmt3Date.getFullYear()} - ${pad(gmt3Date.getHours())}:${pad(gmt3Date.getMinutes())}`;\n\n// UTC formatı için ISO string\nconst utcISO = now.toISOString();\n\nreturn {\n  date_gmt: utcISO,\n  date_gmt3: formatted,\n  production_date: formatted\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        10320,
+        4112
+      ],
+      "id": "34323c58-2a42-4796-acf6-d1e7c4166485",
+      "name": "Date Time GMT+"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Act as a professional visual prompt engineer for the HiDream1 image generation model. Your task is to transform program metadata into a highly descriptive visual prompt for a professional cover image.\n\nINPUT DATA:\n- Program Category: {{ $('Programs').item.json['Program Category'] }}\n- Program Goal:{{ $('Programs').item.json['Program Goal'] }}\n- Program Audience:{{ $('Programs').item.json['Program Audience'] }}\n\nSTRICT RULES:\n1. The output must be a visual description for a \"Cover Image\".\n2. ABSOLUTELY NO TEXT: Ensure the generated prompt specifically describes a scene without any letters, words, numbers, fonts, brands, or logos.\n3. VISUAL STORYTELLING: Translate the \"Program Goal\" and \"Audience\" into a conceptual visual scene that represents the essence of the program.\n4. LANGUAGE: The output prompt must be in English.\n5. NO EXPLANATIONS: Provide only the final prompt text. Do not include \"Prompt:\", \"Here is your description\", or any introductory remarks.\n\nOUTPUT FORMAT:\n[A detailed visual description focused on a professional cover image composition, emphasizing the atmosphere and elements relevant to the program details provided.]\n\nIMPORTANT : Give a short answer as plain text only do not use any special characters write only the image generation prompt do not write dimensions. And please note that we dont want any text, number, letter, writing, illustration on the image.",
+        "options": {
+          "systemMessage": "You are an expert image prompt specialist. "
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.9,
+      "position": [
+        9104,
+        3472
+      ],
+      "id": "2df40221-5a4e-464e-bf02-82530888a35a",
+      "name": "Image Prompt Creator1",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ec0210ce-e582-4282-8907-243c8ca4c92d",
+              "name": "retryCount",
+              "value": "={{Number($json.retryCount || 0) + 1}}",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        8560,
+        4352
+      ],
+      "id": "a6aa0cb0-7430-4c73-84c9-56fc8edee9cb",
+      "name": "Increase Retry"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "96806413-3d9c-4807-884b-11f55a21402e",
+              "leftValue": "={{$json.valid}}",
+              "rightValue": "true",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        8704,
+        4128
+      ],
+      "id": "0a1b7f23-a15d-4329-944a-69e51a8e53ff",
+      "name": "Is Output Valid?"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "58507a32-d4f1-4740-84f2-4296dd7aa0d2",
+              "leftValue": "={{$json.retryCount}}",
+              "rightValue": 5,
+              "operator": {
+                "type": "number",
+                "operation": "lt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        8560,
+        4592
+      ],
+      "id": "aac89ac9-fd58-4a6b-a964-493469c3be51",
+      "name": "Is Retry < 5?"
+    },
+    {
+      "parameters": {
+        "subject": "Title Slug Meta 5 Kez Denedik Olmadı - Plademy Resources",
+        "body": "Uyarı",
+        "fromEmail": "n8n@mentorship.center",
+        "toAddresses": [
+          "skcelik@gmail.com, serkan@mentornity.com"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.awsSes",
+      "typeVersion": 1,
+      "position": [
+        8832,
+        4672
+      ],
+      "id": "826835ab-d94d-4ca0-a073-c962ba72fe07",
+      "name": "AWS SES"
+    },
+    {
+      "parameters": {
+        "jsCode": "// n8n'de binary data'yı doğru şekilde almak\nvar item = items[0];\n\n// Görsel ebatları: 1440 x 720 (yeni ebat)\nvar imageWidth = 1440;\nvar imageHeight = 720;\nvar bottomMargin = 60;\nvar maxY = imageHeight - bottomMargin; // 660px\n\n// Şekilleri görselin EN ALT KISIMDA tut\nvar minY = 550; // Görselin son 110px'lik alanında (550-660px arası)\n\n// Random sayı üretme fonksiyonu\nfunction getRandomInt(min, max) {\n    return Math.floor(Math.random() * (max - min + 1)) + min;\n}\n\n// Şekillerin çakışmamasını kontrol etme fonksiyonu\nfunction checkOverlap(newShape, existingShapes) {\n    var i;\n    for (i = 0; i < existingShapes.length; i++) {\n        var existing = existingShapes[i];\n        var distance = Math.sqrt(\n            Math.pow(newShape.centerX - existing.centerX, 2) + \n            Math.pow(newShape.centerY - existing.centerY, 2)\n        );\n        \n        if (distance < (newShape.size + existing.size + 20)) { // 20px minimum mesafe\n            return true;\n        }\n    }\n    return false;\n}\n\nvar shapes = [];\nvar attempts = 0;\nvar maxAttempts = 100;\n\n// 2 Circle üret - 1440px genişliğe uygun boyutta\nvar circleCount = 0;\nwhile (circleCount < 2 && attempts < maxAttempts) {\n    var radius = getRandomInt(10, 25); // 1440px için uygun boyut\n    var centerX = getRandomInt(radius + 20, imageWidth - radius - 20);\n    var centerY = getRandomInt(minY + radius, maxY - radius); // Son 110px'de\n    \n    var circle = {\n        type: 'circle',\n        centerX: centerX,\n        centerY: centerY,\n        radius: radius,\n        startX: centerX - radius,\n        startY: centerY - radius,\n        endX: centerX + radius,\n        endY: centerY + radius,\n        size: radius\n    };\n    \n    if (!checkOverlap(circle, shapes)) {\n        shapes.push(circle);\n        circleCount++;\n    }\n    attempts++;\n}\n\n// 3 Rectangle üret - RANDOM uzun/kısa boyutlarda\nvar rectCount = 0;\nattempts = 0;\nwhile (rectCount < 3 && attempts < maxAttempts) {\n    var width = getRandomInt(15, 70);  // Daha geniş aralık: uzun-kısa varyasyonu\n    var height = getRandomInt(12, 45); // Daha geniş aralık: uzun-kısa varyasyonu\n    var startX = getRandomInt(20, imageWidth - width - 20);\n    var startY = getRandomInt(minY, maxY - height); // Son 110px'de\n    var endX = startX + width;\n    var endY = startY + height;\n    \n    // Tam yuvarlak için corner radius = min(width, height) / 2\n    var cornerRadius = Math.min(width, height) / 2;\n    \n    var rect = {\n        type: 'rectangle',\n        centerX: startX + width / 2,\n        centerY: startY + height / 2,\n        startX: startX,\n        startY: startY,\n        endX: endX,\n        endY: endY,\n        width: width,\n        height: height,\n        cornerRadius: cornerRadius,\n        size: Math.max(width, height) / 2\n    };\n    \n    if (!checkOverlap(rect, shapes)) {\n        shapes.push(rect);\n        rectCount++;\n    }\n    attempts++;\n}\n\n// n8n formatında output\nreturn [{\n    json: {\n        circles: shapes.filter(function(s) { return s.type === 'circle'; }),\n        rectangles: shapes.filter(function(s) { return s.type === 'rectangle'; }),\n        allShapes: shapes\n    },\n    binary: item.binary || {}\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        10928,
+        3472
+      ],
+      "id": "e8ffce3f-50eb-4bae-b81c-b3cd9089a0fa",
+      "name": "Generate Random Shapes"
+    },
+    {
+      "parameters": {
+        "model": "sonar-pro",
+        "messages": {
+          "message": [
+            {
+              "content": "=\"Act as an expert program designer and corporate researcher. I need to design a detailed curriculum for the following program:\n\nProgram Category: {{ $json['Program Category'] }}\nProgram Goal : {{ $json['Program Goal'] }}\nProgram Audience : {{ $json['Program Audience'] }}\n\nYour Task:\nPlease research and provide a comprehensive background report that covers:\nProven Methodologies: What are the world-class frameworks or pedagogical models (e.g., 70-20-10 rule, GROW model, ADKAR, Lean Startup etc.) that best fit this specific goal and audience?\nKey Milestones: Based on the {{ $json[\"Program Duration\"] }} duration, what should be the 3 to 5 critical milestones for the participants to achieve the goal?\nActionable Content Pillars: Identify 4 main modules or themes that must be covered in this program.\nSuccess Metrics (KPIs): How should the success of this specific goal be measured quantitatively and qualitatively?\nAudience-Specific Challenges: What are the top 3 obstacles this specific audience ({{ $json[\"Program Audience\"] }}) faces when trying to reach this goal, and how can the program address them?\nProvide the information in a structured format so that I can use it to generate a full day-by-day or week-by-week curriculum using another AI.\n"
+            }
+          ]
+        },
+        "simplify": true,
+        "options": {
+          "searchDomainFilter": "-chronus.com, -togetherplatform.com, -qooper.io, -mentorloop.com, -mentorcloud.com, -mentorink.com, -pushfar.com, -tenthousandcoffees.com, -mentoringcomplete.com, -mentorcliq.com"
+        },
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.perplexity",
+      "typeVersion": 1,
+      "position": [
+        9648,
+        3168
+      ],
+      "id": "873c165b-0eb1-484d-9145-d13bf70056d9",
+      "name": "Perplexity1",
+      "credentials": {
+        "perplexityApi": {
+          "id": "hoMuJPMA4uiKJoWq",
+          "name": "Plademy Perplexity"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "uploadFile",
+        "additionalFieldsFile": {
+          "folder": "PlademyWebsite"
+        }
+      },
+      "type": "n8n-nodes-cloudinary.cloudinary",
+      "typeVersion": 1,
+      "position": [
+        11072,
+        3760
+      ],
+      "id": "e976db9b-e939-4e14-a715-6150817b1279",
+      "name": "Upload an asset from file data1",
+      "credentials": {
+        "cloudinaryApi": {
+          "id": "As3K4Aue3tCLNGmK",
+          "name": "Cloudinary account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableId": "programs",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "=slug",
+              "fieldValue": "={{ $json.slug }}"
+            },
+            {
+              "fieldId": "=language",
+              "fieldValue": "={{ $json.language }}"
+            },
+            {
+              "fieldId": "=title",
+              "fieldValue": "={{ $json.title }}"
+            },
+            {
+              "fieldId": "=description",
+              "fieldValue": "={{ $json.description }}"
+            },
+            {
+              "fieldId": "=excerpt",
+              "fieldValue": "={{ $json.excerpt }}"
+            },
+            {
+              "fieldId": "=content",
+              "fieldValue": "={{ $json.content }}"
+            },
+            {
+              "fieldId": "=keypoints",
+              "fieldValue": "={{ $json.keypoints }}"
+            },
+            {
+              "fieldId": "=category",
+              "fieldValue": "={{ $json.category }}"
+            },
+            {
+              "fieldId": "=faqs",
+              "fieldValue": "={{ $json.faqs }}"
+            },
+            {
+              "fieldId": "=cover_image_url",
+              "fieldValue": "={{ $json.cover_image_url }}"
+            },
+            {
+              "fieldId": "=is_published",
+              "fieldValue": "={{ $json.is_published }}"
+            },
+            {
+              "fieldId": "=goal",
+              "fieldValue": "={{ $json.goal }}"
+            },
+            {
+              "fieldId": "=audience",
+              "fieldValue": "={{ $json.audience }}"
+            },
+            {
+              "fieldId": "=duration",
+              "fieldValue": "={{ $json.duration }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        10048,
+        4112
+      ],
+      "id": "0a6e3e76-5981-4504-8116-087d7c936895",
+      "name": "Create a row1",
+      "credentials": {
+        "supabaseApi": {
+          "id": "4lH5AgCNtycPKcFq",
+          "name": "PlademyWebsite"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatDeepSeek",
+      "typeVersion": 1,
+      "position": [
+        6992,
+        4352
+      ],
+      "id": "7dae4542-dda7-4ba5-9f74-3e9f74415732",
+      "name": "DeepSeek Chat Model5",
+      "credentials": {
+        "deepSeekApi": {
+          "id": "xEtower0uh8ZMl2b",
+          "name": "DeepSeek API  n8n-plademy-com-001"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// n8n Code Node - Markdown Temizleme\nlet mdString = $input.item.json.output || $input.item.json.text || $input.item.json.content;\n\n// Kod bloğu işaretçilerini temizle\nmdString = mdString\n  .replace(/^```(?:markdown|md)?\\s*/i, '')\n  .replace(/\\s*```$/i, '')\n  .trim();\n\n// Gereksiz escape karakterlerini temizle (ama \\n korunur)\nmdString = mdString.replace(/\\\\(?!n)/g, '');\n\n// Çoklu boş satırları tek boş satıra indir\nmdString = mdString.replace(/\\n{3,}/g, '\\n\\n');\n\nreturn [{\n  json: {\n    cleanContent: mdString\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        7488,
+        4128
+      ],
+      "id": "5a20c792-a65b-4b01-a9fa-10b2d18e160d",
+      "name": "Clean MD1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// n8n Code Node - Content Validator\nconst obj = $json.output ? $json.output : $json;\n\n// Required fields (title and content come from other nodes, not validated here)\nconst required = [\n  \"slug\",\n  \"description\",\n  \"excerpt\",\n  \"keypoint1\",\n  \"keypoint2\",\n  \"keypoint3\",\n  \"faq1\",\n  \"faq2\",\n  \"faq3\",\n  \"faq4\",\n  \"faq5\",\n  \"faq6\",\n  \"faq7\"\n];\n\nlet valid = true;\nconst errors = [];\n\n// Check if all required fields exist\nfor (const key of required) {\n  if (!(key in obj)) {\n    valid = false;\n    errors.push(`${key} is missing`);\n  }\n}\n\n// Validate FAQ structure (each FAQ must have question and answer)\nfor (let i = 1; i <= 7; i++) {\n  const faq = obj[`faq${i}`];\n  if (faq) {\n    if (!faq.question || !faq.answer) {\n      valid = false;\n      errors.push(`FAQ ${i} is missing question or answer`);\n    }\n  }\n}\n\n// Validate slug format\nif (obj.slug && !/^[a-z0-9-]+$/.test(obj.slug)) {\n  valid = false;\n  errors.push(\"Slug contains invalid characters (only lowercase, numbers, hyphens allowed)\");\n}\n\nreturn [{\n  json: {\n    valid: valid,\n    retryCount: $json.retryCount ?? 0,\n    original: obj,\n    errors: errors\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        8448,
+        4128
+      ],
+      "id": "388b302e-78ef-4940-9ef0-8d3869e721ac",
+      "name": "Validate JSON Format1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "743259c7-913b-42cd-aa55-de1b1e5f78c4",
+              "name": "title",
+              "value": "={{ $('Validate JSON Format1').item.json.original.title }}",
+              "type": "string"
+            },
+            {
+              "id": "8b7e57ac-6db7-447c-bad9-70bcbb6a41ff",
+              "name": "slug",
+              "value": "={{ $('Validate JSON Format1').item.json.original.slug }}",
+              "type": "string"
+            },
+            {
+              "id": "language-assignment",
+              "name": "language",
+              "value": "={{ $('Programs').item.json.Language || 'en' }}",
+              "type": "string"
+            },
+            {
+              "id": "description-assignment",
+              "name": "description",
+              "value": "={{ $('Validate JSON Format1').item.json.original.description }}",
+              "type": "string"
+            },
+            {
+              "id": "excerpt-assignment",
+              "name": "excerpt",
+              "value": "={{ $('Validate JSON Format1').item.json.original.excerpt }}",
+              "type": "string"
+            },
+            {
+              "id": "content-assignment",
+              "name": "content",
+              "value": "={{ $('Clean MD1').item.json.cleanContent }}",
+              "type": "string"
+            },
+            {
+              "id": "keypoints-assignment",
+              "name": "keypoints",
+              "value": "={{ [$('Validate JSON Format1').item.json.original.keypoint1, $('Validate JSON Format1').item.json.original.keypoint2, $('Validate JSON Format1').item.json.original.keypoint3].filter(kp => kp && kp.trim().length > 0) }}",
+              "type": "array"
+            },
+            {
+              "id": "category-assignment",
+              "name": "category",
+              "value": "={{ $('Programs').item.json.Category || 'mentoring-coaching' }}",
+              "type": "string"
+            },
+            {
+              "id": "faqs-assignment",
+              "name": "faqs",
+              "value": "={{ (() => { const faqs = []; for (let i = 1; i <= 7; i++) { const faq = $('Validate JSON Format1').item.json.original['faq' + i]; if (faq && faq.question && faq.answer) { faqs.push({ question: faq.question.trim(), answer: faq.answer.trim() }); } } return faqs.length > 0 ? faqs : null; })() }}",
+              "type": "array"
+            },
+            {
+              "id": "cover-image-assignment",
+              "name": "cover_image_url",
+              "value": "={{ $('Upload an asset from file data1').item.json.secure_url || null }}",
+              "type": "string"
+            },
+            {
+              "id": "is-published-assignment",
+              "name": "is_published",
+              "value": "true",
+              "type": "boolean"
+            },
+            {
+              "id": "337f07ce-8ae5-47a7-86f5-15bcb26d072f",
+              "name": "goal",
+              "value": "={{ $('Programs').item.json['Program Goal'] }}",
+              "type": "string"
+            },
+            {
+              "id": "c26ecc93-8978-4f7f-9a14-dbd376561b88",
+              "name": "audience",
+              "value": "={{ $('Programs').item.json['Program Audience'] }}",
+              "type": "string"
+            },
+            {
+              "id": "3b29268c-1241-457a-bb6d-567c2406bb6d",
+              "name": "duration",
+              "value": "={{ $('Programs').item.json['Program Duration'] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        9792,
+        4112
+      ],
+      "id": "20575f84-a6ea-42c4-9bb4-00a78eaca79d",
+      "name": "Full JSON1"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "id": "e29c8416-806d-423a-ad74-2188b90ac859",
+      "name": "Combine Title, Tags, Content1",
+      "type": "n8n-nodes-base.aggregate",
+      "position": [
+        9504,
+        4112
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        9152,
+        3024
+      ],
+      "id": "94dfef69-d060-402e-8b99-01acd6739521",
+      "name": "Schedule Trigger",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1iuXDzgbeQj8welpVJn5MezUDMe-VOHjjDs5hPVBzps4",
+          "mode": "list",
+          "cachedResultName": "Programs",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1iuXDzgbeQj8welpVJn5MezUDMe-VOHjjDs5hPVBzps4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1588210553,
+          "mode": "list",
+          "cachedResultName": "Programs",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1iuXDzgbeQj8welpVJn5MezUDMe-VOHjjDs5hPVBzps4/edit#gid=1588210553"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Created On"
+            }
+          ]
+        },
+        "options": {
+          "returnFirstMatch": true
+        }
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        9360,
+        3168
+      ],
+      "id": "e48c1d50-2d61-49ea-a627-b8339bc7fb5b",
+      "name": "Programs",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "2MflyFLJGceQVKnf",
+          "name": "Google Sheets mentoshipcenter@gmail.com"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://queue.fal.run/fal-ai/gpt-image-1.5",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {}
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "=  {\n    \"prompt\": \"{{ $json.output }},NO TEXT, NO LETTERS, NO NUMBERS, NO LOGOS\",\n    \"image_size\": \"1536x1024\",\n    \"num_images\": 1,\n    \"quality\": \"low\",\n    \"output_format\": \"png\"\n  }\n\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        9488,
+        3472
+      ],
+      "id": "165f8511-21a2-4eee-9c17-0c0a14a12c54",
+      "name": "GPT Image 1.5 - FAL.ai",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "hWjUoEKI1jiVF5lm",
+          "name": "Fal.ai"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Generate a professional program guide based on the following input:\n\n- **Program Category:** {{ $('Programs').item.json['Program Category'] }}\n- **Program Audience:** {{ $('Programs').item.json['Program Audience'] }}\n- **Program Goal:** {{ $('Programs').item.json['Program Goal'] }}\n- **Program Duration:** {{ $('Programs').item.json['Program Duration'] }}\n- **Research Data:** {{ $('Perplexity1').item.json.message }}\n### REQUIRED SECTIONS:\n\n# {{ $json[\"Program Category\"] }}: {{ $json[\"Program Goal\"] }}\n\n## 1. Program Introduction & Benefits\n- Define the program's core essence based on the research provided.\n- List 3-5 strategic benefits for {{ $json[\"Program Audience\"] }}.\n\n## 2. Program Expansion Strategy\n- **Evaluation:** If this is NOT a Mentorship or Coaching program, analyze the goal. If a supplemental Mentorship/Coaching layer would improve outcomes, add a section here describing this addition. Explain why it adds value and provide a brief implementation note.\n\n## 3. Implementation Roadmap\n- **Launch Phase:** Step-by-step checklist to start.\n- **Tracking & Operations:** How to manage the program during its {{ $json[\"Program Duration\"] }} lifecycle.\n- **Success Measurement:** Define specific KPIs and feedback mechanisms.\n\n## 4. Approved Tools List\nSelect and justify the most relevant tools ONLY from this list: [Mentorship Software, Coaching Software, ERG Program Software, Personality Test, Internal Social Network, LMS, Onboarding Platform].\n\n## 5. Resource & Content Library\n**Logic-Based Content Delivery:**\n\n[IF MENTORING PROGRAM]: \n- Provide a list titled \"Training Content for Mentors\" (Articles, video topics, guides).\n- Provide a list titled \"Training Content for Mentees\" (Goal setting, career growth, etc.).\n\n[IF COACHING PROGRAM]: \n- Provide a list titled \"Training Content for Coaches\" (Professional coaching techniques).\n- Provide a list titled \"Training Content for Coachees\" (Self-awareness, action plans).\n\n[IF NEITHER]: \n- Provide a \"General Program Content\" list.\n- AND provide a separate \"Supplemental Mentoring Content Table\" including soft skills like active listening and giving feedback to support the primary goal.\n\n---\nSTRICT REMINDER: Start the output directly with # and no other characters.",
+        "options": {
+          "systemMessage": "=Act as a Senior Program Architect. Your sole purpose is to generate a comprehensive \"Program Management Guide\" in PURE MARKDOWN format.\n\nSTRICT OUTPUT RULES:\n1. NO CONVERSATIONAL FILLERS: Do not say \"Here is the guide\" or \"Sure, I can do that.\"\n2. NO CODE BLOCKS: Do not wrap the output in triple backticks (```) or any other code formatting. \n3. NO EXTRA CHARACTERS: Do not use quotes (\") at the very beginning or end of the output. \n4. DIRECT OUTPUT: Start immediately with the first # heading.\n5. LANGUAGE: All content must be in English.\n6. FORMATTING: Use professional Markdown (H1, H2, H3, Bold, Lists, Tables).\n7. TOOL LIMIT: Only use tools from the provided \"Approved Tools List\"."
+        }
+      },
+      "id": "63180307-02f2-4bf2-8d21-02ba11d65694",
+      "name": "MD Content",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        7088,
+        4128
+      ],
+      "typeVersion": 1.8
+    },
+    {
+      "parameters": {
+        "options": {
+          "responseFormat": "json_object"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatDeepSeek",
+      "typeVersion": 1,
+      "position": [
+        8128,
+        4368
+      ],
+      "id": "4a0444a4-52b0-496e-a7b6-b4ee95523a29",
+      "name": "DeepSeek Chat Model SEO",
+      "credentials": {
+        "deepSeekApi": {
+          "id": "xEtower0uh8ZMl2b",
+          "name": "DeepSeek API  n8n-plademy-com-001"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"title\": \"Example Professional Program Title\",\n  \"slug\": \"example-program-slug\",\n  \"description\": \"Professional meta description for the program.\",\n  \"excerpt\": \"Short engaging summary of the program.\",\n  \"keypoint1\": \"First actionable takeaway.\",\n  \"keypoint2\": \"Second actionable takeaway.\",\n  \"keypoint3\": \"Third actionable takeaway.\",\n  \"faq1\": { \"question\": \"?\", \"answer\": \"?\" },\n  \"faq2\": { \"question\": \"?\", \"answer\": \"?\" },\n  \"faq3\": { \"question\": \"?\", \"answer\": \"?\" },\n  \"faq4\": { \"question\": \"?\", \"answer\": \"?\" },\n  \"faq5\": { \"question\": \"?\", \"answer\": \"?\" },\n  \"faq6\": { \"question\": \"?\", \"answer\": \"?\" },\n  \"faq7\": { \"question\": \"?\", \"answer\": \"?\" }\n}"
+      },
+      "id": "70198c7b-b058-4d40-bf3e-0ebd492593de",
+      "name": "Program SEO Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        8304,
+        4352
+      ],
+      "typeVersion": 1.2
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=# TASK\nGenerate a professional Program Title, SEO-optimized slug, meta description, excerpt, 3 key points, and 7 FAQ sections based on the provided \"PROGRAM GUIDE CONTENT\".\n\n# INPUTS\n\n# ORIGINAL PROGRAM METADATA:\n- Category: {{ $('Programs').item.json['Program Category'] }}\n- Goal: {{ $('Programs').item.json['Program Goal'] }}\n- Audience: {{ $('Programs').item.json['Program Audience'] }}\n\n# PROGRAM GUIDE CONTENT (Source for Metadata):\n{{ $node[\"MD Content\"].json[\"output\"] }}\n\n## LANGUAGE\nEnglish\n\n# REQUIREMENTS\n\n## TITLE\n- Generate a catchy, professional title for this program\n- Must include the program's primary focus\n- Under 80 characters\n\n## SLUG\n- Clean, keyword-rich, lowercase, hyphens\n- Max 6 words\n\n## DESCRIPTION\n- Professional meta description under 160 characters\n\n## EXCERPT\n- Engaging summary under 200 characters\n\n## KEYPOINTS (3 required)\n- Actionable takeaways for the participants\n\n## FAQS (7 required)\n- Address implementation, benefits, and practical details of this specific program\n\n# OUTPUT FORMAT\nReturn ONLY a valid JSON object. No markdown wrappers, no explanations.",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=You are a Program SEO Specialist for Plademy. Your job is to extract and generate metadata for corporate program guides.\n\nEverything you produce must be tailored to professional audiences.\n\nOutput ONLY the JSON object."
+        }
+      },
+      "id": "fd7988d8-a12d-4252-917b-28d53a87049c",
+      "name": "Program Meta Generator",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        8048,
+        4128
+      ],
+      "typeVersion": 1.8
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Programs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cleanup Links1": {
+      "main": [
+        [
+          {
+            "node": "Image Prompt Creator1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "FAL.ai Image Link1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait1": {
+      "main": [
+        [
+          {
+            "node": "FAL.ai Image Control1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FAL.ai Image Control1": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "FAL.ai Image Link1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Generate Random Shapes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Image": {
+      "main": [
+        [
+          {
+            "node": "Upload an asset from file data1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DeepSeek Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Image Prompt Creator1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Date Time GMT+": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Image Prompt Creator1": {
+      "main": [
+        [
+          {
+            "node": "GPT Image 1.5 - FAL.ai",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Increase Retry": {
+      "main": [
+        [
+          {
+            "node": "Is Retry < 5?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Output Valid?": {
+      "main": [
+        [
+          {
+            "node": "Combine Title, Tags, Content1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Increase Retry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Retry < 5?": {
+      "main": [
+        [
+          {
+            "node": "Program Meta Generator",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AWS SES",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Random Shapes": {
+      "main": [
+        [
+          {
+            "node": "Edit Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Perplexity1": {
+      "main": [
+        [
+          {
+            "node": "Cleanup Links1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload an asset from file data1": {
+      "main": [
+        [
+          {
+            "node": "MD Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a row1": {
+      "main": [
+        [
+          {
+            "node": "Date Time GMT+",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DeepSeek Chat Model5": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "MD Content",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clean MD1": {
+      "main": [
+        [
+          {
+            "node": "Program Meta Generator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate JSON Format1": {
+      "main": [
+        [
+          {
+            "node": "Is Output Valid?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Full JSON1": {
+      "main": [
+        [
+          {
+            "node": "Create a row1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combine Title, Tags, Content1": {
+      "main": [
+        [
+          {
+            "node": "Full JSON1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Programs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Programs": {
+      "main": [
+        [
+          {
+            "node": "Perplexity1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GPT Image 1.5 - FAL.ai": {
+      "main": [
+        [
+          {
+            "node": "FAL.ai Image Control1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MD Content": {
+      "main": [
+        [
+          {
+            "node": "Clean MD1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DeepSeek Chat Model SEO": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Program Meta Generator",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Program SEO Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Program Meta Generator",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Program Meta Generator": {
+      "main": [
+        [
+          {
+            "node": "Validate JSON Format1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {},
+  "versionId": "afaa28b5-582e-4c57-a145-5bf23b26b00e",
+  "meta": {
+    "templateId": "3291",
+    "templateCredsSetupCompleted": true,
+    "instanceId": "62ff186ae164f50f2fc0a3123a1dff04b8f91c15d4689a8eb0413c71a12dd17c"
+  },
+  "id": "g0Q7NLTTcUWGRbIg",
+  "tags": []
+}

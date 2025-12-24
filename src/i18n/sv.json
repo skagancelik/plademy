@@ -6,6 +6,7 @@
   "nav": {
     "home": "Hem",
     "programs": "Program",
+    "solutions": "Lösningar",
     "resources": "Resurser",
     "integrations": "Integrationer",
     "start": "Starta",
@@ -13,12 +14,24 @@
   },
   "home": {
     "hero": {
-      "title": "Förvandla din organisation med medarbetar- och gemenskapsprogram",
-      "subtitle": "Öka engagemanget, förbättra färdigheter och driv tillväxt med Plademys AI-drivna plattform. Upptäck skillnaden idag."
+      "title": "Dina program förtjänar bättre än kalkylblad",
+      "subtitle": "Designa, kör och mät mentorskaps-, coachnings- och utbildningsprogram—allt i en AI-driven plattform."
     },
     "features": {
       "title": "Din plattform med de bästa verktygen!",
-      "subtitle": "Skapa och hantera ditt program enkelt!"
+      "subtitle": "Skapa och hantera ditt program enkelt!",
+      "engagement": {
+        "title": "Medarbetarengagemang",
+        "description": "Öka engagemanget med personaliserade program och mätbara resultat!"
+      },
+      "mentoring": {
+        "title": "Mentorering & Coaching",
+        "description": "Möjliggör effektiv mentorering och coaching med AI-driven matchning!"
+      },
+      "diversity": {
+        "title": "Mångfald & Inkludering",
+        "description": "Främja inkludering med skräddarsydda lärande- och utvecklingsinitiativ!"
+      }
     },
     "latestResources": "Senaste resurser",
     "latestPrograms": "Senaste program"
@@ -27,8 +40,23 @@
     "title": "Program",
     "description": "Upptäck våra omfattande program designade för att förvandla din organisation.",
     "allPrograms": "Alla program",
+    "allAudiences": "Alla målgrupper",
     "categories": "Kategorier",
-    "noPrograms": "Inga program hittades."
+    "noPrograms": "Inga program hittades.",
+    "duration": "Programvaraktighet",
+    "formTitle": "Börja implementera detta program idag",
+    "formDescription": "AI-drivna lösningar för ditt {programTitle}",
+    "categoryFormTitle": "Börja implementera {categoryName}-program idag",
+    "categoryFormDescription": "AI-drivna lösningar för dina {categoryName}-program",
+    "filterByCategory": "Filtrera efter kategori",
+    "filterByAudience": "Filtrera efter målgrupp",
+    "filterByGoal": "Filtrera efter programmål",
+    "clearFilters": "Rensa filter",
+    "filters": "Filter",
+    "relatedPrograms": "Relaterade {category} program",
+    "relatedProgramsInterest": "Du kanske är intresserad av {category}",
+    "searchGoal": "Sök programmål",
+    "searchGoalPlaceholder": "Skriv för att söka programmål..."
   },
   "resources": {
     "title": "Resurser",
@@ -36,7 +64,9 @@
     "allResources": "Alla resurser",
     "categories": "Kategorier",
     "noResources": "Inga resurser hittades.",
-    "readMore": "Läs mer"
+    "readMore": "Läs mer",
+    "seeMore": "Se mer {category} artiklar",
+    "relatedArticles": "Du kanske är intresserad av {category} artiklar"
   },
   "search": {
     "title": "Sök",
@@ -67,6 +97,7 @@
   },
   "footer": {
     "description": "Plademy är en AI-driven integrationsnav anpassad för både medarbetar- och gemenskapsutvecklingsprogram.",
+    "stayConnected": "Håll kontakten på sociala medier",
     "links": {
       "security": "Säkerhet",
       "privacy": "Integritetspolicy",
@@ -76,6 +107,43 @@
     "businessId": "Företags-ID",
     "vat": "MOMS-nr",
     "rights": "© Alla rättigheter förbehållna"
+  },
+  "solutions": {
+    "title": "Lösningar",
+    "description": "Upptäck våra omfattande lösningar för din organisation.",
+    "viewAll": "Visa alla lösningar",
+    "mentorshipCenter": {
+      "title": "Mentorskapcenter",
+      "description": "AI-driven mentor- och coachingsplattform som kopplar samman mentorer och mentees för effektiv professionell utveckling.",
+      "shortDescription": "AI-driven mentor- och coachingsplattform.",
+      "ctaText": "Läs mer",
+      "ctaLink": "/solutions",
+      "image": ""
+    },
+    "membershipCenter": {
+      "title": "Medlemskapcenter",
+      "description": "Omfattande medlemskapshanteringsplattform för att bygga och engagera gemenskaper.",
+      "shortDescription": "Omfattande medlemskapshanteringsplattform.",
+      "ctaText": "Läs mer",
+      "ctaLink": "/solutions",
+      "image": ""
+    },
+    "ergCenter": {
+      "title": "ERG-center",
+      "description": "Plattform för hantering av medarbetarresursgrupper för att stödja mångfald, jämlikhet och inkluderingsinitiativ.",
+      "shortDescription": "Plattform för hantering av medarbetarresursgrupper.",
+      "ctaText": "Läs mer",
+      "ctaLink": "/solutions",
+      "image": ""
+    },
+    "securedIntegrations": {
+      "title": "Säkra integrationer",
+      "description": "Säkra och sömlösa integrationer med dina befintliga verktyg och plattformar.",
+      "shortDescription": "Säkra och sömlösa integrationer.",
+      "ctaText": "Läs mer",
+      "ctaLink": "/solutions",
+      "image": ""
+    }
   },
   "common": {
     "readMore": "Läs mer",

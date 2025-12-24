@@ -1,0 +1,17 @@
+{
+  "name": "Plademy",
+  "short_name": "Plademy",
+  "description": "AI-driven integration hub tailored for both employee and community development programs",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2841CF",
+  "icons": [
+    {
+      "src": "/plademy-favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
+

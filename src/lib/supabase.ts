@@ -10,6 +10,12 @@ if (!supabaseUrl || !supabaseAnonKey) {
 export const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
 // Types
+export interface Citation {
+  url: string;
+  title: string;
+  snippet?: string;
+}
+
 export interface Resource {
   id: string;
   slug: string;
@@ -22,6 +28,7 @@ export interface Resource {
   category: string;
   faqs: Array<{ question: string; answer: string }> | null;
   cover_image_url: string | null;
+  citations: Citation[] | null;
   is_published: boolean;
   published_at: string;
   created_at: string;
@@ -38,6 +45,7 @@ export interface Program {
   keypoints: string[];
   goal: string | null;
   audience: string | null;
+  duration: string | null;
   category: string;
   faqs: Array<{ question: string; answer: string }> | null;
   cover_image_url: string | null;

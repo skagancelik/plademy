@@ -1,7 +1,9 @@
 ---
-import { supabase, type Resource, type Program } from '@lib/supabase';
+import { supabase, type Resource, type Program, type Category } from '@lib/supabase';
 import { getTranslations, type Language } from '@lib/i18n';
 import { truncate } from '@lib/utils';
+import ResourceCard from '@components/resources/ResourceCard.astro';
+import ProgramCard from '@components/programs/ProgramCard.astro';
 
 interface Props {
   lang: Language;
@@ -10,100 +12,380 @@ interface Props {
 const { lang } = Astro.props;
 const t = getTranslations(lang);
 
-let latestResources: Resource[] = [];
+let resourceCategories: Category[] = [];
+let programCategories: Category[] = [];
+let resourcesByCategory: Map<string, Resource[]> = new Map();
+let programsByCategory: Map<string, Program[]> = new Map();
 let latestPrograms: Program[] = [];
+let resourceCategoryMap: Map<string, Category> = new Map();
+let programCategoryMap: Map<string, Category> = new Map();
 
 try {
-  const { data: resources } = await supabase
+  // Get resource categories
+  const { data: resourceCategoriesData } = await supabase
+    .from('categories')
+    .select('*')
+    .eq('type', 'resource')
+    .order('sort_order', { ascending: true });
+
+  resourceCategories = resourceCategoriesData || [];
+  
+  // Create resource category map for quick lookup
+  resourceCategories.forEach((cat) => {
+    resourceCategoryMap.set(cat.id, cat);
+    resourceCategoryMap.set(cat.slug, cat);
+    resourceCategoryMap.set(cat.name_en, cat);
+  });
+
+  // Get program categories
+  const { data: programCategoriesData } = await supabase
+    .from('categories')
+    .select('*')
+    .eq('type', 'program')
+    .order('sort_order', { ascending: true });
+
+  programCategories = programCategoriesData || [];
+  
+  // Create program category map for quick lookup
+  programCategories.forEach((cat) => {
+    programCategoryMap.set(cat.id, cat);
+    programCategoryMap.set(cat.slug, cat);
+    programCategoryMap.set(cat.name_en, cat);
+  });
+
+  // Get all published resources
+  const { data: allResources } = await supabase
     .from('resources')
     .select('*')
     .eq('language', lang)
     .eq('is_published', true)
-    .order('published_at', { ascending: false })
-    .limit(5);
+    .order('published_at', { ascending: false });
 
-  const { data: programs } = await supabase
+  if (allResources) {
+    // Group resources by category
+    resourceCategories.forEach((category) => {
+      const categoryResources = allResources.filter((resource) => {
+        if (!resource.category) return false;
+        const resourceCategory = resourceCategoryMap.get(resource.category);
+        if (resourceCategory) {
+          return resourceCategory.id === category.id;
+        }
+        return resource.category === category.id || 
+               resource.category === category.slug || 
+               resource.category === category.name_en;
+      }).slice(0, 6);
+      
+      if (categoryResources.length > 0) {
+        resourcesByCategory.set(category.id, categoryResources);
+      }
+    });
+  }
+
+  // Get all published programs
+  const { data: allPrograms } = await supabase
     .from('programs')
     .select('*')
     .eq('language', lang)
     .eq('is_published', true)
-    .order('published_at', { ascending: false })
-    .limit(5);
+    .order('published_at', { ascending: false });
 
-  latestResources = resources || [];
-  latestPrograms = programs || [];
+  if (allPrograms) {
+    // Group programs by category
+    programCategories.forEach((category) => {
+      const categoryPrograms = allPrograms.filter((program) => {
+        if (!program.category) return false;
+        const programCategory = programCategoryMap.get(program.category);
+        if (programCategory) {
+          return programCategory.id === category.id;
+        }
+        return program.category === category.id || 
+               program.category === category.slug || 
+               program.category === category.name_en;
+      }).slice(0, 6);
+      
+      if (categoryPrograms.length > 0) {
+        programsByCategory.set(category.id, categoryPrograms);
+      }
+    });
+  }
+
+  latestPrograms = allPrograms?.slice(0, 5) || [];
 } catch (error) {
   console.error('Error fetching latest content:', error);
 }
+
+// Fallback descriptions if category description is empty
+const fallbackDescriptions: Record<string, Record<Language, string>> = {
+  'mentoring-coaching': {
+    en: 'Discover proven strategies for building effective mentoring programs that drive retention, development, and organizational growth.',
+    fi: 'Löydä toimivat strategiat tehokkaiden mentorointiohjelmien rakentamiseen, jotka edistävät säilyttämistä, kehitystä ja organisaation kasvua.',
+    sv: 'Upptäck beprövade strategier för att bygga effektiva mentorprogram som driver retention, utveckling och organisatorisk tillväxt.'
+  },
+  'career-talent': {
+    en: 'Explore frameworks and tools for developing talent, managing careers, and creating pathways for professional growth.',
+    fi: 'Tutustu viitekehyksiin ja työkaluihin talenttien kehittämiseen, urien hallintaan ja ammatillisen kasvun polkujen luomiseen.',
+    sv: 'Utforska ramverk och verktyg för att utveckla talanger, hantera karriärer och skapa vägar för professionell tillväxt.'
+  },
+  'employee-experience': {
+    en: 'Learn how to create exceptional employee experiences that boost engagement, satisfaction, and organizational culture.',
+    fi: 'Opi luomaan poikkeuksellisia työntekijäkokemuksia, jotka lisäävät sitoutumista, tyytyväisyyttä ja organisaatiokulttuuria.',
+    sv: 'Lär dig hur du skapar exceptionella medarbetarupplevelser som ökar engagemang, tillfredsställelse och organisationskultur.'
+  },
+  'hr-tech': {
+    en: 'Stay ahead with the latest HR technology trends, tools, and innovations that transform people management.',
+    fi: 'Pysy ajan tasalla uusimmista HR-teknologian trendeistä, työkaluista ja innovaatioista, jotka muuttavat henkilöstöhallintaa.',
+    sv: 'Håll dig före med de senaste HR-tekniktrenderna, verktygen och innovationerna som förvandlar personalhantering.'
+  },
+  'entrepreneurship': {
+    en: 'Get practical guidance for building, scaling, and growing your startup or entrepreneurial venture.',
+    fi: 'Saa käytännön ohjeita startupin tai yrittäjäyrityksen rakentamiseen, skaalaukseen ja kasvattamiseen.',
+    sv: 'Få praktisk vägledning för att bygga, skala och växa ditt startup eller entreprenörsprojekt.'
+  },
+  'community-management': {
+    en: 'Master the art of building and nurturing thriving communities that drive engagement and create lasting value.',
+    fi: 'Hallitse taito rakentaa ja hoitaa kukoistavia yhteisöjä, jotka lisäävät sitoutumista ja luovat kestävää arvoa.',
+    sv: 'Bemästra konsten att bygga och vårda blomstrande gemenskaper som driver engagemang och skapar varaktigt värde.'
+  }
+};
+
+// Fallback descriptions for program categories
+const programFallbackDescriptions: Record<string, Record<Language, string>> = {
+  'mentoring-program': {
+    en: 'Build structured mentoring relationships that accelerate professional development, knowledge transfer, and career growth.',
+    fi: 'Rakenna strukturoituja mentorointisuhteita, jotka nopeuttavat ammatillista kehitystä, tiedonsiirtoa ja urakehitystä.',
+    sv: 'Bygg strukturerade mentorskaprelationer som påskyndar professionell utveckling, kunskapsöverföring och karriärutveckling.'
+  },
+  'coaching-program': {
+    en: 'Empower individuals and teams through personalized coaching that unlocks potential and drives performance excellence.',
+    fi: 'Vahvista yksilöitä ja tiimejä henkilökohtaisen valmennuksen kautta, joka vapauttaa potentiaalin ja ajaa suorituskyvyn huippuosaamista.',
+    sv: 'Stärk individer och team genom personlig coaching som frigör potential och driver prestationsmässig excellens.'
+  },
+  'networking-program': {
+    en: 'Create meaningful connections and professional networks that foster collaboration, innovation, and mutual growth.',
+    fi: 'Luo merkityksellisiä yhteyksiä ja ammatillisia verkostoja, jotka edistävät yhteistyötä, innovaatiota ja keskinäistä kasvua.',
+    sv: 'Skapa meningsfulla kontakter och professionella nätverk som främjar samarbete, innovation och ömsesidig tillväxt.'
+  },
+  'training-program': {
+    en: 'Deliver comprehensive training programs that build skills, enhance capabilities, and prepare teams for future challenges.',
+    fi: 'Tarjoa kattavia koulutusohjelmia, jotka rakentavat taitoja, parantavat kykyjä ja valmistelevat tiimejä tuleviin haasteisiin.',
+    sv: 'Leverera omfattande utbildningsprogram som bygger färdigheter, förbättrar kapacitet och förbereder team för framtida utmaningar.'
+  },
+  'onboarding-program': {
+    en: 'Design seamless onboarding experiences that help new hires integrate quickly, feel welcomed, and become productive faster.',
+    fi: 'Suunnittele saumattomia perehdytyskokemuksia, jotka auttavat uusia työntekijöitä integroitumaan nopeasti, tuntemaan itsensä tervetulleiksi ja tulemaan tuottavammiksi nopeammin.',
+    sv: 'Designa sömlösa introduktionsupplevelser som hjälper nya anställda att integrera snabbt, känna sig välkomna och bli produktiva snabbare.'
+  },
+  'employee-wellbeing-program': {
+    en: 'Promote holistic employee wellbeing through programs that support physical, mental, and emotional health in the workplace.',
+    fi: 'Edistä kokonaisvaltaista työntekijöiden hyvinvointia ohjelmien kautta, jotka tukevat fyysistä, henkistä ja emotionaalista terveyttä työpaikalla.',
+    sv: 'Främja holistiskt medarbetarhälsa genom program som stödjer fysisk, mental och emotionell hälsa på arbetsplatsen.'
+  },
+  'erg': {
+    en: 'Foster inclusive employee resource groups that celebrate diversity, build community, and drive organizational belonging.',
+    fi: 'Edistä inklusiivisia työntekijöiden resurssiryhmiä, jotka juhlivat monimuotoisuutta, rakentavat yhteisöä ja edistävät organisaation kuuluvuutta.',
+    sv: 'Främja inkluderande medarbetarresursgrupper som firar mångfald, bygger gemenskap och driver organisatorisk tillhörighet.'
+  },
+  'leadership': {
+    en: 'Develop next-generation leaders through comprehensive leadership programs that build strategic thinking and executive capabilities.',
+    fi: 'Kehitä seuraavan sukupolven johtajia kattavien johtamisohjelmien kautta, jotka rakentavat strategista ajattelua ja johtamistaitoja.',
+    sv: 'Utveckla nästa generations ledare genom omfattande ledarskapsprogram som bygger strategiskt tänkande och ledningsförmåga.'
+  },
+  'career-management': {
+    en: 'Enable career growth and development through structured programs that help employees navigate their professional journey.',
+    fi: 'Mahdollista urakehitys ja kehitys strukturoitujen ohjelmien kautta, jotka auttavat työntekijöitä navigoimaan ammatillista matkaansa.',
+    sv: 'Möjliggör karriärutveckling genom strukturerade program som hjälper medarbetare att navigera sin professionella resa.'
+  },
+  'career-program': {
+    en: 'Support career advancement with targeted programs that provide guidance, mentorship, and opportunities for professional growth.',
+    fi: 'Tue urakehitystä kohdennetuilla ohjelmilla, jotka tarjoavat ohjausta, mentorointia ja mahdollisuuksia ammatilliseen kasvuun.',
+    sv: 'Stöd karriärframsteg med riktade program som ger vägledning, mentorskap och möjligheter för professionell tillväxt.'
+  },
+  'internship-program': {
+    en: 'Create valuable internship experiences that bridge the gap between education and employment while developing future talent.',
+    fi: 'Luo arvokkaita harjoittelukokemuksia, jotka yhdistävät koulutuksen ja työllisyyden välisen kuilun kehittäen samalla tulevaa talenttia.',
+    sv: 'Skapa värdefulla praktikupplevelser som överbryggar gapet mellan utbildning och anställning samtidigt som man utvecklar framtida talanger.'
+  },
+  'accelerator': {
+    en: 'Accelerate business growth and innovation through intensive programs that provide mentorship, resources, and strategic guidance.',
+    fi: 'Kiihdytä liiketoiminnan kasvua ja innovaatiota intensiivisten ohjelmien kautta, jotka tarjoavat mentorointia, resursseja ja strategista ohjausta.',
+    sv: 'Accelerera affärstillväxt och innovation genom intensiva program som ger mentorskap, resurser och strategisk vägledning.'
+  },
+  'incubator': {
+    en: 'Nurture early-stage ventures through incubator programs that provide foundational support, mentorship, and access to resources.',
+    fi: 'Hoivaa varhaisvaiheen yrityksiä inkubaattoriohjelmien kautta, jotka tarjoavat perustavaa tukea, mentorointia ja pääsyä resursseihin.',
+    sv: 'Vårda tidiga företag genom inkubatorprogram som ger grundläggande stöd, mentorskap och tillgång till resurser.'
+  },
+  'fundraising-support': {
+    en: 'Guide organizations through successful fundraising with programs that provide strategic advice, network access, and funding opportunities.',
+    fi: 'Ohjaa organisaatioita menestyksekkään varainhankinnan läpi ohjelmilla, jotka tarjoavat strategista neuvontaa, verkostopääsyä ja rahoitusmahdollisuuksia.',
+    sv: 'Vägleda organisationer genom framgångsrik finansiering med program som ger strategiska råd, nätverksåtkomst och finansieringsmöjligheter.'
+  },
+  'business-development': {
+    en: 'Drive business expansion and strategic growth through programs that enhance market presence and competitive advantage.',
+    fi: 'Aja liiketoiminnan laajentamista ja strategista kasvua ohjelmilla, jotka parantavat markkina-asemaa ja kilpailuetua.',
+    sv: 'Driv affärsexpansion och strategisk tillväxt genom program som förbättrar marknadsposition och konkurrensfördelar.'
+  },
+  'volunteer-program': {
+    en: 'Engage employees in meaningful volunteer programs that build community connections and create positive social impact.',
+    fi: 'Sitouta työntekijöitä merkityksellisiin vapaaehtoistoimintaohjelmiin, jotka rakentavat yhteisöyhteyksiä ja luovat positiivista sosiaalista vaikutusta.',
+    sv: 'Engagera medarbetare i meningsfulla volontärprogram som bygger gemenskapsförbindelser och skapar positiv social påverkan.'
+  },
+  'ambassador-program': {
+    en: 'Build brand advocates through ambassador programs that empower employees to represent and promote your organization.',
+    fi: 'Rakenna brändin puolestapuhujia lähettiläsohjelmien kautta, jotka valtaavat työntekijät edustamaan ja mainostamaan organisaatiotasi.',
+    sv: 'Bygg varumärkesförespråkare genom ambassadörsprogram som ger medarbetare möjlighet att representera och främja din organisation.'
+  }
+};
 ---
 
 <section class="py-16">
   <div class="container">
-    <!-- Latest Resources -->
-    {latestResources.length > 0 && (
+    <!-- Latest Resources by Category -->
+    {resourcesByCategory.size > 0 && (
       <div class="mb-12">
-        <div class="flex justify-between items-center mb-6">
-          <h2 class="text-3xl font-bold">{t.home.latestResources}</h2>
-          <a href={`/${lang}/resources/`} class="text-primary hover:underline">
-            {t.resources.allResources} →
-          </a>
+        <div class="text-center mb-[94px]">
+          <h2 class="text-4xl font-bold mb-4">Resources</h2>
+          <p class="text-xl text-gray-600">Explore insights, guides, and tools to enhance your employee or community programs.</p>
         </div>
-        <div class="grid md:grid-cols-3 gap-6">
-          {latestResources.map((resource) => (
-            <a
-              href={`/${lang}/resources/${resource.slug}`}
-              class="card hover:shadow-lg transition-shadow"
-            >
-              {resource.cover_image_url && (
-                <img
-                  src={resource.cover_image_url}
-                  alt={resource.title}
-                  class="w-full h-48 object-cover rounded-lg mb-4"
-                  loading="lazy"
-                />
-              )}
-              <h3 class="text-xl font-bold mb-2">{resource.title}</h3>
-              {resource.excerpt && (
-                <p class="text-gray-600">{truncate(resource.excerpt, 100)}</p>
-              )}
-            </a>
-          ))}
+        <div class="space-y-[70px]">
+          {resourceCategories
+            .filter((category) => {
+              const categoryResources = resourcesByCategory.get(category.id);
+              return categoryResources && categoryResources.length > 0;
+            })
+            .map((category, index) => {
+            const categoryResources = resourcesByCategory.get(category.id)!;
+            
+            const categoryName = category[`name_${lang}` as keyof Category] || category.name_en;
+            const categoryDescription = (category[`description_${lang}` as keyof Category] || category.description_en) as string | undefined;
+            const displayDescription = categoryDescription || fallbackDescriptions[category.id]?.[lang] || '';
+            
+            // Get first 2 resources for desktop, 1 for mobile
+            const displayResources = categoryResources.slice(0, 2);
+            
+            // Alternate layout: even index = left-right, odd index = right-left
+            const isReversed = index % 2 === 1;
+            
+            return (
+              <div>
+                <div class="grid md:grid-cols-2 gap-8 items-center">
+                  {/* Left/Right: Text Content */}
+                  <div class={`${isReversed ? 'md:order-2' : ''} text-center md:text-left`}>
+                    <h3 class="text-4xl md:text-5xl font-bold mb-4">{categoryName}</h3>
+                    {displayDescription && (
+                      <p class="text-xl text-black mb-6">{displayDescription}</p>
+                    )}
+                    <div class="mt-6 flex justify-center md:justify-start">
+                      <a
+                        href={`/resources/${category.slug}`}
+                        class="inline-flex items-center justify-center px-6 py-3 rounded-full bg-[#2841CF] text-white font-bold transition-colors hover:bg-black hover:text-white"
+                        style="font-family: 'Bricolage Grotesque', sans-serif;"
+                      >
+                        See More
+                      </a>
+                    </div>
+                  </div>
+                  
+                  {/* Right/Left: Resource Cards */}
+                  <div class={isReversed ? 'md:order-1' : ''}>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {displayResources.slice(0, 1).map((resource) => {
+                        const resourceCategory = resource.category ? resourceCategoryMap.get(resource.category) || null : null;
+                        return (
+                          <div class="h-full">
+                            <ResourceCard resource={resource} lang={lang} category={resourceCategory} hideCategory={true} homepageStyle={true} />
+                          </div>
+                        );
+                      })}
+                      {displayResources.slice(1, 2).map((resource) => {
+                        const resourceCategory = resource.category ? resourceCategoryMap.get(resource.category) || null : null;
+                        return (
+                          <div class="hidden md:block h-full">
+                            <ResourceCard resource={resource} lang={lang} category={resourceCategory} hideCategory={true} homepageStyle={true} />
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     )}
 
-    <!-- Latest Programs -->
-    {latestPrograms.length > 0 && (
-      <div>
-        <div class="flex justify-between items-center mb-6">
-          <h2 class="text-3xl font-bold">{t.home.latestPrograms}</h2>
-          <a href={`/${lang}/programs/`} class="text-primary hover:underline">
-            {t.programs.allPrograms} →
-          </a>
+    <!-- Latest Programs by Category -->
+    {programsByCategory.size > 0 && (
+      <div class="mb-12">
+        <div class="text-center mb-[94px]">
+          <h2 class="text-4xl font-bold mb-4">Programs</h2>
+          <p class="text-xl text-gray-600">Discover comprehensive programs designed to transform your organization and drive meaningful outcomes.</p>
         </div>
-        <div class="grid md:grid-cols-3 gap-6">
-          {latestPrograms.map((program) => (
-            <a
-              href={`/${lang}/programs/${program.slug}`}
-              class="card hover:shadow-lg transition-shadow"
-            >
-              {program.cover_image_url && (
-                <img
-                  src={program.cover_image_url}
-                  alt={program.title}
-                  class="w-full h-48 object-cover rounded-lg mb-4"
-                  loading="lazy"
-                />
-              )}
-              <h3 class="text-xl font-bold mb-2">{program.title}</h3>
-              {program.excerpt && (
-                <p class="text-gray-600">{truncate(program.excerpt, 100)}</p>
-              )}
-            </a>
-          ))}
+        <div class="space-y-[70px]">
+          {programCategories
+            .filter((category) => {
+              const categoryPrograms = programsByCategory.get(category.id);
+              return categoryPrograms && categoryPrograms.length > 0;
+            })
+            .map((category, index) => {
+            const categoryPrograms = programsByCategory.get(category.id)!;
+            
+            const categoryName = category[`name_${lang}` as keyof Category] || category.name_en;
+            const categoryDescription = (category[`description_${lang}` as keyof Category] || category.description_en) as string | undefined;
+            const displayDescription = categoryDescription || programFallbackDescriptions[category.id]?.[lang] || '';
+            
+            // Get first 2 programs for desktop, 1 for mobile
+            const displayPrograms = categoryPrograms.slice(0, 2);
+            
+            // Alternate layout: even index = left-right, odd index = right-left
+            const isReversed = index % 2 === 1;
+            
+            return (
+              <div>
+                <div class="grid md:grid-cols-2 gap-8 items-center">
+                  {/* Left/Right: Text Content */}
+                  <div class={`${isReversed ? 'md:order-2' : ''} text-center md:text-left`}>
+                    <h3 class="text-4xl md:text-5xl font-bold mb-4">{categoryName}</h3>
+                    {displayDescription && (
+                      <p class="text-xl text-black mb-6">{displayDescription}</p>
+                    )}
+                    <div class="mt-6 flex justify-center md:justify-start">
+                      <a
+                        href={`/programs/${category.slug}`}
+                        class="inline-flex items-center justify-center px-6 py-3 rounded-full bg-[#2841CF] text-white font-bold transition-colors hover:bg-black hover:text-white"
+                        style="font-family: 'Bricolage Grotesque', sans-serif;"
+                      >
+                        See More
+                      </a>
+                    </div>
+                  </div>
+                  
+                  {/* Right/Left: Program Cards */}
+                  <div class={isReversed ? 'md:order-1' : ''}>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      {displayPrograms.slice(0, 1).map((program) => {
+                        const programCategory = program.category ? programCategoryMap.get(program.category) || null : null;
+                        return (
+                          <ProgramCard program={program} lang={lang} category={programCategory} hideCategory={true} homepageStyle={true} />
+                        );
+                      })}
+                      {displayPrograms.slice(1, 2).map((program) => {
+                        const programCategory = program.category ? programCategoryMap.get(program.category) || null : null;
+                        return (
+                          <div class="hidden md:block">
+                            <ProgramCard program={program} lang={lang} category={programCategory} hideCategory={true} homepageStyle={true} />
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     )}
   </div>
 </section>
-

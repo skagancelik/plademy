@@ -1,35 +1,39 @@
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;500;600;700;800&family=Google+Sans:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* Override Tailwind Typography plugin styles for lists - must be after utilities */
+
 @layer base {
   :root {
-    --color-primary: #2563eb;
-    --color-primary-dark: #1e40af;
-    --color-secondary: #10b981;
-    --color-text: #1f2937;
-    --color-text-light: #6b7280;
+    --color-primary: #2841CF;
+    --color-primary-dark: #1e2e9a;
+    --color-bg-light: #F6F7FB;
+    --color-text: #000000;
+    --color-text-light: #4b5563;
     --color-bg: #ffffff;
-    --color-bg-alt: #f9fafb;
+    --color-bg-alt: #F6F7FB;
     --color-border: #e5e7eb;
   }
 
   * {
-    @apply border-border;
+    @apply border-gray-200;
   }
 
   body {
-    @apply bg-white text-gray-900 antialiased;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-      'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+    @apply bg-white text-black antialiased;
+    font-family: 'Google Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-bold text-gray-900;
+    font-family: 'Bricolage Grotesque', sans-serif;
+    @apply font-bold text-black;
   }
 
   h1 {
-    @apply text-4xl md:text-5xl;
+    @apply text-4xl md:text-5xl lg:text-6xl;
   }
 
   h2 {
@@ -47,23 +51,172 @@
 
 @layer components {
   .btn {
-    @apply px-6 py-3 rounded-lg font-semibold transition-all duration-200;
+    @apply px-6 py-3 rounded-full font-semibold transition-all duration-200;
+    background-color: #2841CF;
+    color: white;
   }
 
   .btn-primary {
-    @apply bg-primary text-white hover:bg-primary-dark;
+    @apply bg-[#2841CF] text-white hover:bg-black hover:text-white;
   }
 
   .btn-secondary {
-    @apply bg-gray-100 text-gray-900 hover:bg-gray-200;
+    @apply bg-[#2841CF] text-white hover:opacity-90;
   }
 
   .card {
-    @apply bg-white rounded-lg shadow-md p-6 border border-gray-200;
+    @apply bg-white rounded-2xl p-6 border border-gray-200;
+  }
+
+  .faq-item:hover {
+    border-color: black !important;
   }
 
   .container {
     @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
   }
+}
+
+/* Override prose plugin styles for content area headings */
+.content-prose.prose h3 {
+  margin-top: 25px !important;
+  margin-bottom: 10px !important;
+  scroll-margin-top: 100px !important;
+}
+
+.content-prose.prose h4 {
+  margin-top: 20px !important;
+  font-size: 1.4rem !important;
+  font-weight: 400 !important;
+}
+
+/* Don't apply margin-top to h3 inside FAQ items */
+#frequently-asked-questions .faq-item h3 {
+  margin-top: 0 !important;
+}
+
+/* Scroll offset for FAQ section */
+#frequently-asked-questions {
+  scroll-margin-top: 100px;
+}
+
+.content-prose.prose h2 {
+  margin-bottom: 15px !important;
+}
+
+/* Increase paragraph and list item font size in content area (22px) */
+.content-prose.prose p,
+.content-prose.prose li {
+  font-size: 22px !important;
+  margin-top: 10px !important;
+}
+
+/* Remove top margin from paragraphs inside FAQ items */
+.faq-item p {
+  margin-top: 0 !important;
+}
+
+/* Table styling */
+.content-prose.prose table {
+  background-color: #f6f7fb !important;
+  padding: 15px !important;
+  border-radius: 20px !important;
+  overflow: hidden;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin-top: 20px !important;
+  margin-bottom: 20px !important;
+}
+
+.content-prose.prose table th:first-child,
+.content-prose.prose table td:first-child {
+  padding-left: 15px !important;
+}
+
+.content-prose.prose table th:last-child,
+.content-prose.prose table td:last-child {
+  padding-right: 15px !important;
+}
+
+.content-prose.prose table thead tr:first-child th:first-child {
+  padding-top: 15px !important;
+}
+
+.content-prose.prose table tbody tr:last-child td {
+  padding-bottom: 15px !important;
+}
+
+.content-prose.prose table th,
+.content-prose.prose table td {
+  padding: 5px 15px 5px 5px !important;
+  text-align: left !important;
+}
+
+.content-prose.prose table th {
+  font-family: 'Bricolage Grotesque', sans-serif !important;
+  font-weight: 700 !important;
+}
+
+/* List styling (same as tables) - override prose plugin styles */
+.content-prose.prose ul:not(.keypoints-list),
+.content-prose.prose ol:not(.keypoints-list),
+.content-prose.prose ul[class]:not(.keypoints-list),
+.content-prose.prose ol[class]:not(.keypoints-list),
+.prose.content-prose ul:not(.keypoints-list),
+.prose.content-prose ol:not(.keypoints-list),
+div.content-prose.prose ul:not(.keypoints-list),
+div.content-prose.prose ol:not(.keypoints-list),
+.prose ul:not(.keypoints-list),
+.prose ol:not(.keypoints-list),
+.prose.prose-lg ul:not(.keypoints-list),
+.prose.prose-lg ol:not(.keypoints-list),
+.prose.prose-lg.content-prose ul:not(.keypoints-list),
+.prose.prose-lg.content-prose ol:not(.keypoints-list) {
+  background-color: #f6f7fb !important;
+  padding-top: 30px !important;
+  padding-right: 30px !important;
+  padding-bottom: 30px !important;
+  padding-left: 80px !important;
+  border-radius: 20px !important;
+  overflow: visible !important;
+  margin-top: 20px !important;
+  margin-bottom: 20px !important;
+  list-style-position: outside !important;
+  box-sizing: border-box !important;
+}
+
+/* Key Points list should not have background color - override all prose styles */
+.keypoints-list,
+ul.keypoints-list,
+.prose ul.keypoints-list,
+.content-prose.prose ul.keypoints-list,
+.prose.content-prose ul.keypoints-list,
+div.content-prose.prose ul.keypoints-list {
+  background-color: transparent !important;
+  background: transparent !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  margin: 0 !important;
+  margin-top: 0 !important;
+  margin-bottom: 0 !important;
+}
+
+/* Ensure list items have proper spacing and padding */
+.content-prose.prose ul li,
+.content-prose.prose ol li {
+  margin-bottom: 10px !important;
+  padding-right: 0 !important;
+  margin-right: 0 !important;
+}
+
+.content-prose.prose ul li:last-child,
+.content-prose.prose ol li:last-child {
+  margin-bottom: 0 !important;
+}
+
+/* Strong elements in lists use h1 font family */
+.content-prose.prose ul strong,
+.content-prose.prose ol strong {
+  font-family: 'Bricolage Grotesque', sans-serif !important;
 }
 
