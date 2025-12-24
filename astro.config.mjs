@@ -21,15 +21,6 @@ export default defineConfig({
       },
     }),
   ],
-  // Remote images için Netlify Image CDN kullanılacak
-  image: {
-    domains: [
-      '**.supabase.co',
-      'oaidalleapiprodscus.blob.core.windows.net',
-      'images.unsplash.com',
-      '**.netlify.app',
-    ],
-  },
   site: 'https://plademy.com',
   i18n: {
     defaultLocale: 'en',
