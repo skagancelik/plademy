@@ -78,7 +78,7 @@ function validateFormData(data: any): { valid: boolean; sanitized?: any; error?:
   return { valid: true, sanitized };
 }
 
-export default async (request: Request, context: any) => {
+export default async (request: Request) => {
   // Only allow POST requests
   if (request.method !== 'POST') {
     return new Response(
