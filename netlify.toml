@@ -5,10 +5,3 @@
 [build.environment]
   NODE_VERSION = "20"
 
-# Edge Functions configuration
-# Edge Functions are automatically discovered in netlify/edge-functions/
-# Path mapping for form webhook
-[[edge_functions]]
-  function = "form-webhook"
-  path = "/api/form"
-
