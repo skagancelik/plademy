@@ -1,251 +1,107 @@
 // Netlify Edge Function for form submissions
-// This hides the n8n webhook URL from client-side code
-// Path: /form-webhook (auto-discovered) or /api/form (if path mapping works)
-
-// Input validation and sanitization helpers
-function sanitizeString(input: unknown, maxLength = 1000): string {
-  if (typeof input !== 'string') return '';
-  // Remove potentially dangerous characters and limit length
-  return input
-    .slice(0, maxLength)
-    .replace(/[<>]/g, '') // Remove < and > to prevent XSS
-    .trim();
-}
-
-function validateEmail(email: unknown): boolean {
-  if (typeof email !== 'string') return false;
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email) && email.length <= 255;
-}
-
-interface FormData {
-  type?: string;
-  name?: string;
-  email?: string;
-  organization?: string;
-  message?: string;
-  needs?: string;
-  resource_slug?: string;
-  resource_title?: string;
-  program_slug?: string;
-  program_title?: string;
-  category?: string;
-  source?: string;
-  page_url?: string;
-}
-
-interface ValidationResult {
-  valid: boolean;
-  sanitized?: Record<string, unknown>;
-  error?: string;
-}
-
-function validateFormData(data: unknown): ValidationResult {
-  if (!data || typeof data !== 'object') {
-    return { valid: false, error: 'Invalid request data' };
-  }
-
-  const formData = data as FormData;
-
-  // Validate required fields
-  if (!formData.name || typeof formData.name !== 'string' || formData.name.trim().length === 0) {
-    return { valid: false, error: 'Name is required' };
-  }
-
-  if (!formData.email || !validateEmail(formData.email)) {
-    return { valid: false, error: 'Valid email is required' };
-  }
-
-  // Sanitize all string fields
-  const sanitized: Record<string, unknown> = {
-    type: sanitizeString(formData.type, 50),
-    name: sanitizeString(formData.name, 200),
-    email: formData.email.toLowerCase().trim().slice(0, 255),
-    timestamp: new Date().toISOString(),
-    source: 'plademy-website',
-  };
-
-  // Optional fields with sanitization
-  if (formData.organization) {
-    sanitized.organization = sanitizeString(formData.organization, 200);
-  }
-  if (formData.message) {
-    sanitized.message = sanitizeString(formData.message, 5000);
-  }
-  if (formData.needs) {
-    sanitized.needs = sanitizeString(formData.needs, 5000);
-  }
-  if (formData.resource_slug) {
-    sanitized.resource_slug = sanitizeString(formData.resource_slug, 200);
-  }
-  if (formData.resource_title) {
-    sanitized.resource_title = sanitizeString(formData.resource_title, 500);
-  }
-  if (formData.program_slug) {
-    sanitized.program_slug = sanitizeString(formData.program_slug, 200);
-  }
-  if (formData.program_title) {
-    sanitized.program_title = sanitizeString(formData.program_title, 500);
-  }
-  if (formData.category) {
-    sanitized.category = sanitizeString(formData.category, 200);
-  }
-  if (formData.source) {
-    sanitized.source = sanitizeString(formData.source, 100);
-  }
-  if (formData.page_url) {
-    // Validate URL format
-    try {
-      const url = new URL(formData.page_url);
-      sanitized.page_url = url.toString().slice(0, 500);
-    } catch {
-      // Invalid URL, skip it
-    }
-  }
-
-  return { valid: true, sanitized };
-}
+// Path: /api/form
 
 export default async (request: Request) => {
+  // CORS headers
+  const corsHeaders = {
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
+  };
+
   // Handle CORS preflight
   if (request.method === 'OPTIONS') {
     return new Response(null, {
       status: 204,
-      headers: {
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'POST, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type',
-        'Access-Control-Max-Age': '86400',
-      },
+      headers: corsHeaders,
     });
   }
 
-  // Only allow POST requests
+  // Only allow POST
   if (request.method !== 'POST') {
     return new Response(
       JSON.stringify({ error: 'Method not allowed' }),
       {
         status: 405,
-        headers: { 
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-        },
-      }
-    );
-  }
-
-  const n8nWebhookUrl = Deno.env.get('N8N_WEBHOOK_URL');
-
-  if (!n8nWebhookUrl) {
-    console.error('N8N_WEBHOOK_URL environment variable is not set');
-    return new Response(
-      JSON.stringify({ 
-        error: 'Service configuration error',
-        message: 'Webhook URL not configured. Please contact support.'
-      }),
-      {
-        status: 500,
-        headers: { 
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-        },
+        headers: { 'Content-Type': 'application/json', ...corsHeaders },
       }
     );
   }
 
   try {
-    // Parse and validate request body
-    let formData: unknown;
-    try {
-      formData = await request.json();
-    } catch {
-      return new Response(
-        JSON.stringify({ error: 'Invalid request format' }),
-        {
-          status: 400,
-          headers: { 
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*',
-          },
-        }
-      );
-    }
-
-    // Validate and sanitize form data
-    const validation = validateFormData(formData);
-    if (!validation.valid) {
-      return new Response(
-        JSON.stringify({ error: validation.error || 'Invalid form data' }),
-        {
-          status: 400,
-          headers: { 
-            'Content-Type': 'application/json',
-            'Access-Control-Allow-Origin': '*',
-          },
-        }
-      );
-    }
-
-    // Forward to n8n webhook with sanitized data
-    console.log('Sending request to n8n webhook:', n8nWebhookUrl.substring(0, 50) + '...');
-    console.log('Request body keys:', Object.keys(validation.sanitized || {}));
+    // Get webhook URL from environment
+    const webhookUrl = Deno.env.get('N8N_WEBHOOK_URL');
     
-    let response: Response;
-    try {
-      response = await fetch(n8nWebhookUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(validation.sanitized),
-      });
-    } catch (fetchError) {
-      console.error('Fetch error:', fetchError);
-      throw new Error(`Failed to connect to webhook: ${fetchError instanceof Error ? fetchError.message : String(fetchError)}`);
+    if (!webhookUrl) {
+      console.error('N8N_WEBHOOK_URL is not configured');
+      return new Response(
+        JSON.stringify({ error: 'Service not configured' }),
+        {
+          status: 500,
+          headers: { 'Content-Type': 'application/json', ...corsHeaders },
+        }
+      );
     }
+
+    // Parse request body
+    const body = await request.json();
+    
+    // Basic validation
+    if (!body.name || !body.email) {
+      return new Response(
+        JSON.stringify({ error: 'Name and email are required' }),
+        {
+          status: 400,
+          headers: { 'Content-Type': 'application/json', ...corsHeaders },
+        }
+      );
+    }
+
+    // Prepare data to send
+    const formData = {
+      type: String(body.type || 'contact'),
+      name: String(body.name || '').slice(0, 200),
+      email: String(body.email || '').toLowerCase().slice(0, 255),
+      message: String(body.message || '').slice(0, 5000),
+      organization: String(body.organization || '').slice(0, 200),
+      needs: String(body.needs || '').slice(0, 5000),
+      page_url: String(body.page_url || '').slice(0, 500),
+      timestamp: new Date().toISOString(),
+      source: 'plademy-website',
+    };
+
+    // Forward to n8n webhook
+    const response = await fetch(webhookUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData),
+    });
 
     if (!response.ok) {
-      const responseText = await response.text().catch(() => 'Unable to read response');
-      console.error(`n8n webhook failed: ${response.status} ${response.statusText}`);
-      console.error('Response body:', responseText);
-      throw new Error(`Webhook service error: ${response.status} ${response.statusText}`);
+      console.error('Webhook failed:', response.status, response.statusText);
+      return new Response(
+        JSON.stringify({ error: 'Failed to process form' }),
+        {
+          status: 500,
+          headers: { 'Content-Type': 'application/json', ...corsHeaders },
+        }
+      );
     }
 
     return new Response(
       JSON.stringify({ success: true }),
       {
         status: 200,
-        headers: {
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'POST, OPTIONS',
-          'Access-Control-Allow-Headers': 'Content-Type',
-        },
+        headers: { 'Content-Type': 'application/json', ...corsHeaders },
       }
     );
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : String(error);
-    const errorStack = error instanceof Error ? error.stack : undefined;
-    
-    console.error('Webhook error:', errorMessage);
-    if (errorStack) {
-      console.error('Stack:', errorStack);
-    }
-    
-    // Log additional context for debugging
-    console.error('Error timestamp:', new Date().toISOString());
-    console.error('N8N_WEBHOOK_URL configured:', !!n8nWebhookUrl);
-    
+    console.error('Edge function error:', error);
     return new Response(
-      JSON.stringify({
-        error: 'Failed to process form submission. Please try again later.',
-      }),
+      JSON.stringify({ error: 'Internal server error' }),
       {
         status: 500,
-        headers: { 
-          'Content-Type': 'application/json',
-          'Access-Control-Allow-Origin': '*',
-        },
+        headers: { 'Content-Type': 'application/json', ...corsHeaders },
       }
     );
   }
