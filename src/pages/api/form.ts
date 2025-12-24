@@ -11,8 +11,8 @@ export const POST: APIRoute = async ({ request }) => {
   };
 
   try {
-    // Get webhook URL from environment
-    const webhookUrl = import.meta.env.N8N_WEBHOOK_URL;
+    // Get webhook URL from environment (runtime)
+    const webhookUrl = process.env.N8N_WEBHOOK_URL;
     
     if (!webhookUrl) {
       console.error('N8N_WEBHOOK_URL is not configured');
