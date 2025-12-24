@@ -11,13 +11,21 @@ export const POST: APIRoute = async ({ request }) => {
   };
 
   try {
-    // Get webhook URL from environment (runtime)
-    const webhookUrl = process.env.N8N_WEBHOOK_URL;
+    // Try both import.meta.env and process.env for Netlify compatibility
+    const webhookUrl = import.meta.env.N8N_WEBHOOK_URL || process.env.N8N_WEBHOOK_URL;
     
     if (!webhookUrl) {
       console.error('N8N_WEBHOOK_URL is not configured');
+      console.error('Available env vars:', {
+        hasImportMeta: !!import.meta.env.N8N_WEBHOOK_URL,
+        hasProcess: !!process.env.N8N_WEBHOOK_URL,
+        importMetaKeys: Object.keys(import.meta.env || {}),
+      });
       return new Response(
-        JSON.stringify({ error: 'Service not configured' }),
+        JSON.stringify({ 
+          error: 'Service not configured',
+          details: 'N8N_WEBHOOK_URL environment variable is missing'
+        }),
         { status: 500, headers: corsHeaders }
       );
     }
@@ -82,9 +90,17 @@ export const POST: APIRoute = async ({ request }) => {
       { status: 200, headers: corsHeaders }
     );
   } catch (error) {
-    console.error('API error:', error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const errorStack = error instanceof Error ? error.stack : undefined;
+    console.error('API error:', {
+      message: errorMessage,
+      stack: errorStack,
+    });
     return new Response(
-      JSON.stringify({ error: 'Internal server error' }),
+      JSON.stringify({ 
+        error: 'Internal server error',
+        message: errorMessage,
+      }),
       { status: 500, headers: corsHeaders }
     );
   }
