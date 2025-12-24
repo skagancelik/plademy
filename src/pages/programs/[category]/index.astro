@@ -273,18 +273,18 @@ const canonicalProgram = programForSlug ? `https://plademy.com/programs/${progra
     programDuration={programForSlug.duration || undefined}
     programAudience={programForSlug.audience || undefined}
   >
-    <Fragment slot="after-description">
+    <div slot="after-description">
       {programCategory && (
         <div class="mb-6">
           <a
             href={`/programs/${programCategory.slug}`}
             class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm bg-white border border-gray-200 text-black hover:opacity-80 transition-opacity"
           >
-            {programCategory[`name_${lang}` as keyof Category] || programCategory.name_en}
+            {String(programCategory[`name_${lang}` as keyof Category] || programCategory.name_en)}
           </a>
         </div>
       )}
-    </Fragment>
+    </div>
 
     {programForSlug.cover_image_url && (
       <img
@@ -366,7 +366,6 @@ const canonicalProgram = programForSlug ? `https://plademy.com/programs/${progra
       <div 
         class="prose prose-lg max-w-none content-prose"
         set:html={marked.parse(programForSlug.content, {
-          mangle: false,
         })
         .replace(/<h3([^>]*)>(.*?)<\/h3>/gi, (match, attrs, text) => {
           const id = slugify(text.replace(/<[^>]*>/g, ''));
