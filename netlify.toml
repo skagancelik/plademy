@@ -5,8 +5,6 @@
 [build.environment]
   NODE_VERSION = "20"
 
-# Edge Functions path mapping
-# Map /api/form to form-webhook Edge Function
 [[edge_functions]]
   function = "form-webhook"
   path = "/api/form"
