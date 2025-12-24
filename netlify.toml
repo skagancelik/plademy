@@ -5,11 +5,6 @@
 [build.environment]
   NODE_VERSION = "20"
 
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
-
 # Edge Functions configuration
 # Edge Functions are automatically discovered in netlify/edge-functions/
 # Path mapping for form webhook
