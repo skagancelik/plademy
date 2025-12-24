@@ -138,7 +138,6 @@ export default async (request: Request) => {
 
   if (!n8nWebhookUrl) {
     console.error('N8N_WEBHOOK_URL environment variable is not set');
-    console.error('Available env vars:', Object.keys(Deno.env.toObject()));
     return new Response(
       JSON.stringify({ 
         error: 'Service configuration error',
@@ -188,17 +187,28 @@ export default async (request: Request) => {
     }
 
     // Forward to n8n webhook with sanitized data
-    const response = await fetch(n8nWebhookUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(validation.sanitized),
-    });
+    console.log('Sending request to n8n webhook:', n8nWebhookUrl.substring(0, 50) + '...');
+    console.log('Request body keys:', Object.keys(validation.sanitized || {}));
+    
+    let response: Response;
+    try {
+      response = await fetch(n8nWebhookUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(validation.sanitized),
+      });
+    } catch (fetchError) {
+      console.error('Fetch error:', fetchError);
+      throw new Error(`Failed to connect to webhook: ${fetchError instanceof Error ? fetchError.message : String(fetchError)}`);
+    }
 
     if (!response.ok) {
+      const responseText = await response.text().catch(() => 'Unable to read response');
       console.error(`n8n webhook failed: ${response.status} ${response.statusText}`);
-      throw new Error(`Webhook service error: ${response.statusText}`);
+      console.error('Response body:', responseText);
+      throw new Error(`Webhook service error: ${response.status} ${response.statusText}`);
     }
 
     return new Response(
@@ -217,17 +227,18 @@ export default async (request: Request) => {
     const errorMessage = error instanceof Error ? error.message : String(error);
     const errorStack = error instanceof Error ? error.stack : undefined;
     
-    console.error('Webhook error:', {
-      message: errorMessage,
-      stack: errorStack,
-      timestamp: new Date().toISOString(),
-    });
+    console.error('Webhook error:', errorMessage);
+    if (errorStack) {
+      console.error('Stack:', errorStack);
+    }
+    
+    // Log additional context for debugging
+    console.error('Error timestamp:', new Date().toISOString());
+    console.error('N8N_WEBHOOK_URL configured:', !!n8nWebhookUrl);
     
     return new Response(
       JSON.stringify({
         error: 'Failed to process form submission. Please try again later.',
-        // In production, don't expose internal error details
-        // ...(process.env.NODE_ENV === 'development' && { details: errorMessage }),
       }),
       {
         status: 500,
