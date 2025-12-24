@@ -49,6 +49,10 @@ export default defineConfig({
 });
 ```
 
+**ÖNEMLİ:** 
+- ❌ **Image domains konfigürasyonu EKLEMEYİN:** `image: { domains: [...] }` Netlify deployment'ında hata veriyor
+- ✅ **Astro adapter experimental "assets" uyarısı:** Bilgilendirme amaçlı, build'i etkilemiyor
+
 ### Prerender Kontrolü
 
 **Statik sayfalar:**
@@ -335,18 +339,13 @@ Resources ile benzer, ama ekstra alanlar:
 
 [build.environment]
   NODE_VERSION = "20"
-
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
-
-[[edge_functions]]
-  function = "form-webhook"
-  path = "/api/form"
 ```
 
-**ÖNEMLİ:** Edge Functions kullanılıyor, Netlify Functions değil!
+**ÖNEMLİ NOTLAR:**
+- ❌ **Redirect Rules:** Hybrid SSR için `from = "/*" to = "/index.html"` redirect kuralı **KULLANILMAMALI**. Bu kural tüm SSR route'larını statik dosyaya yönlendirir ve deployment'ı bozar.
+- ❌ **Image Transformation:** Netlify'ın image transformation özelliği Astro adapter için experimental ve deployment hatalarına neden oluyor. `[images]` section'ı `netlify.toml`'a **EKLEMEYİN**.
+- ✅ **Edge Functions:** Otomatik discovery kullanılıyor. `netlify/edge-functions/` dizinindeki dosyalar otomatik olarak keşfedilir. Path mapping gerekmez.
+- ✅ **Edge Functions kullanılıyor**, Netlify Functions değil!
 
 ### Environment Variables (Netlify Dashboard)
 
@@ -385,6 +384,13 @@ Resources ile benzer, ama ekstra alanlar:
    - Edge SSR sayfalar → Netlify Edge Functions
 3. Netlify deploy eder
 
+**Build Troubleshooting:**
+- ✅ **Build başarılı ama deployment başarısız:** Genellikle `netlify.toml` konfigürasyon hatası
+- ❌ **Image transformation hatası:** `[images]` section'ını `netlify.toml`'dan kaldırın
+- ❌ **Redirect hatası:** Hybrid SSR için `from = "/*"` redirect kuralını kaldırın
+- ⚠️ **TypeScript warnings:** Build'i durdurmaz ama temizlenmeli (unused imports)
+- ✅ **Edge Functions bundling başarılı:** `netlify/edge-functions/` dizinindeki dosyalar otomatik keşfedilir
+
 ### Edge Functions
 
 **Form Webhook (`netlify/edge-functions/form-webhook.ts`):**
@@ -400,20 +406,25 @@ Resources ile benzer, ama ekstra alanlar:
   - Webhook URL client-side'da görünmez
   - Daha düşük gecikme
 
-**Path Mapping:**
-- `/api/form` → `netlify/edge-functions/form-webhook.ts`
-- `netlify.toml` içinde `[[edge_functions]]` ile yapılandırıldı
+**Auto-Discovery:**
+- Edge Functions `netlify/edge-functions/` dizininde otomatik keşfedilir
+- Path mapping gerekmez (Netlify otomatik olarak dosya adını path olarak kullanır)
+- Örnek: `form-webhook.ts` → `/form-webhook` path'inde çalışır
+- Eğer özel path istiyorsanız, `netlify.toml`'a `[[edge_functions]]` ekleyebilirsiniz, ama genellikle gerekmez
 
 ### Performance Optimization
 
-**Netlify Image CDN:**
-- Remote images otomatik optimize
-- WebP format
-- Lazy loading
+**Image Optimization:**
+- ❌ **Netlify Image CDN kullanılmıyor** (experimental, deployment hatalarına neden oluyor)
+- ✅ **Supabase/Cloudinary CDN:** Görüntüler zaten optimize edilmiş CDN'lerden geliyor
+- ✅ **Lazy Loading:** Card images için `loading="lazy"`
+- ✅ **Eager Loading:** Hero ve detail page images için `loading="eager"` + `fetchpriority="high"`
+- ✅ **Width/Height Attributes:** Layout shift önleme için tüm görsellere eklendi
 
 **Caching:**
 - Static pages: CDN cache
 - Edge SSR: 60s cache + stale-while-revalidate 300s
+- Static assets: 1 year cache (immutable) - `public/_headers` dosyasında tanımlı
 
 **PageSpeed Target:**
 - 95+ (Edge SSR overhead ile)
@@ -997,6 +1008,18 @@ export function getLanguageFromCookie(
 - Node.js version kontrol et (20+)
 - Dependencies yüklü mü?
 - TypeScript errors var mı?
+
+**5. Netlify Deployment Fails (Build başarılı ama deploy başarısız):**
+- ❌ **"Invalid image transformation configuration":** `netlify.toml`'dan `[images]` section'ını kaldırın
+- ❌ **Redirect hatası:** `from = "/*" to = "/index.html"` redirect kuralını kaldırın (hybrid SSR için uygun değil)
+- ✅ **Edge Functions:** `netlify/edge-functions/` dizinindeki dosyalar otomatik keşfedilir, path mapping gerekmez
+- ⚠️ **TypeScript warnings:** Build'i durdurmaz ama temizlenmeli (unused imports)
+
+**6. Edge Function Not Working:**
+- Dosya `netlify/edge-functions/` dizininde mi?
+- Export format doğru mu? (`export default async (request: Request) => {...}`)
+- Environment variables Netlify dashboard'da tanımlı mı? (`N8N_WEBHOOK_URL`)
+- CORS headers eklendi mi? (OPTIONS preflight support)
 
 ---
 
