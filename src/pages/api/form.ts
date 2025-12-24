@@ -1,8 +1,8 @@
-// Netlify Edge Function for form submissions
-// Uses Deno runtime
+import type { APIRoute } from 'astro';
 
-export default async (request: Request) => {
-  // CORS headers
+export const prerender = false;
+
+export const POST: APIRoute = async ({ request }) => {
   const corsHeaders = {
     'Access-Control-Allow-Origin': '*',
     'Access-Control-Allow-Methods': 'POST, OPTIONS',
@@ -10,32 +10,19 @@ export default async (request: Request) => {
     'Content-Type': 'application/json',
   };
 
-  // Handle CORS preflight
-  if (request.method === 'OPTIONS') {
-    return new Response(null, { status: 204, headers: corsHeaders });
-  }
-
-  // Only allow POST
-  if (request.method !== 'POST') {
-    return new Response(
-      JSON.stringify({ error: 'Method not allowed' }),
-      { status: 405, headers: corsHeaders }
-    );
-  }
-
   try {
-    // Get webhook URL
-    const webhookUrl = Deno.env.get('N8N_WEBHOOK_URL');
+    // Get webhook URL from environment
+    const webhookUrl = import.meta.env.N8N_WEBHOOK_URL;
     
     if (!webhookUrl) {
-      console.error('N8N_WEBHOOK_URL not configured');
+      console.error('N8N_WEBHOOK_URL is not configured');
       return new Response(
         JSON.stringify({ error: 'Service not configured' }),
         { status: 500, headers: corsHeaders }
       );
     }
 
-    // Parse body
+    // Parse request body
     let body;
     try {
       body = await request.json();
@@ -46,15 +33,15 @@ export default async (request: Request) => {
       );
     }
 
-    // Validate
+    // Validate required fields
     if (!body.name || !body.email) {
       return new Response(
-        JSON.stringify({ error: 'Name and email required' }),
+        JSON.stringify({ error: 'Name and email are required' }),
         { status: 400, headers: corsHeaders }
       );
     }
 
-    // Prepare data
+    // Prepare form data
     const formData = {
       type: body.type || 'contact',
       name: body.name,
@@ -72,9 +59,9 @@ export default async (request: Request) => {
       source: 'plademy-website',
     };
 
-    console.log('Forwarding to webhook...');
+    console.log('Sending form data to webhook...');
 
-    // Send to n8n
+    // Forward to n8n webhook
     const response = await fetch(webhookUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -82,25 +69,35 @@ export default async (request: Request) => {
     });
 
     if (!response.ok) {
-      console.error('Webhook error:', response.status);
+      console.error('Webhook failed:', response.status, response.statusText);
       return new Response(
-        JSON.stringify({ error: 'Webhook failed' }),
+        JSON.stringify({ error: 'Failed to process form' }),
         { status: 500, headers: corsHeaders }
       );
     }
 
+    console.log('Form submitted successfully');
     return new Response(
       JSON.stringify({ success: true }),
       { status: 200, headers: corsHeaders }
     );
   } catch (error) {
-    console.error('Error:', error);
+    console.error('API error:', error);
     return new Response(
-      JSON.stringify({ error: 'Internal error' }),
+      JSON.stringify({ error: 'Internal server error' }),
       { status: 500, headers: corsHeaders }
     );
   }
 };
 
-export const config = { path: '/api/form' };
+export const OPTIONS: APIRoute = async () => {
+  return new Response(null, {
+    status: 204,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type',
+    },
+  });
+};
 

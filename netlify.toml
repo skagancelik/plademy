@@ -5,7 +5,3 @@
 [build.environment]
   NODE_VERSION = "20"
 
-[[edge_functions]]
-  function = "form-webhook"
-  path = "/api/form"
-
