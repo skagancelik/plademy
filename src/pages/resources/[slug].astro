@@ -229,13 +229,15 @@ const canonical = `https://plademy.com/resources/${slug}`;
     <div id="resource-form-message" class="hidden text-center mt-4"></div>
   </div>
 
-  {resource.content && (
-    <div 
-      set:html={marked.parse(resource.content)
+  {resource.content && (() => {
+    const parsedContent = marked.parse(resource.content) as string;
+    const processedContent = parsedContent
       .replace(/<ol([^>]*)>/gi, '<ol$1 style="padding: 30px 30px 30px 80px !important; background-color: #f6f7fb !important; border-radius: 20px !important; list-style-position: outside !important;">')
-      .replace(/<ul([^>]*)>/gi, '<ul$1 style="padding: 30px 30px 30px 80px !important; background-color: #f6f7fb !important; border-radius: 20px !important; list-style-position: outside !important;">')}
-    />
-  )}
+      .replace(/<ul([^>]*)>/gi, '<ul$1 style="padding: 30px 30px 30px 80px !important; background-color: #f6f7fb !important; border-radius: 20px !important; list-style-position: outside !important;">');
+    return (
+      <div set:html={processedContent} />
+    );
+  })()}
 
   {resource.faqs && resource.faqs.length > 0 && (
     <div class="mt-12">

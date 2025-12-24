@@ -362,20 +362,23 @@ const canonicalProgram = programForSlug ? `https://plademy.com/programs/${progra
       <div id="resource-form-message" class="hidden text-center mt-4"></div>
     </div>
 
-    {programForSlug.content && (
-      <div 
-        class="prose prose-lg max-w-none content-prose"
-        set:html={marked.parse(programForSlug.content, {
-        })
-        .replace(/<h3([^>]*)>(.*?)<\/h3>/gi, (match, attrs, text) => {
+    {programForSlug.content && (() => {
+      const parsedContent = marked.parse(programForSlug.content) as string;
+      const processedContent = parsedContent
+        .replace(/<h3([^>]*)>(.*?)<\/h3>/gi, (_match: string, attrs: string, text: string) => {
           const id = slugify(text.replace(/<[^>]*>/g, ''));
           return `<h3${attrs} id="${id}">${text}</h3>`;
         })
         .replace(/<input[^>]*type=["']checkbox["'][^>]*>/gi, '<span class="text-primary mr-2">✓</span>')
         .replace(/<ol([^>]*)>/gi, '<ol$1 style="padding: 30px 30px 30px 80px !important; background-color: #f6f7fb !important; border-radius: 20px !important; list-style-position: outside !important;">')
-        .replace(/<ul([^>]*)>/gi, '<ul$1 style="padding: 30px 30px 30px 80px !important; background-color: #f6f7fb !important; border-radius: 20px !important; list-style-position: outside !important;">')}
-      />
-    )}
+        .replace(/<ul([^>]*)>/gi, '<ul$1 style="padding: 30px 30px 30px 80px !important; background-color: #f6f7fb !important; border-radius: 20px !important; list-style-position: outside !important;">');
+      return (
+        <div 
+          class="prose prose-lg max-w-none content-prose"
+          set:html={processedContent}
+        />
+      );
+    })()}
 
     {programForSlug.faqs && programForSlug.faqs.length > 0 && (
       <div id="frequently-asked-questions" class="mt-12">
