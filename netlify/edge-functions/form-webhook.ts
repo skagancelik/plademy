@@ -137,9 +137,13 @@ export default async (request: Request) => {
   const n8nWebhookUrl = Deno.env.get('N8N_WEBHOOK_URL');
 
   if (!n8nWebhookUrl) {
-    console.error('N8N_WEBHOOK_URL not configured');
+    console.error('N8N_WEBHOOK_URL environment variable is not set');
+    console.error('Available env vars:', Object.keys(Deno.env.toObject()));
     return new Response(
-      JSON.stringify({ error: 'Service temporarily unavailable' }),
+      JSON.stringify({ 
+        error: 'Service configuration error',
+        message: 'Webhook URL not configured. Please contact support.'
+      }),
       {
         status: 500,
         headers: { 
@@ -210,10 +214,20 @@ export default async (request: Request) => {
       }
     );
   } catch (error) {
-    console.error('Webhook error:', error);
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    const errorStack = error instanceof Error ? error.stack : undefined;
+    
+    console.error('Webhook error:', {
+      message: errorMessage,
+      stack: errorStack,
+      timestamp: new Date().toISOString(),
+    });
+    
     return new Response(
       JSON.stringify({
         error: 'Failed to process form submission. Please try again later.',
+        // In production, don't expose internal error details
+        // ...(process.env.NODE_ENV === 'development' && { details: errorMessage }),
       }),
       {
         status: 500,
