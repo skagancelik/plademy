@@ -1,4 +1,5 @@
 ---
+import { Fragment } from 'astro/jsx-runtime';
 import PageLayout from '@layouts/PageLayout.astro';
 import ContentLayout from '@layouts/ContentLayout.astro';
 import ProgramCard from '@components/programs/ProgramCard.astro';
@@ -257,7 +258,7 @@ const categoryName = category ? (category[`name_${lang}` as keyof Category] || c
 const categoryDescription = category ? ((category[`description_${lang}` as keyof Category] || category.description_en) as string | undefined) : undefined;
 const canonicalProgram = programForSlug ? `https://plademy.com/programs/${programForSlug.slug}` : undefined;
 ---
-
+<Fragment>
 {programForSlug ? (
   <ContentLayout
     title={programForSlug.title}
@@ -409,7 +410,7 @@ const canonicalProgram = programForSlug ? `https://plademy.com/programs/${progra
       );
     })()}
 
-    {programForSlug.faqs && programForSlug.faqs.length > 0 && (
+    {programForSlug.faqs && Array.isArray(programForSlug.faqs) && programForSlug.faqs.length > 0 && (
       <div id="frequently-asked-questions" class="mt-12">
         <h2 class="text-3xl font-bold mb-6">Frequently Asked Questions</h2>
         <div class="space-y-4">
@@ -1107,4 +1108,4 @@ const canonicalProgram = programForSlug ? `https://plademy.com/programs/${progra
     })();
   </script>
 )}
-
+</Fragment>
