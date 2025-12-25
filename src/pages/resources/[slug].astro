@@ -141,6 +141,38 @@ if (category) {
   const baseLabel = t.resources.relatedArticles || 'Related Articles';
   relatedResourcesLabel = baseLabel.replace('{category}', categoryName);
 }
+
+// Process resource content - moved from IIFE to frontmatter
+let processedContent: string | null = null;
+if (resource && resource.content) {
+  // Clean up malformed checkmark patterns - catch ALL variations of $render with checkmark
+  const cleanedContent = resource.content
+    .replace(/\$render[^✓]*✓[^<]*/g, '✓')
+    .replace(/\$render[^✓]*✓[^<]*/g, '✓') // Run twice to catch nested patterns
+    .replace(/`✓`/g, '✓')
+    .replace(/\$render/g, '') // Remove any remaining $render without checkmark
+    .replace(/\\`✓\\`/g, '✓')
+    .replace(/\\`/g, '');
+  
+  const parsedContent = marked.parse(cleanedContent) as string;
+  processedContent = parsedContent
+    // Replace any $render pattern with checkmark - multiple passes for reliability
+    .replace(/\$render[^✓]*✓[^<]*/g, '✓')
+    .replace(/\$render[^✓]*✓[^<]*/g, '✓') // Second pass
+    // Handle HTML entities and encoded characters
+    .replace(/\$render[^✓]*✓[^<]*/g, '✓')
+    // Replace in any HTML tag content
+    .replace(/>([^<]*)\$render[^✓]*✓[^<]*(<)/g, (match, before, after) => {
+      return `>${before.replace(/\$render[^✓]*✓[^<]*/g, '✓')}${after}`;
+    })
+    // Handle list items specifically - more aggressive
+    .replace(/<li([^>]*)>([^<]*)\$render[^✓]*✓[^<]*/gi, '<li$1>✓$2')
+    .replace(/<li([^>]*)>([^<]*)\$render[^✓]*✓[^<]*/gi, '<li$1>✓$2') // Second pass
+    // Remove any remaining $render
+    .replace(/\$render/g, '')
+    .replace(/<ol([^>]*)>/gi, '<ol$1 style="padding: 30px 30px 30px 80px !important; background-color: #f6f7fb !important; border-radius: 20px !important; list-style-position: outside !important;">')
+    .replace(/<ul([^>]*)>/gi, '<ul$1 style="padding: 30px 30px 30px 80px !important; background-color: #f6f7fb !important; border-radius: 20px !important; list-style-position: outside !important;">');
+}
 ---
 
 <ContentLayout
@@ -241,39 +273,9 @@ if (category) {
     <div id="resource-form-message" class="hidden text-center mt-4"></div>
   </div>
 
-  {resource.content && (() => {
-    // Clean up malformed checkmark patterns - catch ALL variations of $render with checkmark
-    // Replace $render followed by any characters until checkmark (including backticks, quotes, escapes, HTML entities)
-    const cleanedContent = resource.content
-      .replace(/\$render[^✓]*✓[^<]*/g, '✓')
-      .replace(/\$render[^✓]*✓[^<]*/g, '✓') // Run twice to catch nested patterns
-      .replace(/`✓`/g, '✓')
-      .replace(/\$render/g, '') // Remove any remaining $render without checkmark
-      .replace(/\\`✓\\`/g, '✓')
-      .replace(/\\`/g, '');
-    
-    const parsedContent = marked.parse(cleanedContent) as string;
-    const processedContent = parsedContent
-      // Replace any $render pattern with checkmark - multiple passes for reliability
-      .replace(/\$render[^✓]*✓[^<]*/g, '✓')
-      .replace(/\$render[^✓]*✓[^<]*/g, '✓') // Second pass
-      // Handle HTML entities and encoded characters
-      .replace(/\$render[^✓]*✓[^<]*/g, '✓')
-      // Replace in any HTML tag content
-      .replace(/>([^<]*)\$render[^✓]*✓[^<]*(<)/g, (match, before, after) => {
-        return `>${before.replace(/\$render[^✓]*✓[^<]*/g, '✓')}${after}`;
-      })
-      // Handle list items specifically - more aggressive
-      .replace(/<li([^>]*)>([^<]*)\$render[^✓]*✓[^<]*/gi, '<li$1>✓$2')
-      .replace(/<li([^>]*)>([^<]*)\$render[^✓]*✓[^<]*/gi, '<li$1>✓$2') // Second pass
-      // Remove any remaining $render
-      .replace(/\$render/g, '')
-      .replace(/<ol([^>]*)>/gi, '<ol$1 style="padding: 30px 30px 30px 80px !important; background-color: #f6f7fb !important; border-radius: 20px !important; list-style-position: outside !important;">')
-      .replace(/<ul([^>]*)>/gi, '<ul$1 style="padding: 30px 30px 30px 80px !important; background-color: #f6f7fb !important; border-radius: 20px !important; list-style-position: outside !important;">');
-    return (
-      <div set:html={processedContent} />
-    );
-  })()}
+  {processedContent && (
+    <div set:html={processedContent} />
+  )}
 
   {resource.faqs && resource.faqs.length > 0 && (
     <div class="mt-12">
