@@ -184,8 +184,33 @@ Location: /opt/build/repo/src/pages/programs/[slug].astro:203:29
 **Yapılan Düzeltmeler:**
 1. `programs/[slug].astro` dosyasında `relatedProgramsLabel` expression'ını değişkene taşıdım
 2. Karmaşık ternary expression'ı if statement'a çevirdim
+3. **ÇÖZÜLDÜ:** `program.content` işleme mantığı frontmatter'a taşındı (IIFE kaldırıldı)
 
-**Sonuç:** ❌ Hata devam ediyor (203. satırda hala hata var)
+**Sonuç:** ✅ Düzeltildi
+
+---
+
+### Hata 8: esbuild Parsing Error - programs/[category]/index.astro
+**Hata Mesajı:**
+```
+Expected ";" but found "{"
+Location: /opt/build/repo/src/pages/programs/[category]/index.astro:340:31
+```
+
+**Kök Neden:**
+esbuild, Astro template'lerindeki IIFE pattern'lerini (`(() => { ... })()`) parse edemiyor. Bu dosyada iki IIFE vardı:
+1. Form description için IIFE (satır 330-336)
+2. `programForSlug.content` işleme için IIFE (satır 376+)
+
+**Yapılan Düzeltmeler:**
+1. Form description IIFE'si frontmatter'a taşındı → `formDescription` değişkeni
+2. `programForSlug.content` işleme IIFE'si frontmatter'a taşındı → `processedContent` değişkeni
+3. Template'de sadece değişkenler kullanılıyor
+
+**Dosyalar:**
+- `src/pages/programs/[category]/index.astro`
+
+**Sonuç:** ✅ Düzeltildi
 
 ---
 
@@ -287,6 +312,8 @@ Tüm hatalar aynı pattern'i gösteriyor:
 3. `309a274` - Extract relatedResourcesLabel expression to variable
 4. `797d0ac` - Simplify relatedResourcesLabel expression
 5. `2278e9b` - Extract all complex expressions from JSX attributes to variables
+6. `451e9be` - Move IIFE patterns from template to frontmatter (all detail pages)
+7. `[PENDING]` - Move IIFE patterns from programs/[category]/index.astro to frontmatter
 
 ## Notlar
 

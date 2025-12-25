@@ -263,6 +263,53 @@ if (programCategory) {
   const baseLabel = t.programs.relatedProgramsInterest || 'You might be interested in programs';
   relatedProgramsLabel = baseLabel.replace('{category}', programCategoryName);
 }
+
+// Form description - moved from IIFE to frontmatter
+let formDescription: string = 'AI Powered Mentoring, Coaching, Community Management and Training Platforms';
+if (programForSlug || category) {
+  const activeCategory = programForSlug ? programCategory : category;
+  if (activeCategory) {
+    const categoryName = activeCategory[`name_${lang}` as keyof Category] || activeCategory.name_en;
+    formDescription = `AI Powered Solutions For Your ${categoryName}.`;
+  }
+}
+
+// Process programForSlug content - moved from IIFE to frontmatter
+let processedContent: string | null = null;
+if (programForSlug && programForSlug.content) {
+  // Clean up malformed checkmark patterns - catch ALL variations of $render with checkmark
+  const cleanedContent = programForSlug.content
+    .replace(/\$render[^✓]*✓[^<]*/g, '✓')
+    .replace(/\$render[^✓]*✓[^<]*/g, '✓') // Run twice to catch nested patterns
+    .replace(/`✓`/g, '✓')
+    .replace(/\$render/g, '') // Remove any remaining $render without checkmark
+    .replace(/\\`✓\\`/g, '✓')
+    .replace(/\\`/g, '');
+  
+  const parsedContent = marked.parse(cleanedContent) as string;
+  processedContent = parsedContent
+    // Replace any $render pattern with checkmark - multiple passes for reliability
+    .replace(/\$render[^✓]*✓[^<]*/g, '✓')
+    .replace(/\$render[^✓]*✓[^<]*/g, '✓') // Second pass
+    // Handle HTML entities and encoded characters
+    .replace(/\$render[^✓]*✓[^<]*/g, '✓')
+    // Replace in any HTML tag content
+    .replace(/>([^<]*)\$render[^✓]*✓[^<]*(<)/g, (match, before, after) => {
+      return `>${before.replace(/\$render[^✓]*✓[^<]*/g, '✓')}${after}`;
+    })
+    // Handle list items specifically - more aggressive
+    .replace(/<li([^>]*)>([^<]*)\$render[^✓]*✓[^<]*/gi, '<li$1>✓$2')
+    .replace(/<li([^>]*)>([^<]*)\$render[^✓]*✓[^<]*/gi, '<li$1>✓$2') // Second pass
+    // Remove any remaining $render
+    .replace(/\$render/g, '')
+    .replace(/<h3([^>]*)>(.*?)<\/h3>/gi, (_match: string, attrs: string, text: string) => {
+      const id = slugify(text.replace(/<[^>]*>/g, ''));
+      return `<h3${attrs} id="${id}">${text}</h3>`;
+    })
+    .replace(/<input[^>]*type=["']checkbox["'][^>]*>/gi, '<span class="text-primary mr-2">✓</span>')
+    .replace(/<ol([^>]*)>/gi, '<ol$1 style="padding: 30px 30px 30px 80px !important; background-color: #f6f7fb !important; border-radius: 20px !important; list-style-position: outside !important;">')
+    .replace(/<ul([^>]*)>/gi, '<ul$1 style="padding: 30px 30px 30px 80px !important; background-color: #f6f7fb !important; border-radius: 20px !important; list-style-position: outside !important;">');
+}
 ---
 
 {programForSlug ? (
@@ -327,13 +374,7 @@ if (programCategory) {
             {t.programs.formTitle || 'Start implementing this program today'}
           </h3>
           <p class="text-black">
-            {(() => {
-              // Use programCategory if programForSlug exists, otherwise use category
-              const activeCategory = programForSlug ? programCategory : category;
-              if (!activeCategory) return 'AI Powered Mentoring, Coaching, Community Management and Training Platforms';
-              const categoryName = activeCategory[`name_${lang}` as keyof Category] || activeCategory.name_en;
-              return `AI Powered Solutions For Your ${categoryName}.`;
-            })()}
+            {formDescription}
           </p>
         </div>
         <div class="space-y-4">
@@ -373,48 +414,12 @@ if (programCategory) {
       <div id="resource-form-message" class="hidden text-center mt-4"></div>
     </div>
 
-    {programForSlug.content && (() => {
-      // Clean up malformed checkmark patterns - catch ALL variations of $render with checkmark
-      // Replace $render followed by any characters until checkmark (including backticks, quotes, escapes, HTML entities)
-      if (!programForSlug.content) return null;
-      const cleanedContent = programForSlug.content
-        .replace(/\$render[^✓]*✓[^<]*/g, '✓')
-        .replace(/\$render[^✓]*✓[^<]*/g, '✓') // Run twice to catch nested patterns
-        .replace(/`✓`/g, '✓')
-        .replace(/\$render/g, '') // Remove any remaining $render without checkmark
-        .replace(/\\`✓\\`/g, '✓')
-        .replace(/\\`/g, '');
-      
-      const parsedContent = marked.parse(cleanedContent) as string;
-      const processedContent = parsedContent
-        // Replace any $render pattern with checkmark - multiple passes for reliability
-        .replace(/\$render[^✓]*✓[^<]*/g, '✓')
-        .replace(/\$render[^✓]*✓[^<]*/g, '✓') // Second pass
-        // Handle HTML entities and encoded characters
-        .replace(/\$render[^✓]*✓[^<]*/g, '✓')
-        // Replace in any HTML tag content
-        .replace(/>([^<]*)\$render[^✓]*✓[^<]*(<)/g, (match, before, after) => {
-          return `>${before.replace(/\$render[^✓]*✓[^<]*/g, '✓')}${after}`;
-        })
-        // Handle list items specifically - more aggressive
-        .replace(/<li([^>]*)>([^<]*)\$render[^✓]*✓[^<]*/gi, '<li$1>✓$2')
-        .replace(/<li([^>]*)>([^<]*)\$render[^✓]*✓[^<]*/gi, '<li$1>✓$2') // Second pass
-        // Remove any remaining $render
-        .replace(/\$render/g, '')
-        .replace(/<h3([^>]*)>(.*?)<\/h3>/gi, (_match: string, attrs: string, text: string) => {
-          const id = slugify(text.replace(/<[^>]*>/g, ''));
-          return `<h3${attrs} id="${id}">${text}</h3>`;
-        })
-        .replace(/<input[^>]*type=["']checkbox["'][^>]*>/gi, '<span class="text-primary mr-2">✓</span>')
-        .replace(/<ol([^>]*)>/gi, '<ol$1 style="padding: 30px 30px 30px 80px !important; background-color: #f6f7fb !important; border-radius: 20px !important; list-style-position: outside !important;">')
-        .replace(/<ul([^>]*)>/gi, '<ul$1 style="padding: 30px 30px 30px 80px !important; background-color: #f6f7fb !important; border-radius: 20px !important; list-style-position: outside !important;">');
-      return (
-        <div 
-          class="prose prose-lg max-w-none content-prose"
-          set:html={processedContent}
-        />
-      );
-    })()}
+    {processedContent && (
+      <div 
+        class="prose prose-lg max-w-none content-prose"
+        set:html={processedContent}
+      />
+    )}
 
     {programForSlug.faqs && Array.isArray(programForSlug.faqs) && programForSlug.faqs.length > 0 && (
       <div id="frequently-asked-questions" class="mt-12">
@@ -460,13 +465,7 @@ if (programCategory) {
             {t.programs.formTitle || 'Start implementing this program today'}
           </h3>
           <p class="text-black">
-            {(() => {
-              // Use programCategory if programForSlug exists, otherwise use category
-              const activeCategory = programForSlug ? programCategory : category;
-              if (!activeCategory) return 'AI Powered Mentoring, Coaching, Community Management and Training Platforms';
-              const categoryName = activeCategory[`name_${lang}` as keyof Category] || activeCategory.name_en;
-              return `AI Powered Solutions For Your ${categoryName}.`;
-            })()}
+            {formDescription}
           </p>
         </div>
         <div class="space-y-4">
