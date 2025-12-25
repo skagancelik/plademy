@@ -141,6 +141,10 @@ if (resourceCategory) {
 }
 
 const canonical = `https://plademy.com/${slug}`;
+const categoryData = resourceCategory ? {
+  name: String(resourceCategory[`name_${lang}` as keyof Category] || resourceCategory.name_en),
+  slug: resourceCategory.slug
+} : undefined;
 ---
 
 <ContentLayout
@@ -149,10 +153,7 @@ const canonical = `https://plademy.com/${slug}`;
   image={resource.cover_image_url || undefined}
   lang={lang}
   canonical={canonical}
-  category={resourceCategory ? {
-    name: String(resourceCategory[`name_${lang}` as keyof Category] || resourceCategory.name_en),
-    slug: resourceCategory.slug
-  } : undefined}
+  category={categoryData}
   tableOfContents={tableOfContents}
   relatedResources={relatedResources}
   relatedResourcesLabel={resourceCategory ? (t.resources.relatedArticles || 'Related Articles').replace('{category}', String(resourceCategory[`name_${lang}` as keyof Category] || resourceCategory.name_en)) : undefined}
