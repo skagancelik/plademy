@@ -310,6 +310,7 @@ const canonical = `https://plademy.com/programs/${slug}`;
   {program.content && (() => {
     // Clean up malformed checkmark patterns - catch ALL variations of $render with checkmark
     // Replace $render followed by any characters until checkmark (including backticks, quotes, escapes, HTML entities)
+    if (!program.content) return null;
     const cleanedContent = program.content
       .replace(/\$render[^✓]*✓[^<]*/g, '✓')
       .replace(/\$render[^✓]*✓[^<]*/g, '✓') // Run twice to catch nested patterns

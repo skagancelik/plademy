@@ -1,5 +1,4 @@
 ---
-import { Fragment } from 'astro/jsx-runtime';
 import PageLayout from '@layouts/PageLayout.astro';
 import ContentLayout from '@layouts/ContentLayout.astro';
 import ProgramCard from '@components/programs/ProgramCard.astro';
@@ -370,6 +369,7 @@ const canonicalProgram = programForSlug ? `https://plademy.com/programs/${progra
     {programForSlug.content && (() => {
       // Clean up malformed checkmark patterns - catch ALL variations of $render with checkmark
       // Replace $render followed by any characters until checkmark (including backticks, quotes, escapes, HTML entities)
+      if (!programForSlug.content) return null;
       const cleanedContent = programForSlug.content
         .replace(/\$render[^✓]*✓[^<]*/g, '✓')
         .replace(/\$render[^✓]*✓[^<]*/g, '✓') // Run twice to catch nested patterns
