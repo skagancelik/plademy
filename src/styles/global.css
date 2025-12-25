@@ -185,6 +185,14 @@ div.content-prose.prose ol:not(.keypoints-list),
   box-sizing: border-box !important;
 }
 
+/* Mobile: Ensure Program Goal/Duration/Audience cards are visible */
+@media (max-width: 1023px) {
+  .not-prose.flex.flex-col.lg\:hidden,
+  div.not-prose.flex.flex-col.lg\:hidden {
+    display: flex !important;
+  }
+}
+
 /* Mobile: Reduce list padding for better mobile experience */
 @media (max-width: 768px) {
   .content-prose.prose ul:not(.keypoints-list),
@@ -207,12 +215,55 @@ div.content-prose.prose ol:not(.keypoints-list),
     padding-bottom: 20px !important;
   }
   
-  /* Reduce nested list indentation on mobile */
+  /* Reduce nested list indentation on mobile - more aggressive */
   .content-prose.prose ul ul,
   .content-prose.prose ol ol,
   .content-prose.prose ul ol,
-  .content-prose.prose ol ul {
-    padding-left: 15px !important;
+  .content-prose.prose ol ul,
+  .prose.content-prose ul ul,
+  .prose.content-prose ol ol,
+  .prose.content-prose ul ol,
+  .prose.content-prose ol ul,
+  div.content-prose.prose ul ul,
+  div.content-prose.prose ol ol,
+  div.content-prose.prose ul ol,
+  div.content-prose.prose ol ul,
+  .prose ul ul,
+  .prose ol ol,
+  .prose ul ol,
+  .prose ol ul,
+  .prose.prose-lg ul ul,
+  .prose.prose-lg ol ol,
+  .prose.prose-lg ul ol,
+  .prose.prose-lg ol ul,
+  .prose.prose-lg.content-prose ul ul,
+  .prose.prose-lg.content-prose ol ol,
+  .prose.prose-lg.content-prose ul ol,
+  .prose.prose-lg.content-prose ol ul {
+    padding-left: 10px !important;
+    padding-right: 15px !important;
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
+    margin-left: 0 !important;
+  }
+  
+  /* Even more aggressive for deeply nested lists */
+  .content-prose.prose ul ul ul,
+  .content-prose.prose ol ol ol,
+  .content-prose.prose ul ul ol,
+  .content-prose.prose ol ol ul,
+  .prose.content-prose ul ul ul,
+  .prose.content-prose ol ol ol,
+  .prose.content-prose ul ul ol,
+  .prose.content-prose ol ol ul,
+  div.content-prose.prose ul ul ul,
+  div.content-prose.prose ol ol ol,
+  div.content-prose.prose ul ul ol,
+  div.content-prose.prose ol ol ul {
+    padding-left: 5px !important;
+    padding-right: 10px !important;
+    padding-top: 5px !important;
+    padding-bottom: 5px !important;
     margin-left: 0 !important;
   }
 }

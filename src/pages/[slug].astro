@@ -185,9 +185,7 @@ if (resource && resource.content) {
       const id = slugify(text.replace(/<[^>]*>/g, ''));
       return `<h3${attrs} id="${id}">${text}</h3>`;
     })
-    .replace(/<input[^>]*type=["']checkbox["'][^>]*>/gi, '<span class="text-primary mr-2">✓</span>')
-    .replace(/<ol([^>]*)>/gi, '<ol$1 style="padding: 30px 30px 30px 80px !important; background-color: #f6f7fb !important; border-radius: 20px !important; list-style-position: outside !important;">')
-    .replace(/<ul([^>]*)>/gi, '<ul$1 style="padding: 30px 30px 30px 80px !important; background-color: #f6f7fb !important; border-radius: 20px !important; list-style-position: outside !important;">');
+    .replace(/<input[^>]*type=["']checkbox["'][^>]*>/gi, '<span class="text-primary mr-2">✓</span>');
 }
 
 // Process citations - moved from IIFE to frontmatter
