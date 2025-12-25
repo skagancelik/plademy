@@ -40,7 +40,7 @@ const currentPath = Astro.url.pathname;
   modifiedTime={modifiedTime}
 >
   <Header lang={lang} currentPath={currentPath} />
-  <main>
+  <main class="overflow-x-hidden">
     <slot />
   </main>
   <Footer lang={lang} />

@@ -78,9 +78,9 @@ breadcrumbs.push({ name: title, url: canonicalUrl });
   publishedTime={publishedTime}
   modifiedTime={modifiedTime}
 >
-  <article class="container py-12">
-    <div class="flex gap-8 justify-between">
-      <div class={`${tableOfContents.length > 0 || relatedResources.length > 0 || relatedPrograms.length > 0 || programGoal || programDuration || programAudience ? 'max-w-[800px]' : 'max-w-[800px] mx-auto'} flex-1`}>
+  <article class="container py-12 overflow-x-hidden">
+    <div class="flex flex-col lg:flex-row gap-8 justify-between">
+      <div class={`${tableOfContents.length > 0 || relatedResources.length > 0 || relatedPrograms.length > 0 || programGoal || programDuration || programAudience ? 'max-w-[800px]' : 'max-w-[800px] mx-auto'} flex-1 w-full`}>
         <header class="mb-8">
           <h1 class="text-4xl md:text-5xl font-bold mb-4">{title}</h1>
           {description && <p class="text-xl text-black mb-4">{description}</p>}
@@ -91,7 +91,7 @@ breadcrumbs.push({ name: title, url: canonicalUrl });
         </div>
       </div>
       {(tableOfContents.length > 0 || relatedResources.length > 0 || relatedPrograms.length > 0 || programGoal || programDuration || programAudience) && (
-        <aside class="hidden lg:block w-64 flex-shrink-0 ml-auto">
+        <aside class="hidden lg:block w-64 flex-shrink-0">
           {(programGoal || programDuration || programAudience) && (
             <div class="mb-8 space-y-4">
               {programGoal && (
@@ -230,6 +230,30 @@ breadcrumbs.push({ name: title, url: canonicalUrl });
         </aside>
       )}
     </div>
+    
+    <!-- Mobile: Show related programs at bottom -->
+    {relatedPrograms.length > 0 && (
+      <div class="lg:hidden mt-12 pt-8 border-t">
+        <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-4">
+          {relatedProgramsLabel || 'Related Programs'}
+        </h2>
+        <div class="space-y-4">
+          {relatedPrograms.map((relatedProgram) => (
+            <a href={`/programs/${relatedProgram.slug}`} class="card block transition-opacity hover:opacity-80">
+              <h3 class="text-base font-semibold mb-2">{relatedProgram.title}</h3>
+              {relatedProgram.cover_image_url && (
+                <img
+                  src={relatedProgram.cover_image_url}
+                  alt={relatedProgram.title}
+                  class="w-full h-24 object-cover rounded-lg"
+                  loading="lazy"
+                />
+              )}
+            </a>
+          ))}
+        </div>
+      </div>
+    )}
   </article>
   
   {tableOfContents.length > 0 && (
