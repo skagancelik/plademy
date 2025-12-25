@@ -164,9 +164,9 @@ const canonical = `https://plademy.com/programs/${slug}`;
     />
   )}
 
-  {/* Mobile: Show Program Goal, Duration, Audience below cover image */}
+  <!-- Mobile: Show Program Goal, Duration, Audience below cover image -->
   {(program.goal || program.duration || program.audience) && (
-    <div class="lg:hidden mb-8 space-y-4">
+    <div class="block lg:hidden mb-8 space-y-4 w-full">
       {program.goal && (
         <div class="bg-green-50 rounded-3xl p-6">
           <div class="flex items-center gap-3">
