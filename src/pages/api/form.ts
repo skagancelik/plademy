@@ -81,9 +81,19 @@ export const POST: APIRoute = async ({ request }) => {
     });
 
     if (!response.ok) {
-      console.error('Webhook failed:', response.status, response.statusText);
+      const responseText = await response.text().catch(() => 'Unable to read response');
+      console.error('Webhook failed:', {
+        status: response.status,
+        statusText: response.statusText,
+        url: webhookUrl.substring(0, 50) + '...',
+        responseBody: responseText.substring(0, 500),
+      });
       return new Response(
-        JSON.stringify({ error: 'Failed to process form' }),
+        JSON.stringify({ 
+          error: 'Failed to process form',
+          details: `Webhook returned ${response.status}: ${response.statusText}`,
+          webhookResponse: responseText.substring(0, 200),
+        }),
         { status: 500, headers: corsHeaders }
       );
     }
