@@ -369,19 +369,31 @@ const canonicalProgram = programForSlug ? `https://plademy.com/programs/${progra
 
     {programForSlug.content && (() => {
       // Clean up malformed checkmark patterns - catch ALL variations of $render with checkmark
-      // This pattern matches: $render followed by any characters (including backticks, quotes, escapes) until ✓
+      // Replace $render followed by any characters until checkmark (including backticks, quotes, escapes, HTML entities)
       const cleanedContent = programForSlug.content
         .replace(/\$render[^✓]*✓[^<]*/g, '✓')
-        .replace(/`✓`/g, '✓');
+        .replace(/\$render[^✓]*✓[^<]*/g, '✓') // Run twice to catch nested patterns
+        .replace(/`✓`/g, '✓')
+        .replace(/\$render/g, '') // Remove any remaining $render without checkmark
+        .replace(/\\`✓\\`/g, '✓')
+        .replace(/\\`/g, '');
       
       const parsedContent = marked.parse(cleanedContent) as string;
       const processedContent = parsedContent
-        // Replace any $render pattern with checkmark - catch all variations
+        // Replace any $render pattern with checkmark - multiple passes for reliability
         .replace(/\$render[^✓]*✓[^<]*/g, '✓')
-        // Also handle cases where it might be in HTML text nodes
-        .replace(/([^>])\$render[^✓]*✓[^<]*(<)/g, '$1✓$2')
-        // Handle list items specifically
+        .replace(/\$render[^✓]*✓[^<]*/g, '✓') // Second pass
+        // Handle HTML entities and encoded characters
+        .replace(/\$render[^✓]*✓[^<]*/g, '✓')
+        // Replace in any HTML tag content
+        .replace(/>([^<]*)\$render[^✓]*✓[^<]*(<)/g, (match, before, after) => {
+          return `>${before.replace(/\$render[^✓]*✓[^<]*/g, '✓')}${after}`;
+        })
+        // Handle list items specifically - more aggressive
         .replace(/<li([^>]*)>([^<]*)\$render[^✓]*✓[^<]*/gi, '<li$1>✓$2')
+        .replace(/<li([^>]*)>([^<]*)\$render[^✓]*✓[^<]*/gi, '<li$1>✓$2') // Second pass
+        // Remove any remaining $render
+        .replace(/\$render/g, '')
         .replace(/<h3([^>]*)>(.*?)<\/h3>/gi, (_match: string, attrs: string, text: string) => {
           const id = slugify(text.replace(/<[^>]*>/g, ''));
           return `<h3${attrs} id="${id}">${text}</h3>`;
