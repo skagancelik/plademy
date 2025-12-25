@@ -368,9 +368,19 @@ const canonicalProgram = programForSlug ? `https://plademy.com/programs/${progra
     </div>
 
     {programForSlug.content && (() => {
-      const parsedContent = marked.parse(programForSlug.content) as string;
-      const processedContent = parsedContent
+      // Clean up malformed checkmark patterns before parsing
+      const cleanedContent = programForSlug.content
+        .replace(/\$render`✓`/g, '✓')
         .replace(/\$render\\`✓\\`/g, '✓')
+        .replace(/\$render`/g, '')
+        .replace(/`✓`/g, '✓');
+      
+      const parsedContent = marked.parse(cleanedContent) as string;
+      const processedContent = parsedContent
+        .replace(/\$render`✓`/g, '✓')
+        .replace(/\$render\\`✓\\`/g, '✓')
+        .replace(/<li[^>]*>\s*\$render`✓`/gi, '<li>✓')
+        .replace(/<li[^>]*>\s*\$render\\`✓\\`/gi, '<li>✓')
         .replace(/<h3([^>]*)>(.*?)<\/h3>/gi, (_match: string, attrs: string, text: string) => {
           const id = slugify(text.replace(/<[^>]*>/g, ''));
           return `<h3${attrs} id="${id}">${text}</h3>`;
