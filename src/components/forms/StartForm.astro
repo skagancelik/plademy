@@ -10,11 +10,11 @@ const t = getTranslations(lang);
 const privacyPath = getLocalizedPath('/privacy', lang);
 ---
 
+<div style="min-height: 500px;">
 <form
   id="start-form"
   class="space-y-6"
   data-testid="start-form"
-  style="min-height: 500px;"
 >
   <div>
     <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
@@ -75,15 +75,16 @@ const privacyPath = getLocalizedPath('/privacy', lang);
     {t.forms.start.submit}
   </button>
 
-  <p class="text-sm text-gray-600" set:html={t.forms.start.privacyNotice.replace('{privacyPolicy}', `<a href="${privacyPath}" class="font-bold">${t.forms.start.privacyPolicy}</a>`)}></p>
-
-  <div id="form-success" class="hidden text-center py-8">
-    <h3 class="text-2xl font-bold mb-2">{t.forms.start.successTitle}</h3>
-    <p class="text-gray-600">{t.forms.start.successMessage}</p>
-  </div>
+  <p class="text-sm text-gray-600 text-center" set:html={t.forms.start.privacyNotice.replace('{privacyPolicy}', `<a href="${privacyPath}" class="font-bold">${t.forms.start.privacyPolicy}</a>`)}></p>
 
   <div id="form-message" class="hidden text-center"></div>
 </form>
+
+<div id="form-success" class="hidden text-center py-8">
+  <h3 class="text-2xl font-bold mb-2">{t.forms.start.successTitle}</h3>
+  <p class="text-gray-600">{t.forms.start.successMessage}</p>
+</div>
+</div>
 
 <script>
   const form = document.getElementById('start-form') as HTMLFormElement;
