@@ -117,7 +117,9 @@ try {
       let currentPage = 1;
       const pageSize = 18;
       let isLoading = false;
-      let hasMore = true;
+      // Check if initial load has less than pageSize items
+      const initialItemsCount = resourcesGrid.querySelectorAll('.card').length;
+      let hasMore = initialItemsCount >= pageSize;
       let categoryMap = new Map();
       
       const loadingIndicator = document.getElementById('loading-indicator');
@@ -223,13 +225,19 @@ try {
       }
     }
     
+      let scrollTimeout;
       function handleScroll() {
-        if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 1000) {
-          loadMoreResources();
-        }
+        // Throttle scroll events
+        if (scrollTimeout) return;
+        scrollTimeout = setTimeout(() => {
+          scrollTimeout = null;
+          if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 500) {
+            loadMoreResources();
+          }
+        }, 200);
       }
       
-      window.addEventListener('scroll', handleScroll);
+      window.addEventListener('scroll', handleScroll, { passive: true });
     }
     
     if (document.readyState === 'loading') {

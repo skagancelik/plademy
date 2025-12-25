@@ -85,5 +85,49 @@ Tüm geliştirmeler Cursor tarafından yapılacak.
 Tüm testleri Cursor tarafından yapılacak.
 Github, Netlify, Supabase kullanılacak.
 
+---
+
+## Build ve Deployment Notları
+
+### Önemli Build Kuralları
+
+**IIFE Pattern Kullanımı:**
+- ❌ **Template içinde IIFE kullanmayın:** `(() => { ... })()` pattern'leri esbuild tarafından parse edilemez
+- ✅ **Frontmatter'da işleyin:** Karmaşık işlemleri frontmatter bloğunda yapın, template'de sadece değişken referansları kullanın
+- **Örnek:**
+  ```astro
+  <!-- YANLIŞ -->
+  {resource.content && (() => {
+    const processed = processContent(resource.content);
+    return <div set:html={processed} />;
+  })()}
+  
+  <!-- DOĞRU -->
+  ---
+  let processedContent: string | null = null;
+  if (resource && resource.content) {
+    processedContent = processContent(resource.content);
+  }
+  ---
+  {processedContent && <div set:html={processedContent} />}
+  ```
+
+**JSX Attribute Expression'ları:**
+- ❌ **Karmaşık expression'lar JSX attribute'larında kullanmayın:** Nested ternary, template literals gibi karmaşık expression'lar
+- ✅ **Frontmatter'da değişkene taşıyın:** Karmaşık expression'ları frontmatter'da işleyip basit değişken olarak kullanın
+
+**Build Script:**
+- `package.json`'da `build` script'i sadece `astro build` çalıştırıyor (astro check geçici olarak kaldırıldı)
+- Local development için `npm run build:check` kullanılabilir (astro check + build)
+
+**Netlify Deployment:**
+- ❌ **Image transformation config eklemeyin:** `netlify.toml`'a `[images]` section'ı eklemeyin (deployment hatası verir)
+- ❌ **Redirect rules:** Hybrid SSR için `from = "/*" to = "/index.html"` redirect kuralı kullanmayın
+- ✅ **Edge Functions:** `netlify/edge-functions/` dizinindeki dosyalar otomatik keşfedilir
+
+**Environment Variables:**
+- Runtime SSR'da `process.env` kullanın (Astro API Routes için)
+- Build-time'da `import.meta.env` kullanın (frontmatter için)
+- `N8N_WEBHOOK_URL` gibi runtime değişkenler `process.env` ile okunmalı
 
  

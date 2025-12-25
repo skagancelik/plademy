@@ -52,6 +52,8 @@ export default defineConfig({
 **ÖNEMLİ:** 
 - ❌ **Image domains konfigürasyonu EKLEMEYİN:** `image: { domains: [...] }` Netlify deployment'ında hata veriyor
 - ✅ **Astro adapter experimental "assets" uyarısı:** Bilgilendirme amaçlı, build'i etkilemiyor
+- ❌ **IIFE pattern'leri template'de kullanmayın:** `(() => { ... })()` pattern'leri esbuild tarafından parse edilemez, frontmatter'a taşıyın
+- ❌ **Karmaşık expression'lar JSX attribute'larında kullanmayın:** Nested ternary, template literals gibi karmaşık expression'lar JSX attribute'larında kullanılmamalı, frontmatter'da değişkene taşınmalı
 
 ### Prerender Kontrolü
 
