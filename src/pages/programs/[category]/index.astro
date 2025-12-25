@@ -4,7 +4,7 @@ import PageLayout from '@layouts/PageLayout.astro';
 import ContentLayout from '@layouts/ContentLayout.astro';
 import ProgramCard from '@components/programs/ProgramCard.astro';
 import { supabase, type Program, type Category } from '@lib/supabase';
-import { getTranslations, type Language, getLanguageFromCookie } from '@lib/i18n';
+import { getTranslations, getLocalizedPath, type Language, getLanguageFromCookie } from '@lib/i18n';
 import { marked } from 'marked';
 import { slugify } from '@lib/utils';
 
@@ -310,7 +310,7 @@ const canonicalProgram = programForSlug ? `https://plademy.com/programs/${progra
     )}
 
     <!-- Resource Form (After Keypoints) -->
-    <div class="card mb-8 p-8 md:p-12" id="resource-form-container">
+    <div class="card mb-8 p-8 md:p-12" id="resource-form-container" style="min-height: 200px;">
       <form
         id="resource-form"
         name="resource form"
@@ -357,8 +357,13 @@ const canonicalProgram = programForSlug ? `https://plademy.com/programs/${progra
           >
             Get Started For Free
           </button>
+          <p class="text-sm text-gray-600 md:col-span-2" set:html={t.forms.program.privacyNotice.replace('{privacyPolicy}', `<a href="${getLocalizedPath('/privacy', lang)}" class="font-bold">${t.forms.program.privacyPolicy}</a>`)}></p>
         </div>
       </form>
+      <div id="resource-form-success" class="hidden text-center py-8">
+        <h3 class="text-2xl font-bold mb-2">{t.forms.program.successTitle}</h3>
+        <p class="text-gray-600">{t.forms.program.successMessage}</p>
+      </div>
       <div id="resource-form-message" class="hidden text-center mt-4"></div>
     </div>
 
@@ -413,7 +418,7 @@ const canonicalProgram = programForSlug ? `https://plademy.com/programs/${progra
     )}
 
     <!-- Resource Form (Bottom) -->
-    <div class="card mb-8 p-8 md:p-12 mt-12" id="resource-form-bottom-container">
+    <div class="card mb-8 p-8 md:p-12 mt-12" id="resource-form-bottom-container" style="min-height: 200px;">
       <form
         id="resource-form-bottom"
         name="resource form"
@@ -460,8 +465,13 @@ const canonicalProgram = programForSlug ? `https://plademy.com/programs/${progra
           >
             Get Started For Free
           </button>
+          <p class="text-sm text-gray-600 md:col-span-2" set:html={t.forms.program.privacyNotice.replace('{privacyPolicy}', `<a href="${getLocalizedPath('/privacy', lang)}" class="font-bold">${t.forms.program.privacyPolicy}</a>`)}></p>
         </div>
       </form>
+      <div id="resource-form-bottom-success" class="hidden text-center py-8">
+        <h3 class="text-2xl font-bold mb-2">{t.forms.program.successTitle}</h3>
+        <p class="text-gray-600">{t.forms.program.successMessage}</p>
+      </div>
       <div id="resource-form-bottom-message" class="hidden text-center mt-4"></div>
     </div>
 
@@ -606,7 +616,7 @@ const canonicalProgram = programForSlug ? `https://plademy.com/programs/${progra
 
     <!-- Resource Form (After Programs List) -->
     {!programForSlug && category && (
-      <div class="card mb-8 p-8 md:p-12 mt-12" id="resource-form-container">
+      <div class="card mb-8 p-8 md:p-12 mt-12" id="resource-form-container" style="min-height: 200px;">
         <form
           id="resource-form"
           name="resource form"
@@ -651,15 +661,20 @@ const canonicalProgram = programForSlug ? `https://plademy.com/programs/${progra
             >
               Get Started For Free
             </button>
+            <p class="text-sm text-gray-600 md:col-span-2" set:html={t.forms.program.privacyNotice.replace('{privacyPolicy}', `<a href="${getLocalizedPath('/privacy', lang)}" class="font-bold">${t.forms.program.privacyPolicy}</a>`)}></p>
           </div>
         </form>
+        <div id="resource-form-success" class="hidden text-center py-8">
+          <h3 class="text-2xl font-bold mb-2">{t.forms.program.successTitle}</h3>
+          <p class="text-gray-600">{t.forms.program.successMessage}</p>
+        </div>
         <div id="resource-form-message" class="hidden text-center mt-4"></div>
       </div>
     )}
 
     <!-- Resource Form (Bottom) -->
     {!programForSlug && category && (
-      <div class="card mb-8 p-8 md:p-12 mt-12" id="resource-form-bottom-container">
+      <div class="card mb-8 p-8 md:p-12 mt-12" id="resource-form-bottom-container" style="min-height: 200px;">
         <form
           id="resource-form-bottom"
           name="resource form"
@@ -704,8 +719,13 @@ const canonicalProgram = programForSlug ? `https://plademy.com/programs/${progra
             >
               Get Started For Free
             </button>
+            <p class="text-sm text-gray-600 md:col-span-2" set:html={t.forms.program.privacyNotice.replace('{privacyPolicy}', `<a href="${getLocalizedPath('/privacy', lang)}" class="font-bold">${t.forms.program.privacyPolicy}</a>`)}></p>
           </div>
         </form>
+        <div id="resource-form-bottom-success" class="hidden text-center py-8">
+          <h3 class="text-2xl font-bold mb-2">{t.forms.program.successTitle}</h3>
+          <p class="text-gray-600">{t.forms.program.successMessage}</p>
+        </div>
         <div id="resource-form-bottom-message" class="hidden text-center mt-4"></div>
       </div>
     )}
@@ -846,8 +866,9 @@ const canonicalProgram = programForSlug ? `https://plademy.com/programs/${progra
       // Form submission handlers for category page
       const form = document.getElementById('resource-form');
       const messageDiv = document.getElementById('resource-form-message');
+      const successDiv = document.getElementById('resource-form-success');
       
-      if (form && messageDiv) {
+      if (form && messageDiv && successDiv) {
         form.addEventListener('submit', async (e) => {
           e.preventDefault();
           
@@ -869,21 +890,17 @@ const canonicalProgram = programForSlug ? `https://plademy.com/programs/${progra
               body: JSON.stringify(data),
             });
 
-            const result = await response.json();
-
             if (response.ok) {
-              messageDiv.textContent = 'Thank you! We will contact you soon.';
-              messageDiv.className = 'text-center mt-4 text-green-600';
-              messageDiv.classList.remove('hidden');
-              form.reset();
+              form.style.display = 'none';
+              successDiv.classList.remove('hidden');
             } else {
-              messageDiv.textContent = 'Something went wrong. Please try again.';
-              messageDiv.className = 'text-center mt-4 text-red-600';
-              messageDiv.classList.remove('hidden');
+              const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+              console.error('Form submission failed:', response.status, errorData);
+              throw new Error(errorData.error || 'Form submission failed');
             }
           } catch (error) {
             console.error('Form submission error:', error);
-            messageDiv.textContent = 'Something went wrong. Please try again.';
+            messageDiv.textContent = error instanceof Error ? error.message : 'Something went wrong. Please try again.';
             messageDiv.className = 'text-center mt-4 text-red-600';
             messageDiv.classList.remove('hidden');
           }
@@ -892,8 +909,9 @@ const canonicalProgram = programForSlug ? `https://plademy.com/programs/${progra
 
       const formBottom = document.getElementById('resource-form-bottom');
       const messageDivBottom = document.getElementById('resource-form-bottom-message');
+      const successDivBottom = document.getElementById('resource-form-bottom-success');
       
-      if (formBottom && messageDivBottom) {
+      if (formBottom && messageDivBottom && successDivBottom) {
         formBottom.addEventListener('submit', async (e) => {
           e.preventDefault();
           
@@ -915,21 +933,17 @@ const canonicalProgram = programForSlug ? `https://plademy.com/programs/${progra
               body: JSON.stringify(data),
             });
 
-            const result = await response.json();
-
             if (response.ok) {
-              messageDivBottom.textContent = 'Thank you! We will contact you soon.';
-              messageDivBottom.className = 'text-center mt-4 text-green-600';
-              messageDivBottom.classList.remove('hidden');
-              formBottom.reset();
+              formBottom.style.display = 'none';
+              successDivBottom.classList.remove('hidden');
             } else {
-              messageDivBottom.textContent = 'Something went wrong. Please try again.';
-              messageDivBottom.className = 'text-center mt-4 text-red-600';
-              messageDivBottom.classList.remove('hidden');
+              const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+              console.error('Form submission failed:', response.status, errorData);
+              throw new Error(errorData.error || 'Form submission failed');
             }
           } catch (error) {
             console.error('Form submission error:', error);
-            messageDivBottom.textContent = 'Something went wrong. Please try again.';
+            messageDivBottom.textContent = error instanceof Error ? error.message : 'Something went wrong. Please try again.';
             messageDivBottom.className = 'text-center mt-4 text-red-600';
             messageDivBottom.classList.remove('hidden');
           }
@@ -986,18 +1000,19 @@ const canonicalProgram = programForSlug ? `https://plademy.com/programs/${progra
       // Handle first form (after keypoints)
       const form = document.getElementById('resource-form');
       const messageDiv = document.getElementById('resource-form-message');
+      const successDiv = document.getElementById('resource-form-success');
       
-      if (form && messageDiv) {
+      if (form && messageDiv && successDiv) {
         form.addEventListener('submit', async (e) => {
           e.preventDefault();
           
           const formData = new FormData(form);
           const data = {
-            type: 'resource form',
+            type: 'program form',
             name: formData.get('name'),
             email: formData.get('email'),
-            resource_slug: window.location.pathname.split('/').pop() || '',
-            resource_title: document.querySelector('h1')?.textContent || '',
+            program_slug: window.location.pathname.split('/').pop() || '',
+            program_title: document.querySelector('h1')?.textContent || '',
             page_url: window.location.href,
           };
           
@@ -1009,15 +1024,17 @@ const canonicalProgram = programForSlug ? `https://plademy.com/programs/${progra
             });
             
             if (response.ok) {
-              messageDiv.className = 'block text-green-600 font-semibold';
-              messageDiv.textContent = 'Thank you! We\'ll contact you soon.';
-              form.reset();
+              form.style.display = 'none';
+              successDiv.classList.remove('hidden');
             } else {
-              throw new Error('Form submission failed');
+              const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+              console.error('Form submission failed:', response.status, errorData);
+              throw new Error(errorData.error || 'Form submission failed');
             }
           } catch (error) {
+            console.error('Form error:', error);
             messageDiv.className = 'block text-red-600 font-semibold';
-            messageDiv.textContent = 'An error occurred. Please try again.';
+            messageDiv.textContent = error instanceof Error ? error.message : 'An error occurred. Please try again.';
           }
         });
       }
@@ -1025,18 +1042,19 @@ const canonicalProgram = programForSlug ? `https://plademy.com/programs/${progra
       // Handle bottom form
       const formBottom = document.getElementById('resource-form-bottom');
       const messageDivBottom = document.getElementById('resource-form-bottom-message');
+      const successDivBottom = document.getElementById('resource-form-bottom-success');
       
-      if (formBottom && messageDivBottom) {
+      if (formBottom && messageDivBottom && successDivBottom) {
         formBottom.addEventListener('submit', async (e) => {
           e.preventDefault();
           
           const formData = new FormData(formBottom);
           const data = {
-            type: 'resource form bottom',
+            type: 'program form bottom',
             name: formData.get('name'),
             email: formData.get('email'),
-            resource_slug: window.location.pathname.split('/').pop() || '',
-            resource_title: document.querySelector('h1')?.textContent || '',
+            program_slug: window.location.pathname.split('/').pop() || '',
+            program_title: document.querySelector('h1')?.textContent || '',
             page_url: window.location.href,
           };
           
@@ -1048,15 +1066,17 @@ const canonicalProgram = programForSlug ? `https://plademy.com/programs/${progra
             });
             
             if (response.ok) {
-              messageDivBottom.className = 'block text-green-600 font-semibold';
-              messageDivBottom.textContent = 'Thank you! We\'ll contact you soon.';
-              formBottom.reset();
+              formBottom.style.display = 'none';
+              successDivBottom.classList.remove('hidden');
             } else {
-              throw new Error('Form submission failed');
+              const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+              console.error('Form submission failed:', response.status, errorData);
+              throw new Error(errorData.error || 'Form submission failed');
             }
           } catch (error) {
+            console.error('Form error:', error);
             messageDivBottom.className = 'block text-red-600 font-semibold';
-            messageDivBottom.textContent = 'An error occurred. Please try again.';
+            messageDivBottom.textContent = error instanceof Error ? error.message : 'An error occurred. Please try again.';
           }
         });
       }

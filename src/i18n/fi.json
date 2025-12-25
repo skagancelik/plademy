@@ -81,7 +81,11 @@
       "email": "Sähköposti",
       "message": "Viesti",
       "submit": "Lähetä viesti",
-      "success": "Kiitos! Otamme sinuun yhteyttä pian."
+      "success": "Kiitos! Otamme sinuun yhteyttä pian.",
+      "successTitle": "Kiitos!",
+      "successMessage": "Olemme vastaanottaneet viestisi ja otamme sinuun yhteyttä pian.",
+      "privacyNotice": "Käyttämällä tätä lomaketta hyväksyt {privacyPolicy}.",
+      "privacyPolicy": "Tietosuojakäytäntö"
     },
     "start": {
       "title": "Aloitetaan",
@@ -92,7 +96,23 @@
       "needs": "Ohjelmasi ja organisaatiosi tarpeet.",
       "privacy": "Lähettämällä viestin hyväksyt tietosuojakäytäntömme.",
       "submit": "Lähetä",
-      "success": "Kiitos! Otamme sinuun yhteyttä pian."
+      "success": "Kiitos! Otamme sinuun yhteyttä pian.",
+      "successTitle": "Kiitos!",
+      "successMessage": "Kiitos ohjelmatietojesi jakamisesta. Otamme sinuun yhteyttä seuraavia vaiheita varten.",
+      "privacyNotice": "Käyttämällä tätä lomaketta hyväksyt {privacyPolicy}.",
+      "privacyPolicy": "Tietosuojakäytäntö"
+    },
+    "resource": {
+      "successTitle": "Kiitos!",
+      "successMessage": "Kiitos yhteydenotostasi. Ohjelmiesi osana oleminen on meille erittäin arvokasta. Otamme sinuun yhteyttä pian.",
+      "privacyNotice": "Käyttämällä tätä lomaketta hyväksyt {privacyPolicy}.",
+      "privacyPolicy": "Tietosuojakäytäntö"
+    },
+    "program": {
+      "successTitle": "Kiitos!",
+      "successMessage": "Kiitos yhteydenotostasi. Ohjelmiesi osana oleminen on meille erittäin arvokasta. Otamme sinuun yhteyttä pian.",
+      "privacyNotice": "Käyttämällä tätä lomaketta hyväksyt {privacyPolicy}.",
+      "privacyPolicy": "Tietosuojakäytäntö"
     }
   },
   "footer": {

@@ -81,7 +81,11 @@
       "email": "Email",
       "message": "Message",
       "submit": "Send Message",
-      "success": "Thank you! We'll get back to you soon."
+      "success": "Thank you! We'll get back to you soon.",
+      "successTitle": "Thank you!",
+      "successMessage": "We've received your message and will get back to you soon.",
+      "privacyNotice": "By using this form, you agree to our {privacyPolicy}.",
+      "privacyPolicy": "Privacy Policy"
     },
     "start": {
       "title": "Let's Start",
@@ -92,7 +96,23 @@
       "needs": "Your program and organization needs.",
       "privacy": "By clicking the Send button, you agree to our Privacy Policy.",
       "submit": "Send",
-      "success": "Thank you! We'll contact you soon."
+      "success": "Thank you! We'll contact you soon.",
+      "successTitle": "Thank you!",
+      "successMessage": "Thank you for sharing your program details. We'll reach out to you for next steps.",
+      "privacyNotice": "By using this form, you agree to our {privacyPolicy}.",
+      "privacyPolicy": "Privacy Policy"
+    },
+    "resource": {
+      "successTitle": "Thank you!",
+      "successMessage": "Thank you for reaching out. Being part of your programs is very valuable to us. We'll reach out to you soon.",
+      "privacyNotice": "By using this form, you agree to our {privacyPolicy}.",
+      "privacyPolicy": "Privacy Policy"
+    },
+    "program": {
+      "successTitle": "Thank you!",
+      "successMessage": "Thank you for reaching out. Being part of your programs is very valuable to us. We'll reach out to you soon.",
+      "privacyNotice": "By using this form, you agree to our {privacyPolicy}.",
+      "privacyPolicy": "Privacy Policy"
     }
   },
   "footer": {

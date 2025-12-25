@@ -81,7 +81,11 @@
       "email": "E-post",
       "message": "Meddelande",
       "submit": "Skicka meddelande",
-      "success": "Tack! Vi återkommer snart."
+      "success": "Tack! Vi återkommer snart.",
+      "successTitle": "Tack!",
+      "successMessage": "Vi har tagit emot ditt meddelande och återkommer snart.",
+      "privacyNotice": "Genom att använda detta formulär godkänner du vår {privacyPolicy}.",
+      "privacyPolicy": "Integritetspolicy"
     },
     "start": {
       "title": "Låt oss börja",
@@ -92,7 +96,23 @@
       "needs": "Dina program- och organisationsbehov.",
       "privacy": "Genom att klicka på Skicka-knappen godkänner du vår integritetspolicy.",
       "submit": "Skicka",
-      "success": "Tack! Vi kontaktar dig snart."
+      "success": "Tack! Vi kontaktar dig snart.",
+      "successTitle": "Tack!",
+      "successMessage": "Tack för att du delade dina programdetaljer. Vi kontaktar dig för nästa steg.",
+      "privacyNotice": "Genom att använda detta formulär godkänner du vår {privacyPolicy}.",
+      "privacyPolicy": "Integritetspolicy"
+    },
+    "resource": {
+      "successTitle": "Tack!",
+      "successMessage": "Tack för att du kontaktade oss. Att vara en del av dina program är mycket värdefullt för oss. Vi kontaktar dig snart.",
+      "privacyNotice": "Genom att använda detta formulär godkänner du vår {privacyPolicy}.",
+      "privacyPolicy": "Integritetspolicy"
+    },
+    "program": {
+      "successTitle": "Tack!",
+      "successMessage": "Tack för att du kontaktade oss. Att vara en del av dina program är mycket värdefullt för oss. Vi kontaktar dig snart.",
+      "privacyNotice": "Genom att använda detta formulär godkänner du vår {privacyPolicy}.",
+      "privacyPolicy": "Integritetspolicy"
     }
   },
   "footer": {
