@@ -392,6 +392,9 @@ Resources ile benzer, ama ekstra alanlar:
 - ❌ **Redirect hatası:** Hybrid SSR için `from = "/*"` redirect kuralını kaldırın
 - ⚠️ **TypeScript warnings:** Build'i durdurmaz ama temizlenmeli (unused imports)
 - ✅ **Edge Functions bundling başarılı:** `netlify/edge-functions/` dizinindeki dosyalar otomatik keşfedilir
+- ❌ **esbuild parsing error "Expected ';' but found '{'":** IIFE pattern'leri (`(() => { ... })()`) template içinde kullanılmamalı, frontmatter'a taşınmalı
+- ❌ **Complex expressions in JSX attributes:** Karmaşık expression'lar (nested ternary, template literals) JSX attribute'larında kullanılmamalı, frontmatter'da değişkene taşınmalı
+- ⚠️ **astro check false positives:** Bazen `astro check` geçerli Astro syntax'ını hata olarak gösterir, bu durumda `build` script'inden kaldırılabilir (local'de `build:check` script'i kullanılabilir)
 
 ### Form API Route (Astro SSR)
 
@@ -1060,6 +1063,8 @@ export function getLanguageFromCookie(
 - Node.js version kontrol et (20+)
 - Dependencies yüklü mü?
 - TypeScript errors var mı?
+- **esbuild parsing errors:** IIFE pattern'leri template'de kullanılmış mı? Frontmatter'a taşı
+- **Complex JSX expressions:** Karmaşık expression'lar JSX attribute'larında mı? Değişkene taşı
 
 **5. Netlify Deployment Fails (Build başarılı ama deploy başarısız):**
 - ❌ **"Invalid image transformation configuration":** `netlify.toml`'dan `[images]` section'ını kaldırın
