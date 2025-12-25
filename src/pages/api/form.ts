@@ -11,20 +11,24 @@ export const POST: APIRoute = async ({ request }) => {
   };
 
   try {
-    // Try both import.meta.env and process.env for Netlify compatibility
-    const webhookUrl = import.meta.env.N8N_WEBHOOK_URL || process.env.N8N_WEBHOOK_URL;
+    // In Netlify SSR, environment variables are available via import.meta.env
+    // But we need to access them at runtime, so we use process.env as fallback
+    // Netlify injects env vars into process.env for serverless functions
+    const webhookUrl = process.env.N8N_WEBHOOK_URL || import.meta.env.N8N_WEBHOOK_URL;
     
     if (!webhookUrl) {
-      console.error('N8N_WEBHOOK_URL is not configured');
-      console.error('Available env vars:', {
-        hasImportMeta: !!import.meta.env.N8N_WEBHOOK_URL,
-        hasProcess: !!process.env.N8N_WEBHOOK_URL,
-        importMetaKeys: Object.keys(import.meta.env || {}),
-      });
+      const envInfo = {
+        hasProcessEnv: !!process.env.N8N_WEBHOOK_URL,
+        hasImportMetaEnv: !!import.meta.env.N8N_WEBHOOK_URL,
+        processEnvKeys: Object.keys(process.env || {}).filter(k => k.includes('N8N') || k.includes('WEBHOOK')),
+        importMetaKeys: Object.keys(import.meta.env || {}).filter(k => k.includes('N8N') || k.includes('WEBHOOK')),
+      };
+      console.error('N8N_WEBHOOK_URL is not configured', envInfo);
       return new Response(
         JSON.stringify({ 
           error: 'Service not configured',
-          details: 'N8N_WEBHOOK_URL environment variable is missing'
+          details: 'N8N_WEBHOOK_URL environment variable is missing',
+          debug: envInfo,
         }),
         { status: 500, headers: corsHeaders }
       );

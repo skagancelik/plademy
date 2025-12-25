@@ -91,11 +91,14 @@ const t = getTranslations(lang);
         messageDiv.textContent = 'Thank you! We\'ll get back to you soon.';
         form.reset();
       } else {
-        throw new Error('Form submission failed');
+        const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+        console.error('Form submission failed:', response.status, errorData);
+        throw new Error(errorData.error || 'Form submission failed');
       }
     } catch (error) {
+      console.error('Form error:', error);
       messageDiv.className = 'block text-red-600 font-semibold';
-      messageDiv.textContent = 'An error occurred';
+      messageDiv.textContent = error instanceof Error ? error.message : 'An error occurred';
     }
   });
 </script>
