@@ -1,5 +1,4 @@
 ---
-import { Fragment } from 'astro/jsx-runtime';
 import PageLayout from '@layouts/PageLayout.astro';
 import ContentLayout from '@layouts/ContentLayout.astro';
 import ProgramCard from '@components/programs/ProgramCard.astro';
@@ -258,7 +257,7 @@ const categoryName = category ? (category[`name_${lang}` as keyof Category] || c
 const categoryDescription = category ? ((category[`description_${lang}` as keyof Category] || category.description_en) as string | undefined) : undefined;
 const canonicalProgram = programForSlug ? `https://plademy.com/programs/${programForSlug.slug}` : undefined;
 ---
-<Fragment>
+
 {programForSlug ? (
   <ContentLayout
     title={programForSlug.title}
@@ -1108,4 +1107,3 @@ const canonicalProgram = programForSlug ? `https://plademy.com/programs/${progra
     })();
   </script>
 )}
-</Fragment>
