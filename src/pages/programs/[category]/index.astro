@@ -256,6 +256,13 @@ if (!category && !programForSlug) {
 const categoryName = category ? (category[`name_${lang}` as keyof Category] || category.name_en) : '';
 const categoryDescription = category ? ((category[`description_${lang}` as keyof Category] || category.description_en) as string | undefined) : undefined;
 const canonicalProgram = programForSlug ? `https://plademy.com/programs/${programForSlug.slug}` : undefined;
+
+let relatedProgramsLabel: string | undefined = undefined;
+if (programCategory) {
+  const programCategoryName = String(programCategory[`name_${lang}` as keyof Category] || programCategory.name_en);
+  const baseLabel = t.programs.relatedProgramsInterest || 'You might be interested in programs';
+  relatedProgramsLabel = baseLabel.replace('{category}', programCategoryName);
+}
 ---
 
 {programForSlug ? (
@@ -267,7 +274,7 @@ const canonicalProgram = programForSlug ? `https://plademy.com/programs/${progra
     publishedTime={programForSlug.published_at}
     canonical={canonicalProgram}
     relatedPrograms={relatedPrograms}
-    relatedProgramsLabel={programCategory ? ((t.programs.relatedProgramsInterest || 'You might be interested in programs').replace('{category}', String(programCategory[`name_${lang}` as keyof Category] || programCategory.name_en))) : undefined}
+    relatedProgramsLabel={relatedProgramsLabel}
     programGoal={programForSlug.goal || undefined}
     programDuration={programForSlug.duration || undefined}
     programAudience={programForSlug.audience || undefined}

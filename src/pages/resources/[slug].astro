@@ -134,6 +134,13 @@ if (!resource) {
 }
 
 const canonical = `https://plademy.com/resources/${slug}`;
+
+let relatedResourcesLabel: string | undefined = undefined;
+if (category) {
+  const categoryName = String(category[`name_${lang}` as keyof Category] || category.name_en);
+  const baseLabel = t.resources.relatedArticles || 'Related Articles';
+  relatedResourcesLabel = baseLabel.replace('{category}', categoryName);
+}
 ---
 
 <ContentLayout
@@ -144,7 +151,7 @@ const canonical = `https://plademy.com/resources/${slug}`;
   publishedTime={resource.published_at}
   canonical={canonical}
   relatedResources={relatedResources}
-  relatedResourcesLabel={category ? ((t.resources.relatedArticles || 'Related Articles').replace('{category}', String(category[`name_${lang}` as keyof Category] || category.name_en))) : undefined}
+  relatedResourcesLabel={relatedResourcesLabel}
 >
   <div slot="after-description">
     {category && (

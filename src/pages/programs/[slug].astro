@@ -123,6 +123,13 @@ if (!program) {
 }
 
 const canonical = `https://plademy.com/programs/${slug}`;
+
+let relatedProgramsLabel: string | undefined = undefined;
+if (category) {
+  const categoryName = String(category[`name_${lang}` as keyof Category] || category.name_en);
+  const baseLabel = t.programs.relatedProgramsInterest || 'You might be interested in programs';
+  relatedProgramsLabel = baseLabel.replace('{category}', categoryName);
+}
 ---
 
 <ContentLayout
@@ -133,7 +140,7 @@ const canonical = `https://plademy.com/programs/${slug}`;
   publishedTime={program.published_at}
   canonical={canonical}
     relatedPrograms={relatedPrograms}
-    relatedProgramsLabel={category ? ((t.programs.relatedProgramsInterest || 'You might be interested in programs').replace('{category}', String(category[`name_${lang}` as keyof Category] || category.name_en))) : undefined}
+    relatedProgramsLabel={relatedProgramsLabel}
     programGoal={program.goal || undefined}
     programDuration={program.duration || undefined}
     programAudience={program.audience || undefined}
