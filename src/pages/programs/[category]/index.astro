@@ -370,6 +370,7 @@ const canonicalProgram = programForSlug ? `https://plademy.com/programs/${progra
     {programForSlug.content && (() => {
       const parsedContent = marked.parse(programForSlug.content) as string;
       const processedContent = parsedContent
+        .replace(/\$render\\`✓\\`/g, '✓')
         .replace(/<h3([^>]*)>(.*?)<\/h3>/gi, (_match: string, attrs: string, text: string) => {
           const id = slugify(text.replace(/<[^>]*>/g, ''));
           return `<h3${attrs} id="${id}">${text}</h3>`;

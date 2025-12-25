@@ -235,6 +235,7 @@ const canonical = `https://plademy.com/programs/${slug}`;
   {program.content && (() => {
     const parsedContent = marked.parse(program.content) as string;
     const processedContent = parsedContent
+      .replace(/\$render\\`✓\\`/g, '✓')
       .replace(/<h3([^>]*)>(.*?)<\/h3>/gi, (_match: string, attrs: string, text: string) => {
         const id = slugify(text.replace(/<[^>]*>/g, ''));
         return `<h3${attrs} id="${id}">${text}</h3>`;
