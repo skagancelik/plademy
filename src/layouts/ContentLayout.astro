@@ -86,6 +86,7 @@ breadcrumbs.push({ name: title, url: canonicalUrl });
           {description && <p class="text-xl text-black mb-4">{description}</p>}
           <slot name="after-description" />
         </header>
+        <slot name="before-content" />
         <div class="prose prose-lg max-w-none content-prose">
           <slot />
         </div>

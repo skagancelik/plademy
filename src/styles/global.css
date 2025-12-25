@@ -185,6 +185,38 @@ div.content-prose.prose ol:not(.keypoints-list),
   box-sizing: border-box !important;
 }
 
+/* Mobile: Reduce list padding for better mobile experience */
+@media (max-width: 768px) {
+  .content-prose.prose ul:not(.keypoints-list),
+  .content-prose.prose ol:not(.keypoints-list),
+  .content-prose.prose ul[class]:not(.keypoints-list),
+  .content-prose.prose ol[class]:not(.keypoints-list),
+  .prose.content-prose ul:not(.keypoints-list),
+  .prose.content-prose ol:not(.keypoints-list),
+  div.content-prose.prose ul:not(.keypoints-list),
+  div.content-prose.prose ol:not(.keypoints-list),
+  .prose ul:not(.keypoints-list),
+  .prose ol:not(.keypoints-list),
+  .prose.prose-lg ul:not(.keypoints-list),
+  .prose.prose-lg ol:not(.keypoints-list),
+  .prose.prose-lg.content-prose ul:not(.keypoints-list),
+  .prose.prose-lg.content-prose ol:not(.keypoints-list) {
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+    padding-top: 20px !important;
+    padding-bottom: 20px !important;
+  }
+  
+  /* Reduce nested list indentation on mobile */
+  .content-prose.prose ul ul,
+  .content-prose.prose ol ol,
+  .content-prose.prose ul ol,
+  .content-prose.prose ol ul {
+    padding-left: 15px !important;
+    margin-left: 0 !important;
+  }
+}
+
 /* Key Points list should not have background color - override all prose styles */
 .keypoints-list,
 ul.keypoints-list,

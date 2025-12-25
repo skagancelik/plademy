@@ -195,93 +195,95 @@ if (program && program.content) {
     )}
   </div>
 
-  {program.cover_image_url && (
-    <img
-      src={program.cover_image_url}
-      alt={program.title}
-      class="w-full h-96 object-cover rounded-3xl mb-8"
-      loading="eager"
-      width="1200"
-      height="600"
-      decoding="async"
-      fetchpriority="high"
-    />
-  )}
+  <div slot="before-content">
+    {program.cover_image_url && (
+      <img
+        src={program.cover_image_url}
+        alt={program.title}
+        class="w-full h-96 object-cover rounded-3xl mb-8"
+        loading="eager"
+        width="1200"
+        height="600"
+        decoding="async"
+        fetchpriority="high"
+      />
+    )}
 
-  <!-- Mobile: Show Program Goal, Duration, Audience below cover image -->
-  {(program.goal || program.duration || program.audience) && (
-    <div class="flex flex-col lg:hidden mb-8 space-y-4 w-full max-w-full">
-      {program.goal && (
-        <div class="bg-green-50 rounded-3xl p-6 w-full">
-          <div class="flex items-center gap-3">
-            <svg
-              class="w-8 h-8 text-green-600 flex-shrink-0"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-            <div>
-              <h2 class="text-xl font-bold mb-2">Program Goal</h2>
-              <p class="text-base">{program.goal}</p>
+    <!-- Mobile: Show Program Goal, Duration, Audience below cover image -->
+    {(program.goal || program.duration || program.audience) && (
+      <div class="flex flex-col lg:hidden mb-8 space-y-4 w-full max-w-full not-prose">
+        {program.goal && (
+          <div class="bg-green-50 rounded-3xl p-6 w-full">
+            <div class="flex items-center gap-3">
+              <svg
+                class="w-8 h-8 text-green-600 flex-shrink-0"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+              <div>
+                <h2 class="text-xl font-bold mb-2">Program Goal</h2>
+                <p class="text-base">{program.goal}</p>
+              </div>
             </div>
           </div>
-        </div>
-      )}
-      {program.duration && (
-        <div class="bg-purple-50 rounded-3xl p-6 w-full">
-          <div class="flex items-center gap-3">
-            <svg
-              class="w-8 h-8 text-purple-600 flex-shrink-0"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-              />
-            </svg>
-            <div>
-              <h2 class="text-xl font-bold mb-2">Program Duration</h2>
-              <p class="text-base">{program.duration}</p>
+        )}
+        {program.duration && (
+          <div class="bg-purple-50 rounded-3xl p-6 w-full">
+            <div class="flex items-center gap-3">
+              <svg
+                class="w-8 h-8 text-purple-600 flex-shrink-0"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                />
+              </svg>
+              <div>
+                <h2 class="text-xl font-bold mb-2">Program Duration</h2>
+                <p class="text-base">{program.duration}</p>
+              </div>
             </div>
           </div>
-        </div>
-      )}
-      {program.audience && (
-        <div class="bg-yellow-50 rounded-3xl p-6 w-full">
-          <div class="flex items-center gap-3">
-            <svg
-              class="w-8 h-8 text-yellow-600 flex-shrink-0"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-              />
-            </svg>
-            <div>
-              <h2 class="text-xl font-bold mb-2">Target Audience</h2>
-              <p class="text-base">{program.audience}</p>
+        )}
+        {program.audience && (
+          <div class="bg-yellow-50 rounded-3xl p-6 w-full">
+            <div class="flex items-center gap-3">
+              <svg
+                class="w-8 h-8 text-yellow-600 flex-shrink-0"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
+                />
+              </svg>
+              <div>
+                <h2 class="text-xl font-bold mb-2">Target Audience</h2>
+                <p class="text-base">{program.audience}</p>
+              </div>
             </div>
           </div>
-        </div>
-      )}
-    </div>
-  )}
+        )}
+      </div>
+    )}
+  </div>
 
   {program.keypoints && program.keypoints.length > 0 && (
     <div class="bg-blue-50 rounded-3xl p-12 mb-8 w-full max-w-full">
