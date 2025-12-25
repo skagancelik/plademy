@@ -67,6 +67,7 @@ export const POST: APIRoute = async ({ request }) => {
       program_slug: body.program_slug || '',
       program_title: body.program_title || '',
       category: body.category || '',
+      audience: body.audience || '',
       timestamp: new Date().toISOString(),
       source: 'plademy-website',
     };
