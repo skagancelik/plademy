@@ -344,8 +344,8 @@ Resources ile benzer, ama ekstra alanlar:
 **ÖNEMLİ NOTLAR:**
 - ❌ **Redirect Rules:** Hybrid SSR için `from = "/*" to = "/index.html"` redirect kuralı **KULLANILMAMALI**. Bu kural tüm SSR route'larını statik dosyaya yönlendirir ve deployment'ı bozar.
 - ❌ **Image Transformation:** Netlify'ın image transformation özelliği Astro adapter için experimental ve deployment hatalarına neden oluyor. `[images]` section'ı `netlify.toml`'a **EKLEMEYİN**.
-- ✅ **Edge Functions:** Otomatik discovery kullanılıyor. `netlify/edge-functions/` dizinindeki dosyalar otomatik olarak keşfedilir. Path mapping gerekmez.
-- ✅ **Edge Functions kullanılıyor**, Netlify Functions değil!
+- ✅ **API Routes:** Astro API Routes (`src/pages/api/*.ts`) SSR function olarak çalışır. `export const prerender = false;` ile SSR olarak işaretlenmeli.
+- ✅ **Environment Variables:** Runtime SSR'da `process.env` kullanılmalı, `import.meta.env` build-time'da çalışır.
 
 ### Environment Variables (Netlify Dashboard)
 
@@ -357,7 +357,9 @@ Resources ile benzer, ama ekstra alanlar:
 
 **ÖNEMLİ:** 
 - `SERVICE_ROLE_KEY` asla Netlify'a ekleme! Sadece n8n'de kullan.
-- `N8N_WEBHOOK_URL` Edge Functions'da kullanılır (Deno.env.get ile)
+- `N8N_WEBHOOK_URL` Astro API Route'da kullanılır (`process.env.N8N_WEBHOOK_URL`)
+- Environment variable'lar Netlify Dashboard'da tanımlı olmalı (Site settings → Environment variables)
+- Runtime SSR'da `process.env` ile okunur, `import.meta.env` build-time'da çalışır
 
 ### Deployment Adımları
 
@@ -391,26 +393,37 @@ Resources ile benzer, ama ekstra alanlar:
 - ⚠️ **TypeScript warnings:** Build'i durdurmaz ama temizlenmeli (unused imports)
 - ✅ **Edge Functions bundling başarılı:** `netlify/edge-functions/` dizinindeki dosyalar otomatik keşfedilir
 
-### Edge Functions
+### Form API Route (Astro SSR)
 
-**Form Webhook (`netlify/edge-functions/form-webhook.ts`):**
-- **Edge Functions kullanılıyor** (Netlify Functions yerine)
-- Deno runtime ile çalışır
+**Form Webhook (`src/pages/api/form.ts`):**
+- **Astro API Route kullanılıyor** (Edge Functions yerine)
+- Node.js runtime ile çalışır (Netlify SSR Function)
 - Contact form submissions
 - Resource/Program sayfalarındaki form submissions
 - n8n webhook'a POST request (webhook URL gizli)
 - Email gönderimi
 - **Avantajlar:**
-  - Ayda 1 milyon ücretsiz çağrı (Functions: 125K)
-  - Daha hızlı (edge'de çalışır)
+  - Astro SSR sistemiyle entegre çalışır
+  - Environment variable'lar `process.env` ile runtime'da okunur
+  - Daha kolay debugging ve error handling
+  - TypeScript desteği tam
   - Webhook URL client-side'da görünmez
-  - Daha düşük gecikme
 
-**Auto-Discovery:**
-- Edge Functions `netlify/edge-functions/` dizininde otomatik keşfedilir
-- Path mapping gerekmez (Netlify otomatik olarak dosya adını path olarak kullanır)
-- Örnek: `form-webhook.ts` → `/form-webhook` path'inde çalışır
-- Eğer özel path istiyorsanız, `netlify.toml`'a `[[edge_functions]]` ekleyebilirsiniz, ama genellikle gerekmez
+**Environment Variables:**
+- `N8N_WEBHOOK_URL` Netlify Dashboard'da tanımlı olmalı
+- Runtime'da `process.env.N8N_WEBHOOK_URL` ile okunur
+- `import.meta.env` build-time'da çalışır, runtime SSR için `process.env` kullanılmalı
+
+**Path:**
+- `/api/form` → Astro API Route
+- `export const prerender = false;` ile SSR olarak çalışır
+- CORS headers eklendi (OPTIONS preflight support)
+
+**Error Handling:**
+- Detaylı error logging (console.error)
+- Client-side'da response body loglanıyor
+- Webhook response body detaylı şekilde loglanıyor
+- Environment variable debug bilgileri eklendi
 
 ### Performance Optimization
 
@@ -447,6 +460,34 @@ Resources ile benzer, ama ekstra alanlar:
 - Programs içerik üretimi
 - Duration field dahil (**YENİ**)
 - Benzer flow (research → content → image → insert)
+
+**3. Form Webhook Workflow:**
+- Form submission'ları alır
+- Email gönderimi veya diğer işlemler
+- Webhook node POST method olarak ayarlanmalı
+
+### n8n Webhook Configuration
+
+**Webhook Node Settings:**
+- **HTTP Method:** POST (GET değil!)
+- **Production Mode:** Aktif olmalı (Test modunda değil)
+- **Path:** `/webhook/{webhook-id}` (production için)
+- **Test Path:** `/webhook-test/{webhook-id}` (sadece test için, "Execute workflow" sonrası bir kez çalışır)
+
+**ÖNEMLİ:**
+- ❌ **GET Method:** Webhook GET olarak ayarlanmışsa 404 hatası alınır: "This webhook is not registered for POST requests"
+- ✅ **POST Method:** Webhook POST olarak ayarlanmalı
+- ✅ **Production Mode:** Workflow aktif olmalı, test modunda değil
+- ✅ **Webhook URL:** Netlify environment variable'ında tam URL olmalı: `https://n8n.plademy.com/webhook/{webhook-id}`
+
+**Webhook URL Format:**
+- Production: `https://n8n.plademy.com/webhook/{webhook-id}`
+- Test: `https://n8n.plademy.com/webhook-test/{webhook-id}` (sadece test için)
+
+**Troubleshooting:**
+- **404 Error:** Webhook POST olarak ayarlı mı? Workflow aktif mi?
+- **Test Webhook:** Sadece "Execute workflow" sonrası bir kez çalışır
+- **Production Webhook:** Her zaman çalışır (workflow aktifse)
 
 ### Citations Extraction
 
@@ -764,13 +805,14 @@ export function getLanguageFromCookie(
 
 ## Recent Updates
 
-### Edge Functions Migration (2024)
+### Form API Route Migration (2024)
 
-- **Değişiklik:** Netlify Functions → Netlify Edge Functions
-- **Dosya:** `netlify/edge-functions/form-webhook.ts`
-- **Avantajlar:** Daha fazla ücretsiz kullanım (1M çağrı/ay), daha hızlı, webhook URL gizli
-- **Runtime:** Deno (Edge Functions için)
-- **Path:** `/api/form` → Edge Function
+- **Değişiklik:** Netlify Edge Functions → Astro API Route
+- **Dosya:** `src/pages/api/form.ts`
+- **Avantajlar:** Astro SSR ile entegre, daha kolay debugging, TypeScript desteği tam, environment variable'lar `process.env` ile runtime'da okunur
+- **Runtime:** Node.js (Netlify SSR Function)
+- **Path:** `/api/form` → Astro API Route
+- **Environment Variables:** `process.env.N8N_WEBHOOK_URL` (runtime SSR için)
 
 ### Citations Feature (2024)
 
@@ -837,6 +879,8 @@ export function getLanguageFromCookie(
 - **URL Validation:** page_url geçerli URL formatında kontrol ediliyor
 - **Error Handling:** Daha detaylı hata mesajları ve logging
 - **Page URL Tracking:** Tüm form submission'lara `page_url` eklendi
+- **Client-side Error Logging:** Response body console'da loglanıyor, webhook response detayları gösteriliyor
+- **Environment Variable Debugging:** Debug bilgileri eklendi (hasProcessEnv, hasImportMetaEnv, etc.)
 
 ### Program Form Content Personalization (2024)
 
@@ -954,16 +998,16 @@ export function getLanguageFromCookie(
 - Type: `'program-category-page'` veya `'program-category-page-bottom'`
 - Dinamik başlık ve açıklama (kategori adı ile)
 
-### Edge Function Processing
+### Astro API Route Processing
 
 **Form Data Flow:**
 1. Client-side: Form submit → `/api/form` POST request
-2. Edge Function: Request alır, `N8N_WEBHOOK_URL` environment variable'dan webhook URL'i okur
-3. Edge Function: n8n webhook'a POST request gönderir
+2. Astro API Route: Request alır, `N8N_WEBHOOK_URL` environment variable'dan webhook URL'i okur (`process.env.N8N_WEBHOOK_URL`)
+3. Astro API Route: n8n webhook'a POST request gönderir
 4. n8n: Email gönderimi veya diğer işlemler
 
 **Security:**
-- Webhook URL client-side'da görünmez (Deno.env.get ile)
+- Webhook URL client-side'da görünmez (`process.env` ile runtime'da okunur)
 - CORS headers eklendi (preflight support)
 - POST method validation
 - Input validation (email format, string length limits)
@@ -971,10 +1015,11 @@ export function getLanguageFromCookie(
 - URL validation (page_url için)
 - Input sanitization (tüm string alanlar)
 
-**Edge Function Location:**
-- `netlify/edge-functions/form-webhook.ts`
-- Deno runtime
-- Path: `/api/form` (netlify.toml'da map edildi)
+**API Route Location:**
+- `src/pages/api/form.ts`
+- Node.js runtime (Netlify SSR Function)
+- Path: `/api/form` (Astro file-based routing)
+- `export const prerender = false;` ile SSR olarak çalışır
 
 **Security Features:**
 - POST method validation
@@ -982,6 +1027,13 @@ export function getLanguageFromCookie(
 - Input validation ve sanitization
 - Error handling ve logging
 - Webhook URL environment variable'dan (client-side'da görünmez)
+- Detaylı error logging (webhook response body dahil)
+- Environment variable debugging (hasProcessEnv, hasImportMetaEnv)
+
+**Environment Variables:**
+- Runtime SSR'da `process.env.N8N_WEBHOOK_URL` kullanılır
+- `import.meta.env` build-time'da çalışır, runtime SSR için uygun değil
+- Netlify Dashboard'da environment variable tanımlı olmalı
 
 ---
 
@@ -1015,11 +1067,15 @@ export function getLanguageFromCookie(
 - ✅ **Edge Functions:** `netlify/edge-functions/` dizinindeki dosyalar otomatik keşfedilir, path mapping gerekmez
 - ⚠️ **TypeScript warnings:** Build'i durdurmaz ama temizlenmeli (unused imports)
 
-**6. Edge Function Not Working:**
-- Dosya `netlify/edge-functions/` dizininde mi?
-- Export format doğru mu? (`export default async (request: Request) => {...}`)
+**6. Form API Route Not Working:**
+- Dosya `src/pages/api/form.ts` konumunda mı?
+- `export const prerender = false;` eklendi mi?
+- `POST` ve `OPTIONS` handler'ları export edildi mi?
 - Environment variables Netlify dashboard'da tanımlı mı? (`N8N_WEBHOOK_URL`)
+- `process.env.N8N_WEBHOOK_URL` ile okunuyor mu? (runtime SSR için)
 - CORS headers eklendi mi? (OPTIONS preflight support)
+- n8n webhook POST method olarak ayarlı mı? (GET değil!)
+- n8n workflow aktif mi? (Production modunda)
 
 ---
 
