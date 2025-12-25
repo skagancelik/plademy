@@ -242,19 +242,20 @@ const canonical = `https://plademy.com/${slug}`;
   </div>
 
   {resource.content && (() => {
-    // Clean up malformed checkmark patterns before parsing
+    // Clean up malformed checkmark patterns - catch ALL variations of $render with checkmark
+    // This pattern matches: $render followed by any characters (including backticks, quotes, escapes) until ✓
     const cleanedContent = resource.content
-      .replace(/\$render`✓`/g, '✓')
-      .replace(/\$render\\`✓\\`/g, '✓')
-      .replace(/\$render`/g, '')
+      .replace(/\$render[^✓]*✓[^<]*/g, '✓')
       .replace(/`✓`/g, '✓');
     
     const parsedContent = marked.parse(cleanedContent) as string;
     const processedContent = parsedContent
-      .replace(/\$render`✓`/g, '✓')
-      .replace(/\$render\\`✓\\`/g, '✓')
-      .replace(/<li[^>]*>\s*\$render`✓`/gi, '<li>✓')
-      .replace(/<li[^>]*>\s*\$render\\`✓\\`/gi, '<li>✓')
+      // Replace any $render pattern with checkmark - catch all variations
+      .replace(/\$render[^✓]*✓[^<]*/g, '✓')
+      // Also handle cases where it might be in HTML text nodes
+      .replace(/([^>])\$render[^✓]*✓[^<]*(<)/g, '$1✓$2')
+      // Handle list items specifically
+      .replace(/<li([^>]*)>([^<]*)\$render[^✓]*✓[^<]*/gi, '<li$1>✓$2')
       .replace(/<h3([^>]*)>(.*?)<\/h3>/gi, (_match: string, attrs: string, text: string) => {
         const id = slugify(text.replace(/<[^>]*>/g, ''));
         return `<h3${attrs} id="${id}">${text}</h3>`;
