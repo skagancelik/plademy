@@ -56,7 +56,17 @@
     "relatedPrograms": "Relaterade {category} program",
     "relatedProgramsInterest": "Du kanske är intresserad av {category}",
     "searchGoal": "Sök programmål",
-    "searchGoalPlaceholder": "Skriv för att söka programmål..."
+    "searchGoalPlaceholder": "Skriv för att söka programmål...",
+    "categoryDescriptions": {
+      "talent-career-starter": "Upptäck omfattande program designade för att lansera karriärer och utveckla talanger. Utforska strategier för tidig karriärutveckling, talentidentifiering och byggande av starka grunder för professionell utveckling.",
+      "professional-development": "Upptäck omfattande program designade för att förbättra professionella färdigheter och förmågor. Utforska strategier för kontinuerligt lärande, färdighetsutveckling och karriärframsteg.",
+      "entrepreneurship-program": "Upptäck omfattande program designade för att stödja entreprenörskap och startup-framgång. Utforska strategier för affärsutveckling, innovation och skalning av verksamheter.",
+      "leadership": "Upptäck omfattande program designade för att utveckla effektiva ledarskapsfärdigheter. Utforska strategier för ledarskapsutveckling, teamhantering och organisatorisk transformation.",
+      "mentoring-program": "Upptäck omfattande program designade för att underlätta effektiva mentorrelationer. Utforska strategier för mentor-matchning, relationsbyggande och professionell utveckling genom mentorskap.",
+      "coaching-program": "Upptäck omfattande program designade för att ge effektivt coachningsstöd. Utforska strategier för coachutbildning, prestationsförbättring och personlig utveckling genom coaching.",
+      "erg": "Upptäck omfattande program designade för att stödja medarbetarresursgrupper (ERG). Utforska strategier för ERG-utveckling, gemenskapsbyggande och främjande av inkluderande arbetsplatskulturer.",
+      "dei": "Upptäck omfattande program designade för att främja mångfald, rättvisa och inkludering. Utforska strategier för att bygga inkluderande arbetsplatser, hantera fördomar och skapa rättvisa möjligheter för alla."
+    }
   },
   "resources": {
     "title": "Resurser",
@@ -66,7 +76,15 @@
     "noResources": "Inga resurser hittades.",
     "readMore": "Läs mer",
     "seeMore": "Se mer {category} artiklar",
-    "relatedArticles": "Du kanske är intresserad av {category} artiklar"
+    "relatedArticles": "Du kanske är intresserad av {category} artiklar",
+    "categoryDescriptions": {
+      "mentoring-coaching": "Utforska insikter, guider och verktyg för att förbättra dina mentor- och coachningsprogram. Upptäck bästa praxis, strategier och resurser för att bygga effektiva mentorrelationer och driva professionell utveckling.",
+      "career-talent": "Utforska insikter, guider och verktyg för att förbättra dina karriär- och talenthanteringsprogram. Upptäck strategier för karriärutveckling, talentrekrytering och byggande av högpresterande team.",
+      "employee-experience": "Utforska insikter, guider och verktyg för att förbättra dina medarbetarupplevelse- och kulturprogram. Upptäck strategier för att bygga positiva arbetsplatskulturer, förbättra medarbetarengagemang och skapa meningsfulla arbetsupplevelser.",
+      "hr-tech": "Utforska insikter, guider och verktyg för att förbättra dina HR-teknik- och innovationsprogram. Upptäck de senaste HR-tekniktrenderna, automatiseringsstrategier och digitala transformationslösningar för moderna arbetsplatser.",
+      "entrepreneurship": "Utforska insikter, guider och verktyg för att förbättra dina entreprenörskaps- och startupsprogram. Upptäck strategier för att bygga framgångsrika startups, skala verksamheter och främja innovation i entreprenöriella ekosystem.",
+      "community-management": "Utforska insikter, guider och verktyg för att förbättra dina gemenskapshanteringsprogram. Upptäck strategier för att bygga engagerade gemenskaper, främja anslutningar och skapa meningsfulla medlemsupplevelser."
+    }
   },
   "search": {
     "title": "Sök",

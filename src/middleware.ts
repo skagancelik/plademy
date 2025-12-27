@@ -1,9 +1,20 @@
 import { defineMiddleware } from 'astro:middleware';
 import { getPathFromLocalizedPath, getLocalizedPath, type Language } from './lib/i18n';
+import { createClient } from '@supabase/supabase-js';
+
+const supabase = createClient(
+  import.meta.env.PUBLIC_SUPABASE_URL!,
+  import.meta.env.PUBLIC_SUPABASE_ANON_KEY!
+);
 
 export const onRequest = defineMiddleware(async (context, next) => {
   const { url, cookies } = context;
   const pathname = url.pathname;
+  
+  // CRITICAL: Check if /programs/[slug] is a program slug and ensure it goes to [slug].astro
+  // This prevents Astro client-side routing from converting it to /programs?category=[slug]
+  // NOTE: Astro routing should handle this, but we check here to be safe
+  // The actual redirect happens in /programs/index.astro if needed
   
   // Check if there's a lang parameter in the URL
   const langParam = url.searchParams.get('lang');

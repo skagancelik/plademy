@@ -1,12 +1,19 @@
 ---
 import PageLayout from '@layouts/PageLayout.astro';
 import ContentLayout from '@layouts/ContentLayout.astro';
-import { supabase, type Resource, type Category } from '@lib/supabase';
+import { supabase, type Resource, type Category, CATEGORY_FULL_FIELDS } from '@lib/supabase';
 import { getTranslations, getLocalizedPath, type Language, getLanguageFromCookie } from '@lib/i18n';
 import { marked } from 'marked';
 import { slugify } from '@lib/utils';
 
 export const prerender = false; // Edge SSR
+
+// Set cache headers for Edge SSR
+// Set cache headers for Edge SSR (detail pages: 10 min)
+Astro.response.headers.set(
+  'Cache-Control',
+  'public, max-age=600, stale-while-revalidate=1200'
+);
 
 const lang = getLanguageFromCookie(Astro.cookies, Astro.url) || 'en';
 const slug = Astro.params.slug || '';
@@ -17,10 +24,10 @@ let resourceCategory: Category | null = null;
 let categoryMap: Map<string, Category> = new Map();
 
 try {
-  // Get all categories first for mapping
+  // Get all categories first for mapping (selective fields)
   const { data: categoriesData } = await supabase
     .from('categories')
-    .select('*')
+    .select(CATEGORY_FULL_FIELDS)
     .eq('type', 'resource')
     .order('sort_order', { ascending: true });
 
@@ -31,9 +38,11 @@ try {
     categoryMap.set(cat.id, cat);
     categoryMap.set(cat.slug, cat);
     categoryMap.set(cat.name_en, cat);
+    if (cat.name_fi) categoryMap.set(cat.name_fi, cat);
+    if (cat.name_sv) categoryMap.set(cat.name_sv, cat);
   });
 
-  // Get resource by slug
+  // Get resource by slug directly (optimized query)
   const { data: resourceData } = await supabase
     .from('resources')
     .select('*')
@@ -44,39 +53,23 @@ try {
   if (resourceData) {
     resource = resourceData;
     
-    // Get category for resource
+    // Get category for resource (optimized lookup)
     if (resource && resource.category) {
-      // Try to find category by ID first
-      let { data: catData } = await supabase
-        .from('categories')
-        .select('*')
-        .eq('id', resource.category)
-        .eq('type', 'resource')
-        .maybeSingle();
+      // First try categoryMap
+      let catData = categoryMap.get(resource.category);
       
-      // If not found by ID, try by slug (in case category is stored as slug)
-      if (!catData && resource.category) {
-        const { data: catDataBySlug } = await supabase
+      // If not found in map, try single optimized query with .or()
+      if (!catData) {
+        const { data: catDataFromDb } = await supabase
           .from('categories')
-          .select('*')
-          .eq('slug', resource.category)
+          .select('id, slug, name_en, name_fi, name_sv, description_en, description_fi, description_sv, type, sort_order')
+          .or(`id.eq.${resource.category},slug.eq.${resource.category},name_en.eq.${resource.category},name_fi.eq.${resource.category},name_sv.eq.${resource.category}`)
           .eq('type', 'resource')
           .maybeSingle();
-        catData = catDataBySlug;
+        catData = catDataFromDb || null;
       }
       
-      // If not found by slug, try by name_en (in case category is stored as name)
-      if (!catData && resource.category) {
-        const { data: catDataByName } = await supabase
-          .from('categories')
-          .select('*')
-          .eq('name_en', resource.category)
-          .eq('type', 'resource')
-          .maybeSingle();
-        catData = catDataByName;
-      }
-      
-      resourceCategory = catData || null;
+      resourceCategory = catData;
     }
   }
 } catch (error) {
@@ -105,36 +98,23 @@ if (resource.faqs && resource.faqs.length > 0) {
   tableOfContents.push({ id: 'frequently-asked-questions', text: 'Frequently Asked Questions' });
 }
 
-// Get related resources (same category, excluding current resource)
+// Get related resources (same category, excluding current resource) - optimized with selective fields
+// Resources.category stores category NAME, so match by category name
 let relatedResources: Resource[] = [];
-if (resourceCategory) {
+if (resourceCategory && resource) {
   try {
-    // Get more resources to ensure we have enough after filtering
+    const categoryName = resourceCategory[`name_${lang}` as keyof Category] || resourceCategory.name_en;
     const { data: relatedData } = await supabase
       .from('resources')
-      .select('*')
+      .select('id, slug, title, excerpt, cover_image_url, category, published_at')
       .eq('language', lang)
       .eq('is_published', true)
+      .eq('category', categoryName)
       .neq('id', resource.id)
       .order('published_at', { ascending: false })
-      .limit(50);
+      .limit(7);
 
-    if (relatedData) {
-      // Filter by category using same logic
-      const filtered = relatedData.filter((r) => {
-        if (!r.category) return false;
-        const rCategory = categoryMap.get(r.category);
-        if (rCategory) {
-          return rCategory.id === resourceCategory.id;
-        }
-        return r.category === resourceCategory.id || 
-               r.category === resourceCategory.slug || 
-               r.category === resourceCategory.name_en;
-      });
-      
-      // Take first 7
-      relatedResources = filtered.slice(0, 7);
-    }
+    relatedResources = (relatedData || []) as Resource[];
   } catch (error) {
     console.error('Error fetching related resources:', error);
   }
@@ -155,6 +135,12 @@ if (resourceCategory) {
 
 // Process resource content - moved from IIFE to frontmatter
 let processedContent: string | null = null;
+// Privacy notice HTML - moved from JSX attribute to frontmatter
+let privacyNoticeHTML: string = '';
+if (t.forms.resource.privacyNotice) {
+  privacyNoticeHTML = t.forms.resource.privacyNotice.replace('{privacyPolicy}', `<a href="${getLocalizedPath('/privacy', lang)}" class="font-bold">${t.forms.resource.privacyPolicy}</a>`);
+}
+
 if (resource && resource.content) {
   // Clean up malformed checkmark patterns - catch ALL variations of $render with checkmark
   const cleanedContent = resource.content
@@ -282,7 +268,7 @@ if (resource && resource.citations && Array.isArray(resource.citations)) {
         >
           Get Started For Free
         </button>
-        <p class="!text-[10px] text-gray-600 md:col-span-2 not-prose" set:html={t.forms.resource.privacyNotice.replace('{privacyPolicy}', `<a href="${getLocalizedPath('/privacy', lang)}" class="font-bold">${t.forms.resource.privacyPolicy}</a>`)}></p>
+        <p class="!text-[10px] text-gray-600 md:col-span-2 not-prose" set:html={privacyNoticeHTML}></p>
       </div>
     </form>
     <div id="resource-form-success" class="hidden text-center py-8">
@@ -366,7 +352,7 @@ if (resource && resource.citations && Array.isArray(resource.citations)) {
         >
           Get Started For Free
         </button>
-        <p class="!text-[10px] text-gray-600 md:col-span-2 not-prose" set:html={t.forms.resource.privacyNotice.replace('{privacyPolicy}', `<a href="${getLocalizedPath('/privacy', lang)}" class="font-bold">${t.forms.resource.privacyPolicy}</a>`)}></p>
+        <p class="!text-[10px] text-gray-600 md:col-span-2 not-prose" set:html={privacyNoticeHTML}></p>
       </div>
     </form>
     <div id="resource-form-bottom-success" class="hidden text-center py-8">

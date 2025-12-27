@@ -6,25 +6,49 @@ import { getTranslations } from '@lib/i18n';
 
 export const prerender = false; // Edge SSR
 
+// Set cache headers for Edge SSR (list pages: 5 min)
+Astro.response.headers.set(
+  'Cache-Control',
+  'public, max-age=300, stale-while-revalidate=600'
+);
+
 const lang = 'fi'; // Force Finnish
 const t = getTranslations(lang);
+
+// Get page from URL query parameter
+const page = parseInt(Astro.url.searchParams.get('page') || '1', 10);
+const pageSize = 20;
+const offset = (page - 1) * pageSize;
 
 let resources: Resource[] = [];
 let categories: Category[] = [];
 let categoryMap: Map<string, Category> = new Map();
+let totalCount = 0;
+let hasMore = false;
 
 try {
+  // Get total count for pagination
+  const { count } = await supabase
+    .from('resources')
+    .select('id', { count: 'exact', head: true })
+    .eq('language', lang)
+    .eq('is_published', true);
+
+  totalCount = count || 0;
+  hasMore = offset + pageSize < totalCount;
+
+  // Fetch resources with pagination and selective fields
   const { data: resourcesData } = await supabase
     .from('resources')
-    .select('*')
+    .select('id, slug, title, excerpt, cover_image_url, category, published_at')
     .eq('language', lang)
     .eq('is_published', true)
     .order('published_at', { ascending: false })
-    .limit(20);
+    .range(offset, offset + pageSize - 1);
 
   const { data: categoriesData } = await supabase
     .from('categories')
-    .select('*')
+    .select('id, slug, name_en, name_fi, name_sv, type, sort_order')
     .eq('type', 'resource')
     .order('sort_order', { ascending: true });
 
@@ -79,14 +103,39 @@ try {
     )}
 
     {resources.length > 0 ? (
-      <div class="grid md:grid-cols-3 gap-6">
-        {resources.map((resource) => {
-          const resourceCategory = resource.category ? categoryMap.get(resource.category) || null : null;
-          return (
-            <ResourceCard resource={resource} lang={lang} category={resourceCategory} />
-          );
-        })}
-      </div>
+      <>
+        <div class="grid md:grid-cols-3 gap-6">
+          {resources.map((resource) => {
+            const resourceCategory = resource.category ? categoryMap.get(resource.category) || null : null;
+            return (
+              <ResourceCard resource={resource} lang={lang} category={resourceCategory} />
+            );
+          })}
+        </div>
+        
+        <!-- Pagination -->
+        <div class="mt-8 flex justify-center items-center gap-4">
+          {page > 1 && (
+            <a
+              href={`/resurssit/?page=${page - 1}`}
+              class="px-4 py-2 bg-[#F6F7FB] text-black rounded-full hover:opacity-80 transition-colors"
+            >
+              ← Previous
+            </a>
+          )}
+          <span class="text-gray-600">
+            Page {page} {totalCount > 0 && `of ${Math.ceil(totalCount / pageSize)}`}
+          </span>
+          {hasMore && (
+            <a
+              href={`/resurssit/?page=${page + 1}`}
+              class="px-4 py-2 bg-[#2841CF] text-white rounded-full hover:opacity-90 transition-colors"
+            >
+              Next →
+            </a>
+          )}
+        </div>
+      </>
     ) : (
       <p class="text-center text-gray-500 py-12">{t.resources.noResources}</p>
     )}

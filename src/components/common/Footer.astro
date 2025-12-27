@@ -18,7 +18,7 @@ let latestPrograms: Program[] = [];
 try {
   const { data: resourceCategoriesData, error: resourceCategoriesError } = await supabase
     .from('categories')
-    .select('*')
+    .select('id, slug, name_en, name_fi, name_sv, type, sort_order')
     .eq('type', 'resource')
     .order('sort_order', { ascending: true });
 
@@ -30,7 +30,7 @@ try {
 
   const { data: programCategoriesData, error: programCategoriesError } = await supabase
     .from('categories')
-    .select('*')
+    .select('id, slug, name_en, name_fi, name_sv, type, sort_order')
     .eq('type', 'program')
     .order('sort_order', { ascending: true });
 
@@ -40,9 +40,10 @@ try {
     programCategories = programCategoriesData || [];
   }
 
+  // Fetch latest resources with selective fields (only title and slug needed for footer)
   const { data: resources, error: resourcesError } = await supabase
     .from('resources')
-    .select('*')
+    .select('id, slug, title')
     .eq('language', lang)
     .eq('is_published', true)
     .order('published_at', { ascending: false })
@@ -51,12 +52,13 @@ try {
   if (resourcesError) {
     console.error('Error fetching footer resources:', resourcesError);
   } else {
-    latestResources = resources || [];
+    latestResources = (resources || []) as Resource[];
   }
 
+  // Fetch latest programs with selective fields (only title and slug needed for footer)
   const { data: programs, error: programsError } = await supabase
     .from('programs')
-    .select('*')
+    .select('id, slug, title')
     .eq('language', lang)
     .eq('is_published', true)
     .order('published_at', { ascending: false })
@@ -201,7 +203,7 @@ try {
               return (
                 <li>
                   <a
-                    href={`/programs/${category.slug}`}
+                    href={`/programs/${category.slug}/all-audiences`}
                     class="text-white/80 hover:text-white transition-colors break-words"
                   >
                     {categoryName}

@@ -43,18 +43,18 @@ const t = getTranslations(lang);
   let allResources: any[] = [];
   let allPrograms: any[] = [];
 
-  // Fetch all content
+  // Fetch all content with selective fields (optimized for search)
   async function loadContent() {
     try {
       const { data: resources } = await supabase
         .from('resources')
-        .select('*')
+        .select('id, slug, title, description, excerpt')
         .eq('language', lang)
         .eq('is_published', true);
 
       const { data: programs } = await supabase
         .from('programs')
-        .select('*')
+        .select('id, slug, title, description, excerpt')
         .eq('language', lang)
         .eq('is_published', true);
 
@@ -73,12 +73,12 @@ const t = getTranslations(lang);
     await loadContent();
 
     fuseResources = new Fuse(allResources, {
-      keys: ['title', 'description', 'excerpt', 'content'],
+      keys: ['title', 'description', 'excerpt'],
       threshold: 0.3,
     });
 
     fusePrograms = new Fuse(allPrograms, {
-      keys: ['title', 'description', 'excerpt', 'content'],
+      keys: ['title', 'description', 'excerpt'],
       threshold: 0.3,
     });
   }

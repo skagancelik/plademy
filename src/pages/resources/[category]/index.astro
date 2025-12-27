@@ -1,42 +1,57 @@
 ---
 import PageLayout from '@layouts/PageLayout.astro';
 import ResourceCard from '@components/resources/ResourceCard.astro';
-import { supabase, type Resource, type Category } from '@lib/supabase';
+import { supabase, type Resource, type Category, getResourcesList, CATEGORY_BASIC_FIELDS, RESOURCE_LIST_FIELDS } from '@lib/supabase';
 import { getTranslations, type Language, getLanguageFromCookie } from '@lib/i18n';
 
 export const prerender = false; // Edge SSR
+
+// Set cache headers for Edge SSR (list pages: 5 min)
+Astro.response.headers.set(
+  'Cache-Control',
+  'public, max-age=300, stale-while-revalidate=600'
+);
 
 const lang = getLanguageFromCookie(Astro.cookies, Astro.url) || 'en';
 const categorySlug = Astro.params.category || '';
 const t = getTranslations(lang);
 
+// Get page from URL query parameter
+const page = parseInt(Astro.url.searchParams.get('page') || '1', 10);
+const pageSize = 20;
+const offset = (page - 1) * pageSize;
+
 let resources: Resource[] = [];
 let category: Category | null = null;
 let categories: Category[] = [];
 let categoryMap: Map<string, Category> = new Map();
+let totalCount = 0;
+let hasMore = false;
 
 try {
-  // Get all categories first (exactly like index.astro)
+  // Get all categories first (basic fields for list)
   const { data: categoriesData } = await supabase
     .from('categories')
-    .select('*')
+    .select(CATEGORY_BASIC_FIELDS)
     .eq('type', 'resource')
     .order('sort_order', { ascending: true });
 
   categories = categoriesData || [];
   
-  // Create category map for quick lookup (exactly like index.astro)
+  // Create category map for quick lookup
   categoryMap = new Map();
   categories.forEach((cat) => {
     categoryMap.set(cat.id, cat);
     categoryMap.set(cat.slug, cat);
     categoryMap.set(cat.name_en, cat);
+    if (cat.name_fi) categoryMap.set(cat.name_fi, cat);
+    if (cat.name_sv) categoryMap.set(cat.name_sv, cat);
   });
 
-  // Get category info
+  // Get category info (basic fields only - description comes from i18n)
   const { data: categoryData } = await supabase
     .from('categories')
-    .select('*')
+    .select(CATEGORY_BASIC_FIELDS)
     .eq('type', 'resource')
     .eq('slug', categorySlug)
     .maybeSingle();
@@ -44,41 +59,23 @@ try {
   category = categoryData;
 
   if (category) {
-    // Initial load: 18 resources
-    const { data: allResourcesData } = await supabase
+    // Resources.category stores category NAME (e.g., "Mentoring & Coaching"), not ID or slug
+    // So we need to match by category name in the current language
+    const categoryName = category[`name_${lang}` as keyof Category] || category.name_en;
+    
+    // Fetch resources by category name
+    const { data: resourcesData, count } = await supabase
       .from('resources')
-      .select('*')
+      .select(RESOURCE_LIST_FIELDS, { count: 'exact' })
       .eq('language', lang)
       .eq('is_published', true)
-      .order('published_at', { ascending: false });
-
-    // Filter: Use EXACT same logic as index.astro line 83
-    // index.astro: const resourceCategory = categoryMap.get(resource.category)
-    // We filter: resourceCategory && resourceCategory.id === category.id
-    if (allResourcesData) {
-      const filteredResources = allResourcesData.filter((resource) => {
-        // Use EXACT same logic as index.astro line 83
-        const resourceCategory = resource.category ? categoryMap.get(resource.category) || null : null;
-        
-        // If we found a category via categoryMap, check if it matches
-        if (resourceCategory && category) {
-          return resourceCategory.id === category.id;
-        }
-        
-        // If categoryMap.get() returned null, resource.category might be stored differently
-        // Try direct matches as fallback
-        if (resource.category && category) {
-          return resource.category === category.id || 
-                 resource.category === category.slug || 
-                 resource.category === category.name_en;
-        }
-        
-        return false;
-      });
-      
-      // Show first 18
-      resources = filteredResources.slice(0, 18);
-    }
+      .eq('category', categoryName)
+      .order('published_at', { ascending: false })
+      .range(offset, offset + pageSize - 1);
+    
+    resources = (resourcesData || []) as Resource[];
+    totalCount = count || 0;
+    hasMore = (offset + pageSize) < totalCount;
   }
 } catch (error) {
   console.error('Error fetching category resources:', error);
@@ -90,7 +87,8 @@ if (!category) {
 }
 
 const categoryName = category ? (category[`name_${lang}` as keyof Category] || category.name_en) : '';
-const categoryDescription = category ? ((category[`description_${lang}` as keyof Category] || category.description_en) as string | undefined) : undefined;
+// Get description from i18n instead of Supabase (reduces queries)
+const categoryDescription = category?.id ? (t.resources.categoryDescriptions?.[category.id as keyof typeof t.resources.categoryDescriptions] as string | undefined) : undefined;
 ---
 
 <PageLayout
@@ -99,22 +97,24 @@ const categoryDescription = category ? ((category[`description_${lang}` as keyof
   lang={lang}
 >
   <div class="container py-12">
-    <div class="mb-8">
-      <h1 class="text-4xl font-bold mb-4">{categoryName}</h1>
-      {categoryDescription && (
-        <p class="text-xl text-black">{categoryDescription}</p>
-      )}
-    </div>
+    <!-- Header Section: Title/Description (Left 50%) + Filters (Right 50%) -->
+    <div class="mb-8 flex flex-col md:flex-row md:items-start gap-6">
+      <!-- Left: Title and Description (50%) -->
+      <div class="w-full md:w-1/2">
+        <h1 class="text-4xl font-bold mb-4">{categoryName}</h1>
+        {categoryDescription && (
+          <p class="text-xl text-black">{categoryDescription}</p>
+        )}
+      </div>
 
-    <!-- Filters Section -->
-    <div class="mb-8 space-y-6">
-      <!-- Category Filter (Buttons) -->
+      <!-- Right: Category Filter Buttons (50%) -->
       {categories.length > 0 && (
-        <div>
-          <div class="flex flex-wrap gap-2">
+        <div class="w-full md:w-1/2 flex justify-end">
+          <div class="flex flex-wrap gap-2 justify-end">
             <a
               href="/resources/"
-              class="px-4 py-2 bg-[#F6F7FB] text-black rounded-full hover:opacity-80 transition-colors"
+              class="px-4 py-2 bg-[#F6F7FB] text-black rounded-full hover:bg-black hover:text-white transition-colors"
+              data-astro-reload
             >
               {t.resources.allResources}
             </a>
@@ -126,9 +126,10 @@ const categoryDescription = category ? ((category[`description_${lang}` as keyof
                   href={`/resources/${cat.slug}`}
                   class={`px-4 py-2 rounded-full transition-colors ${
                     isActive
-                      ? 'bg-[#2841CF] text-white'
-                      : 'bg-[#F6F7FB] text-black hover:opacity-80'
+                      ? 'bg-[#2841CF] text-white hover:bg-black hover:text-white'
+                      : 'bg-[#F6F7FB] text-black hover:bg-black hover:text-white'
                   }`}
+                  data-astro-reload
                 >
                   {catName}
                 </a>
@@ -144,12 +145,6 @@ const categoryDescription = category ? ((category[`description_${lang}` as keyof
         <div 
           id="resources-grid" 
           class="grid md:grid-cols-3 gap-6"
-          data-supabase-url={import.meta.env.PUBLIC_SUPABASE_URL}
-          data-supabase-key={import.meta.env.PUBLIC_SUPABASE_ANON_KEY}
-          data-lang={lang}
-          data-category-id={category?.id || ''}
-          data-category-slug={category?.slug || ''}
-          data-category-name-en={category?.name_en || ''}
         >
           {resources.map((resource) => {
             const resourceCategory = resource.category ? categoryMap.get(resource.category) || null : null;
@@ -158,8 +153,28 @@ const categoryDescription = category ? ((category[`description_${lang}` as keyof
             );
           })}
         </div>
-        <div id="loading-indicator" class="text-center py-8 hidden">
-          <p class="text-gray-500">Loading more resources...</p>
+        
+        <!-- Pagination -->
+        <div class="mt-8 flex justify-center items-center gap-4">
+          {page > 1 && (
+            <a
+              href={`/resources/${categorySlug}/?page=${page - 1}`}
+              class="px-4 py-2 bg-[#F6F7FB] text-black rounded-full hover:opacity-80 transition-colors"
+            >
+              ← Previous
+            </a>
+          )}
+          <span class="text-gray-600">
+            Page {page} {totalCount > 0 && `of ${Math.ceil(totalCount / pageSize)}`}
+          </span>
+          {hasMore && (
+            <a
+              href={`/resources/${categorySlug}/?page=${page + 1}`}
+              class="px-4 py-2 bg-[#2841CF] text-white rounded-full hover:opacity-90 transition-colors"
+            >
+              Next →
+            </a>
+          )}
         </div>
       </>
     ) : (
@@ -168,173 +183,3 @@ const categoryDescription = category ? ((category[`description_${lang}` as keyof
   </div>
 </PageLayout>
 
-<script is:inline>
-    (function() {
-      function initInfiniteScroll() {
-        const resourcesGrid = document.getElementById('resources-grid');
-        if (!resourcesGrid) return;
-        
-        const SUPABASE_URL = resourcesGrid.dataset.supabaseUrl;
-        const SUPABASE_ANON_KEY = resourcesGrid.dataset.supabaseKey;
-        const lang = resourcesGrid.dataset.lang || 'en';
-        const categoryId = resourcesGrid.dataset.categoryId;
-        const categorySlug = resourcesGrid.dataset.categorySlug;
-        const categoryNameEn = resourcesGrid.dataset.categoryNameEn;
-        
-        let currentPage = 1;
-        const pageSize = 18;
-        let isLoading = false;
-        let hasMore = true;
-        let categoryMap = new Map();
-        let allFilteredResources = [];
-        
-        const loadingIndicator = document.getElementById('loading-indicator');
-      
-      // Get categories once for mapping
-      (async () => {
-        try {
-          const response = await fetch(
-            `${SUPABASE_URL}/rest/v1/categories?type=eq.resource&order=sort_order.asc`,
-            {
-              headers: {
-                'apikey': SUPABASE_ANON_KEY,
-                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-              }
-            }
-          );
-          const categories = await response.json();
-          if (categories) {
-            categories.forEach((cat) => {
-              categoryMap.set(cat.id, cat);
-              categoryMap.set(cat.slug, cat);
-              categoryMap.set(cat.name_en, cat);
-            });
-          }
-        } catch (error) {
-          console.error('Error loading categories:', error);
-        }
-      })();
-      
-      // Load all resources and filter client-side (for category filtering)
-      (async () => {
-        try {
-          // Wait for categories to load first
-          await new Promise(resolve => setTimeout(resolve, 200));
-          
-          const response = await fetch(
-            `${SUPABASE_URL}/rest/v1/resources?language=eq.${lang}&is_published=eq.true&order=published_at.desc`,
-            {
-              headers: {
-                'apikey': SUPABASE_ANON_KEY,
-                'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-              }
-            }
-          );
-          const allResources = await response.json();
-          
-          // Filter by category using same logic as server-side
-          allFilteredResources = (allResources || []).filter((resource) => {
-            if (!resource.category) return false;
-            const resourceCategory = categoryMap.get(resource.category);
-            if (resourceCategory) {
-              return resourceCategory.id === categoryId;
-            }
-            return resource.category === categoryId || 
-                   resource.category === categorySlug || 
-                   resource.category === categoryNameEn;
-          });
-        } catch (error) {
-          console.error('Error loading resources:', error);
-        }
-      })();
-      
-      function escapeHtml(text) {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-      }
-      
-      async function loadMoreResources() {
-        if (isLoading || !hasMore) return;
-        
-        isLoading = true;
-        if (loadingIndicator) loadingIndicator.classList.remove('hidden');
-        
-        try {
-          // Wait for resources to load if not ready
-          let attempts = 0;
-          while (allFilteredResources.length === 0 && attempts < 10) {
-            await new Promise(resolve => setTimeout(resolve, 200));
-            attempts++;
-          }
-          
-          const startIndex = currentPage * pageSize;
-          const endIndex = startIndex + pageSize;
-          const newResources = allFilteredResources.slice(startIndex, endIndex);
-          
-          if (newResources.length === 0) {
-            hasMore = false;
-            if (loadingIndicator) loadingIndicator.classList.add('hidden');
-            return;
-          }
-          
-          // Render new resources
-          newResources.forEach((resource) => {
-            const resourceCategory = resource.category ? categoryMap.get(resource.category) || null : null;
-            
-            const cardDiv = document.createElement('div');
-            cardDiv.className = 'card block';
-            cardDiv.setAttribute('data-testid', 'resource-card');
-            
-            let html = '';
-            
-            if (resource.cover_image_url) {
-              html += `<a href="/${escapeHtml(resource.slug)}"><img src="${escapeHtml(resource.cover_image_url)}" alt="${escapeHtml(resource.title)}" class="w-full h-48 object-cover rounded-lg mb-4 transition-opacity hover:opacity-80" loading="lazy" /></a>`;
-            }
-            
-            if (resourceCategory) {
-              const categoryName = resourceCategory['name_' + lang] || resourceCategory.name_en;
-              html += `<a href="/resources/${escapeHtml(resourceCategory.slug)}" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm transition-colors bg-white border border-gray-200 hover:border-[#2841CF] text-black mb-2 block">${escapeHtml(categoryName)}</a>`;
-            }
-            
-            html += `<a href="/${escapeHtml(resource.slug)}" class="block transition-opacity hover:opacity-80">`;
-            html += `<h3 class="text-xl font-bold mb-2">${escapeHtml(resource.title)}</h3>`;
-            if (resource.excerpt) {
-              const excerpt = resource.excerpt.length > 150 ? resource.excerpt.substring(0, 150) + '...' : resource.excerpt;
-              html += `<p class="text-black mb-4">${escapeHtml(excerpt)}</p>`;
-            }
-            html += `</a>`;
-            
-            cardDiv.innerHTML = html;
-            resourcesGrid.appendChild(cardDiv);
-          });
-          
-          currentPage++;
-          if (endIndex >= allFilteredResources.length) {
-            hasMore = false;
-          }
-        } catch (error) {
-          console.error('Error loading more resources:', error);
-          hasMore = false;
-        } finally {
-          isLoading = false;
-          if (loadingIndicator) loadingIndicator.classList.add('hidden');
-        }
-      }
-      
-        function handleScroll() {
-          if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 1000) {
-            loadMoreResources();
-          }
-        }
-        
-        window.addEventListener('scroll', handleScroll);
-      }
-      
-      if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', initInfiniteScroll);
-      } else {
-        initInfiniteScroll();
-      }
-    })();
-  </script>

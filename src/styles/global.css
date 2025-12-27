@@ -60,6 +60,40 @@
     @apply bg-[#2841CF] text-white hover:bg-black hover:text-white;
   }
 
+  /* Homepage header start button - white background (only when not scrolled) */
+  #header-start-btn[style*="background-color: white"],
+  #main-header[data-homepage="true"]:not(.scrolled) #header-start-btn {
+    background-color: white !important;
+    color: #2841CF !important;
+    border: none !important;
+  }
+
+  #header-start-btn[style*="background-color: white"]:hover,
+  #main-header[data-homepage="true"]:not(.scrolled) #header-start-btn:hover {
+    background-color: black !important;
+    color: white !important;
+  }
+
+  /* Scrolled header - normal btn-primary styling (override everything) */
+  #main-header.scrolled #header-start-btn,
+  #main-header.scrolled #header-start-btn.bg-white,
+  #main-header.scrolled #header-start-btn.text-\[#2841CF\] {
+    background-color: #2841CF !important;
+    color: white !important;
+    border: none !important;
+  }
+
+  #main-header.scrolled #header-start-btn:hover {
+    background-color: black !important;
+    color: white !important;
+  }
+  
+  /* Transparent header on homepage when not scrolled */
+  #main-header[data-homepage="true"]:not(.scrolled) {
+    background-color: transparent !important;
+    border-bottom: none !important;
+  }
+
   .btn-secondary {
     @apply bg-[#2841CF] text-white hover:opacity-90;
   }
@@ -186,10 +220,28 @@ div.content-prose.prose ol:not(.keypoints-list),
 }
 
 /* Mobile: Ensure Program Goal/Duration/Audience cards are visible */
+/* Default: hide on desktop */
+.mobile-program-cards {
+  display: none !important;
+}
+
+/* Show on mobile - use very aggressive selectors */
 @media (max-width: 1023px) {
-  .not-prose.flex.flex-col.lg\:hidden,
-  div.not-prose.flex.flex-col.lg\:hidden {
+  .mobile-program-cards,
+  [slot="before-content"] .mobile-program-cards,
+  div[slot="before-content"] .mobile-program-cards,
+  article .mobile-program-cards,
+  .container .mobile-program-cards,
+  .prose ~ .mobile-program-cards,
+  .mobile-program-cards.mobile-program-cards {
     display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    position: relative !important;
+    z-index: 1 !important;
   }
 }
 
@@ -209,10 +261,11 @@ div.content-prose.prose ol:not(.keypoints-list),
   .prose.prose-lg ol:not(.keypoints-list),
   .prose.prose-lg.content-prose ul:not(.keypoints-list),
   .prose.prose-lg.content-prose ol:not(.keypoints-list) {
-    padding-left: 20px !important;
+    padding-left: 40px !important;
     padding-right: 20px !important;
     padding-top: 20px !important;
     padding-bottom: 20px !important;
+    list-style-position: inside !important;
   }
   
   /* Reduce nested list indentation on mobile - more aggressive */
@@ -240,11 +293,32 @@ div.content-prose.prose ol:not(.keypoints-list),
   .prose.prose-lg.content-prose ol ol,
   .prose.prose-lg.content-prose ul ol,
   .prose.prose-lg.content-prose ol ul {
-    padding-left: 10px !important;
-    padding-right: 15px !important;
-    padding-top: 10px !important;
-    padding-bottom: 10px !important;
+    padding-left: 5px !important;
+    padding-right: 10px !important;
+    padding-top: 8px !important;
+    padding-bottom: 8px !important;
     margin-left: 0 !important;
+    list-style-position: inside !important;
+  }
+  
+  /* Even more aggressive for 1st level lists */
+  .content-prose.prose ul:not(.keypoints-list),
+  .content-prose.prose ol:not(.keypoints-list),
+  .prose.content-prose ul:not(.keypoints-list),
+  .prose.content-prose ol:not(.keypoints-list),
+  div.content-prose.prose ul:not(.keypoints-list),
+  div.content-prose.prose ol:not(.keypoints-list),
+  .prose ul:not(.keypoints-list),
+  .prose ol:not(.keypoints-list),
+  .prose.prose-lg ul:not(.keypoints-list),
+  .prose.prose-lg ol:not(.keypoints-list),
+  .prose.prose-lg.content-prose ul:not(.keypoints-list),
+  .prose.prose-lg.content-prose ol:not(.keypoints-list) {
+    padding-left: 30px !important;
+    padding-right: 15px !important;
+    padding-top: 15px !important;
+    padding-bottom: 15px !important;
+    list-style-position: inside !important;
   }
   
   /* Even more aggressive for deeply nested lists */
@@ -260,11 +334,12 @@ div.content-prose.prose ol:not(.keypoints-list),
   div.content-prose.prose ol ol ol,
   div.content-prose.prose ul ul ol,
   div.content-prose.prose ol ol ul {
-    padding-left: 5px !important;
+    padding-left: 25px !important;
     padding-right: 10px !important;
-    padding-top: 5px !important;
-    padding-bottom: 5px !important;
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
     margin-left: 0 !important;
+    list-style-position: inside !important;
   }
 }
 
@@ -301,5 +376,73 @@ div.content-prose.prose ul.keypoints-list {
 .content-prose.prose ul strong,
 .content-prose.prose ol strong {
   font-family: 'Bricolage Grotesque', sans-serif !important;
+}
+
+/* Hero Animated Gradient Background */
+@keyframes gradient-1 {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.5;
+  }
+  25% {
+    transform: translate(50%, -40%) scale(1.4);
+    opacity: 0.75;
+  }
+  50% {
+    transform: translate(-40%, 35%) scale(0.7);
+    opacity: 0.6;
+  }
+  75% {
+    transform: translate(35%, 45%) scale(1.3);
+    opacity: 0.7;
+  }
+}
+
+@keyframes gradient-2 {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.5;
+  }
+  25% {
+    transform: translate(-55%, 50%) scale(1.5);
+    opacity: 0.75;
+  }
+  50% {
+    transform: translate(45%, -35%) scale(0.75);
+    opacity: 0.6;
+  }
+  75% {
+    transform: translate(-30%, -45%) scale(1.35);
+    opacity: 0.7;
+  }
+}
+
+@keyframes gradient-3 {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.45;
+  }
+  33% {
+    transform: translate(40%, -50%) scale(1.6);
+    opacity: 0.7;
+  }
+  66% {
+    transform: translate(-45%, 40%) scale(0.65);
+    opacity: 0.55;
+  }
+}
+
+.animate-gradient-1 {
+  animation: gradient-1 10s ease-in-out infinite;
+}
+
+.animate-gradient-2 {
+  animation: gradient-2 12s ease-in-out infinite;
+  animation-delay: -2s;
+}
+
+.animate-gradient-3 {
+  animation: gradient-3 14s ease-in-out infinite;
+  animation-delay: -5s;
 }
 

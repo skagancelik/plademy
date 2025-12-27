@@ -9,24 +9,30 @@ interface Props {
 
 const { lang, currentPath } = Astro.props;
 const t = getTranslations(lang);
+const isHomepage = currentPath === '/' || currentPath === '';
 ---
 
-<header class="border-b border-gray-200 bg-white sticky top-0 z-50">
+<header 
+  id="main-header" 
+  class={`z-50 transition-all duration-300 ${isHomepage ? 'absolute top-0 left-0 right-0' : 'sticky top-0 bg-white border-b border-gray-200'}`}
+  style={isHomepage ? 'background-color: transparent !important; border-bottom: none !important;' : ''}
+  data-homepage={String(isHomepage)}
+>
   <nav class="container py-4" aria-label="Main navigation">
     <div class="flex items-center justify-between">
       <a href="/" class="flex items-center">
-        <img src="/plademy-black-logo.svg" alt="Plademy" class="h-8" />
+        <img id="header-logo" src={isHomepage ? '/plademy-white-logo.svg' : '/plademy-black-logo.svg'} alt="Plademy" class="h-8 transition-opacity duration-300" />
       </a>
 
       <div class="flex items-center gap-6">
-            <ul class="hidden md:flex gap-6">
+            <ul class="hidden md:flex gap-6 nav-links">
               <li>
                 <a
                   href={getLocalizedPath('/programs', lang)}
-                  class={`hover:text-primary ${
+                  class={`hover:text-primary transition-colors ${
                     currentPath.startsWith('/programs') || currentPath.startsWith('/ohjelmat') || currentPath.startsWith('/program')
                       ? 'text-primary font-semibold'
-                      : 'text-black'
+                      : isHomepage ? 'text-white' : 'text-black'
                   }`}
                 >
                   {t.nav.programs}
@@ -35,10 +41,10 @@ const t = getTranslations(lang);
               <li>
                 <a
                   href={getLocalizedPath('/solutions', lang)}
-                  class={`hover:text-primary ${
+                  class={`hover:text-primary transition-colors ${
                     currentPath.startsWith('/solutions')
                       ? 'text-primary font-semibold'
-                      : 'text-black'
+                      : isHomepage ? 'text-white' : 'text-black'
                   }`}
                 >
                   {t.nav.solutions}
@@ -47,10 +53,10 @@ const t = getTranslations(lang);
               <li>
                 <a
                   href={getLocalizedPath('/resources', lang)}
-                  class={`hover:text-primary ${
+                  class={`hover:text-primary transition-colors ${
                     currentPath.startsWith('/resources') || currentPath.startsWith('/resurssit') || currentPath.startsWith('/resurser')
                       ? 'text-primary font-semibold'
-                      : 'text-black'
+                      : isHomepage ? 'text-white' : 'text-black'
                   }`}
                 >
                   {t.nav.resources}
@@ -59,10 +65,10 @@ const t = getTranslations(lang);
               <li>
                 <a
                   href={getLocalizedPath('/integrations', lang)}
-                  class={`hover:text-primary ${
+                  class={`hover:text-primary transition-colors ${
                     currentPath.startsWith('/integrations') || currentPath.startsWith('/integraatiot') || currentPath.startsWith('/integrationer')
                       ? 'text-primary font-semibold'
-                      : 'text-black'
+                      : isHomepage ? 'text-white' : 'text-black'
                   }`}
                 >
                   {t.nav.integrations}
@@ -71,10 +77,10 @@ const t = getTranslations(lang);
               <li>
                 <a
                   href={getLocalizedPath('/contact', lang)}
-                  class={`hover:text-primary ${
+                  class={`hover:text-primary transition-colors ${
                     currentPath.startsWith('/contact') || currentPath.startsWith('/yhteystiedot') || currentPath.startsWith('/kontakt')
                       ? 'text-primary font-semibold'
-                      : 'text-black'
+                      : isHomepage ? 'text-white' : 'text-black'
                   }`}
                 >
                   {t.nav.contact}
@@ -86,7 +92,9 @@ const t = getTranslations(lang);
           <LanguageSwitcher currentLang={lang} currentPath={currentPath} />
           <a
             href={getLocalizedPath('/start', lang)}
-            class="btn btn-primary"
+            id="header-start-btn"
+            class={`btn transition-colors ${isHomepage ? 'bg-white text-[#2841CF] hover:bg-black hover:text-white' : 'btn-primary'}`}
+            style={isHomepage ? 'background-color: white !important; color: #2841CF !important; border: none !important;' : ''}
           >
             {t.nav.start}
           </a>
@@ -95,4 +103,140 @@ const t = getTranslations(lang);
     </div>
   </nav>
 </header>
+
+{isHomepage && (
+  <script is:inline>
+    (function() {
+      function initHeader() {
+        const header = document.getElementById('main-header');
+        const logo = document.getElementById('header-logo');
+        const navLinks = document.querySelectorAll('.nav-links a');
+        const startBtn = document.getElementById('header-start-btn');
+        const languageBtn = document.getElementById('language-button');
+        
+        if (!header || !logo || !startBtn) {
+          // Retry if elements not ready
+          setTimeout(initHeader, 100);
+          return;
+        }
+        
+        function updateHeader() {
+          const isScrolled = window.scrollY > 50;
+          const isHomepage = header.dataset.homepage === 'true';
+          
+          // Add/remove scrolled class for CSS targeting
+          if (isScrolled) {
+            header.classList.add('scrolled');
+          } else {
+            header.classList.remove('scrolled');
+          }
+          
+          if (isHomepage && !isScrolled) {
+            // Header inside hero section - absolute positioning
+            header.style.setProperty('position', 'absolute', 'important');
+            header.style.setProperty('top', '0', 'important');
+            header.style.setProperty('left', '0', 'important');
+            header.style.setProperty('right', '0', 'important');
+            header.style.setProperty('background-color', 'transparent', 'important');
+            header.style.setProperty('border-bottom', 'none', 'important');
+            header.style.setProperty('backdrop-filter', 'none', 'important');
+            header.classList.remove('sticky', 'bg-white', 'border-b', 'border-gray-200');
+            
+            // White logo
+            logo.src = '/plademy-white-logo.svg';
+            
+            // White text for nav links
+            navLinks.forEach(link => {
+              if (!link.classList.contains('text-primary')) {
+                link.classList.remove('text-black');
+                link.classList.add('text-white');
+              }
+            });
+            
+            // White text for start button - keep btn-primary but override colors
+            if (startBtn) {
+              startBtn.style.setProperty('background-color', 'white', 'important');
+              startBtn.style.setProperty('color', '#2841CF', 'important');
+              startBtn.style.setProperty('border', 'none', 'important');
+            }
+            
+            // White border and text for language switcher
+            if (languageBtn) {
+              languageBtn.classList.remove('bg-white', 'border-gray-200', 'text-black');
+              languageBtn.classList.add('bg-transparent', 'border-white', 'text-white');
+            }
+          } else {
+            // Sticky header (scrolled or not homepage)
+            header.style.setProperty('position', 'sticky', 'important');
+            header.style.setProperty('top', '0', 'important');
+            header.style.removeProperty('left');
+            header.style.removeProperty('right');
+            header.style.removeProperty('background-color');
+            header.style.removeProperty('border-bottom');
+            header.style.removeProperty('backdrop-filter');
+            header.classList.remove('absolute', 'bg-transparent');
+            header.classList.add('sticky', 'bg-white', 'border-b', 'border-gray-200');
+            
+            // Black logo
+            logo.src = '/plademy-black-logo.svg';
+            
+            // Black text for nav links
+            navLinks.forEach(link => {
+              if (!link.classList.contains('text-primary')) {
+                link.classList.remove('text-white');
+                link.classList.add('text-black');
+              }
+            });
+            
+            // Normal start button - remove all inline styles and update classes
+            if (startBtn) {
+              // Remove all inline styles
+              startBtn.removeAttribute('style');
+              // Remove white background classes
+              startBtn.classList.remove('bg-white', 'text-[#2841CF]');
+              // Ensure btn-primary is present
+              if (!startBtn.classList.contains('btn-primary')) {
+                startBtn.classList.add('btn-primary');
+              }
+            }
+            
+            // Normal language switcher
+            if (languageBtn) {
+              languageBtn.classList.remove('bg-transparent', 'border-white', 'text-white');
+              languageBtn.classList.add('bg-white', 'border-gray-200', 'text-black');
+            }
+          }
+        }
+        
+        // Initial state
+        updateHeader();
+        
+        // Update on scroll
+        let ticking = false;
+        window.addEventListener('scroll', function() {
+          if (!ticking) {
+            window.requestAnimationFrame(function() {
+              updateHeader();
+              ticking = false;
+            });
+            ticking = true;
+          }
+        });
+      }
+      
+      // Run immediately and also on DOM ready
+      if (document.readyState === 'loading') {
+        // Run immediately for faster initial state
+        initHeader();
+        // Also run on DOMContentLoaded as backup
+        document.addEventListener('DOMContentLoaded', initHeader);
+      } else {
+        initHeader();
+      }
+      
+      // Also run after a short delay to ensure all styles are applied
+      setTimeout(initHeader, 50);
+    })();
+  </script>
+)}
 

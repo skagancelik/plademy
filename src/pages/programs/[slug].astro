@@ -1,11 +1,18 @@
 ---
 import ContentLayout from '@layouts/ContentLayout.astro';
-import { supabase, type Program, type Category } from '@lib/supabase';
+import { supabase, type Program, type Category, CATEGORY_FULL_FIELDS } from '@lib/supabase';
 import { getTranslations, getLocalizedPath, type Language, getLanguageFromCookie } from '@lib/i18n';
 import { marked } from 'marked';
 import { slugify } from '@lib/utils';
 
 export const prerender = false; // Edge SSR
+
+// Set cache headers for Edge SSR
+// Set cache headers for Edge SSR (detail pages: 10 min)
+Astro.response.headers.set(
+  'Cache-Control',
+  'public, max-age=600, stale-while-revalidate=1200'
+);
 
 const lang = getLanguageFromCookie(Astro.cookies, Astro.url) || 'en';
 const slug = (Astro.params.slug || '').trim();
@@ -14,102 +21,111 @@ const t = getTranslations(lang);
 let program: Program | null = null;
 let category: Category | null = null;
 let relatedPrograms: Program[] = [];
+let categoryMap: Map<string, Category> = new Map();
 
 try {
-  // First try: get ALL programs without any filters to find the program
-  const { data: allProgramsUnfiltered } = await supabase
-    .from('programs')
-    .select('*')
-    .order('published_at', { ascending: false });
+  // Get all categories first for mapping (selective fields)
+  const { data: categoriesData } = await supabase
+    .from('categories')
+    .select(CATEGORY_FULL_FIELDS)
+    .eq('type', 'program')
+    .order('sort_order', { ascending: true });
 
-  // Find by slug in all programs (case-insensitive, trimmed)
-  if (allProgramsUnfiltered && allProgramsUnfiltered.length > 0) {
-    const normalizedSlug = slug.toLowerCase().trim();
-    program = allProgramsUnfiltered.find(p => {
-      const programSlug = (p.slug || '').toLowerCase().trim();
-      return programSlug === normalizedSlug;
-    }) || null;
+  if (categoriesData) {
+    categoriesData.forEach((cat) => {
+      categoryMap.set(cat.id, cat);
+      categoryMap.set(cat.slug, cat);
+      categoryMap.set(cat.name_en, cat);
+      if (cat.name_fi) categoryMap.set(cat.name_fi, cat);
+      if (cat.name_sv) categoryMap.set(cat.name_sv, cat);
+    });
   }
 
-  // Get category info if program found
-  if (program?.category) {
-    // Try to fetch by ID first (category.id is TEXT, e.g., "mentoring-program")
-    let categoryData = null;
-    const { data: dataById } = await supabase
-      .from('categories')
+  // CRITICAL: This route is ONLY for program slugs, never for category slugs
+  // Category slugs should always go to /programs?category=... format
+  // Get program by slug - try current language first, then all languages as fallback
+  const { data: programDataLang, error: errorLang } = await supabase
+    .from('programs')
+    .select('*')
+    .eq('slug', slug)
+    .eq('language', lang)
+    .eq('is_published', true)
+    .maybeSingle();
+  
+  if (errorLang) {
+    console.error('[Program Slug Route] Error fetching program with language:', errorLang);
+  }
+  
+  // If not found in current language, try all languages
+  if (!programDataLang) {
+    const { data: programDataAll, error: errorAll } = await supabase
+      .from('programs')
       .select('*')
-      .eq('id', program.category)
-      .eq('type', 'program')
+      .eq('slug', slug)
+      .eq('is_published', true)
       .maybeSingle();
     
-    if (dataById) {
-      categoryData = dataById;
+    if (errorAll) {
+      console.error('[Program Slug Route] Error fetching program (all languages):', errorAll);
+    }
+    
+    program = programDataAll || null;
+  } else {
+    program = programDataLang;
+  }
+  
+  // Log for debugging
+  if (import.meta.env.DEV) {
+    console.log('[Program Slug Route] Checking slug:', slug, 'language:', lang);
+    if (program) {
+      console.log('[Program Slug Route] ✓ Found program:', program.title, 'slug:', program.slug, 'language:', program.language);
     } else {
-      // If ID lookup fails, try by slug
-      const { data: dataBySlug } = await supabase
+      console.log('[Program Slug Route] ✗ Program not found for slug:', slug);
+      console.log('[Program Slug Route] This means the slug does not exist in programs table or is not published');
+      console.log('[Program Slug Route] Returning 404 - this route is ONLY for programs, not categories');
+    }
+  }
+  
+  // REMOVED: Category check - this route is ONLY for programs
+  // If someone tries to access a category slug here, they should get 404
+  // Category slugs must use /programs?category=... format
+
+  // Get category info if program found (optimized lookup)
+  if (program?.category) {
+    // First try categoryMap
+    let categoryData = categoryMap.get(program.category);
+    
+    // If not found in map, try single optimized query with .or()
+    if (!categoryData) {
+      const { data: catData } = await supabase
         .from('categories')
-        .select('*')
-        .eq('slug', program.category)
+        .select('id, slug, name_en, name_fi, name_sv, description_en, description_fi, description_sv, type, sort_order')
+        .or(`id.eq.${program.category},slug.eq.${program.category},name_en.eq.${program.category},name_fi.eq.${program.category},name_sv.eq.${program.category}`)
         .eq('type', 'program')
         .maybeSingle();
       
-      if (dataBySlug) {
-        categoryData = dataBySlug;
-      } else {
-        // If slug lookup fails, try by name_en (category name might be stored)
-        const { data: dataByNameEn } = await supabase
-          .from('categories')
-          .select('*')
-          .eq('name_en', program.category)
-          .eq('type', 'program')
-          .maybeSingle();
-        
-        if (dataByNameEn) {
-          categoryData = dataByNameEn;
-        } else {
-          // Try name_fi and name_sv as well
-          const { data: dataByNameFi } = await supabase
-            .from('categories')
-            .select('*')
-            .eq('name_fi', program.category)
-            .eq('type', 'program')
-            .maybeSingle();
-          
-          if (dataByNameFi) {
-            categoryData = dataByNameFi;
-          } else {
-            const { data: dataByNameSv } = await supabase
-              .from('categories')
-              .select('*')
-              .eq('name_sv', program.category)
-              .eq('type', 'program')
-              .maybeSingle();
-            
-            if (dataByNameSv) {
-              categoryData = dataByNameSv;
-            }
-          }
-        }
-      }
+      categoryData = catData || null;
     }
     
-    category = categoryData || null;
+    category = categoryData;
   }
 
-  // Get related programs (same category, excluding current program)
+  // Get related programs (same category, excluding current program) - optimized with selective fields
+  // Programs.category stores category NAME, so match by category name
   if (program && category) {
     try {
+      const categoryName = category[`name_${lang}` as keyof Category] || category.name_en;
       const { data: relatedData } = await supabase
         .from('programs')
-        .select('*')
+        .select('id, slug, title, excerpt, cover_image_url, category, published_at, goal, duration, audience')
         .eq('language', lang)
         .eq('is_published', true)
-        .eq('category', category.id)
+        .eq('category', categoryName)
         .neq('id', program.id)
         .order('published_at', { ascending: false })
         .limit(10);
 
-      relatedPrograms = relatedData || [];
+      relatedPrograms = (relatedData || []) as Program[];
     } catch (error) {
       console.error('Error fetching related programs:', error);
     }
@@ -119,6 +135,10 @@ try {
 }
 
 if (!program) {
+  // Program not found and not a category either - return 404
+  if (import.meta.env.DEV) {
+    console.log('[Program Slug Route] ✗ Slug is neither program nor category, returning 404:', slug);
+  }
   return new Response(null, { status: 404 });
 }
 
@@ -133,6 +153,12 @@ if (category) {
 
 // Process program content - moved from IIFE to frontmatter
 let processedContent: string | null = null;
+// Privacy notice HTML - moved from JSX attribute to frontmatter
+let privacyNoticeHTML: string = '';
+if (t.forms.program.privacyNotice) {
+  privacyNoticeHTML = t.forms.program.privacyNotice.replace('{privacyPolicy}', `<a href="${getLocalizedPath('/privacy', lang)}" class="font-bold">${t.forms.program.privacyPolicy}</a>`);
+}
+
 if (program && program.content) {
   // Clean up malformed checkmark patterns - catch ALL variations of $render with checkmark
   const cleanedContent = program.content
@@ -165,6 +191,60 @@ if (program && program.content) {
     })
     .replace(/<input[^>]*type=["']checkbox["'][^>]*>/gi, '<span class="text-primary mr-2">✓</span>');
 }
+
+// Generate mobile cards HTML
+let mobileCardsHTML = '';
+if (program && (program.goal || program.duration || program.audience)) {
+  console.log('[DEBUG] Creating mobileCardsHTML with:', { goal: program.goal, duration: program.duration, audience: program.audience });
+  mobileCardsHTML = '<div class="mobile-program-cards flex flex-col mb-8 space-y-4 w-full max-w-full not-prose">';
+  if (program.goal) {
+    mobileCardsHTML += `
+      <div class="bg-green-50 rounded-3xl p-6 w-full">
+        <div class="flex items-center gap-3">
+          <svg class="w-8 h-8 text-green-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <div>
+            <h2 class="text-xl font-bold mb-2">Program Goal</h2>
+            <p class="text-base">${program.goal}</p>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+  if (program.duration) {
+    mobileCardsHTML += `
+      <div class="bg-purple-50 rounded-3xl p-6 w-full">
+        <div class="flex items-center gap-3">
+          <svg class="w-8 h-8 text-purple-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <div>
+            <h2 class="text-xl font-bold mb-2">Program Duration</h2>
+            <p class="text-base">${program.duration}</p>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+  if (program.audience) {
+    mobileCardsHTML += `
+      <div class="bg-yellow-50 rounded-3xl p-6 w-full">
+        <div class="flex items-center gap-3">
+          <svg class="w-8 h-8 text-yellow-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
+          <div>
+            <h2 class="text-xl font-bold mb-2">Target Audience</h2>
+            <p class="text-base">${program.audience}</p>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+  mobileCardsHTML += '</div>';
+}
+
 ---
 
 <ContentLayout
@@ -184,7 +264,7 @@ if (program && program.content) {
     {category && (
       <div class="mb-6">
         <a
-          href={`/programs/${category.slug}`}
+          href={`/programs?category=${category.slug}`}
           class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm bg-white border border-gray-200 text-black hover:opacity-80 transition-opacity"
         >
           {String(category[`name_${lang}` as keyof Category] || category.name_en)}
@@ -193,95 +273,22 @@ if (program && program.content) {
     )}
   </div>
 
-  <div slot="before-content">
-    {program.cover_image_url && (
-      <img
-        src={program.cover_image_url}
-        alt={program.title}
-        class="w-full h-96 object-cover rounded-3xl mb-8"
-        loading="eager"
-        width="1200"
-        height="600"
-        decoding="async"
-        fetchpriority="high"
-      />
-    )}
+  {program.cover_image_url && (
+    <img
+      src={program.cover_image_url}
+      alt={program.title}
+      class="w-full h-96 object-cover rounded-3xl mb-8"
+      loading="eager"
+      width="1200"
+      height="600"
+      decoding="async"
+      fetchpriority="high"
+    />
+  )}
 
-    <!-- Mobile: Show Program Goal, Duration, Audience below cover image -->
-    {(program.goal || program.duration || program.audience) && (
-      <div class="flex flex-col lg:hidden mb-8 space-y-4 w-full max-w-full not-prose">
-        {program.goal && (
-          <div class="bg-green-50 rounded-3xl p-6 w-full">
-            <div class="flex items-center gap-3">
-              <svg
-                class="w-8 h-8 text-green-600 flex-shrink-0"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-              <div>
-                <h2 class="text-xl font-bold mb-2">Program Goal</h2>
-                <p class="text-base">{program.goal}</p>
-              </div>
-            </div>
-          </div>
-        )}
-        {program.duration && (
-          <div class="bg-purple-50 rounded-3xl p-6 w-full">
-            <div class="flex items-center gap-3">
-              <svg
-                class="w-8 h-8 text-purple-600 flex-shrink-0"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-              <div>
-                <h2 class="text-xl font-bold mb-2">Program Duration</h2>
-                <p class="text-base">{program.duration}</p>
-              </div>
-            </div>
-          </div>
-        )}
-        {program.audience && (
-          <div class="bg-yellow-50 rounded-3xl p-6 w-full">
-            <div class="flex items-center gap-3">
-              <svg
-                class="w-8 h-8 text-yellow-600 flex-shrink-0"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"
-                />
-              </svg>
-              <div>
-                <h2 class="text-xl font-bold mb-2">Target Audience</h2>
-                <p class="text-base">{program.audience}</p>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-    )}
-  </div>
+  {mobileCardsHTML && (
+    <div set:html={mobileCardsHTML}></div>
+  )}
 
   {program.keypoints && program.keypoints.length > 0 && (
     <div class="bg-blue-50 rounded-3xl p-12 mb-8 w-full max-w-full">
@@ -341,7 +348,7 @@ if (program && program.content) {
         >
           Get Started For Free
         </button>
-        <p class="!text-[10px] text-gray-600 md:col-span-2 not-prose" set:html={t.forms.program.privacyNotice.replace('{privacyPolicy}', `<a href="${getLocalizedPath('/privacy', lang)}" class="font-bold">${t.forms.program.privacyPolicy}</a>`)}></p>
+        <p class="!text-[10px] text-gray-600 md:col-span-2 not-prose" set:html={privacyNoticeHTML}></p>
       </div>
     </form>
     <div id="resource-form-success" class="hidden text-center py-8">
@@ -434,7 +441,7 @@ if (program && program.content) {
         >
           Get Started For Free
         </button>
-        <p class="!text-[10px] text-gray-600 md:col-span-2 not-prose" set:html={t.forms.program.privacyNotice.replace('{privacyPolicy}', `<a href="${getLocalizedPath('/privacy', lang)}" class="font-bold">${t.forms.program.privacyPolicy}</a>`)}></p>
+        <p class="!text-[10px] text-gray-600 md:col-span-2 not-prose" set:html={privacyNoticeHTML}></p>
       </div>
     </form>
     <div id="resource-form-bottom-success" class="hidden text-center py-8">
@@ -578,5 +585,58 @@ if (program && program.content) {
         }
       });
     }
+  })();
+
+  // Force mobile cards visibility - AGGRESSIVE
+  (function() {
+    function showMobileCards() {
+      const cards = document.querySelectorAll('.mobile-program-cards');
+      const isMobile = window.innerWidth <= 1023;
+      
+      console.log('[Mobile Cards] Found cards:', cards.length, 'isMobile:', isMobile);
+      
+      cards.forEach((card, index) => {
+        if (!card) {
+          console.log('[Mobile Cards] Card', index, 'is null');
+          return;
+        }
+        
+        console.log('[Mobile Cards] Card', index, 'found, parent:', card.parentElement?.tagName);
+        
+        if (isMobile) {
+          // Force all styles
+          card.style.setProperty('display', 'flex', 'important');
+          card.style.setProperty('visibility', 'visible', 'important');
+          card.style.setProperty('opacity', '1', 'important');
+          card.style.setProperty('flex-direction', 'column', 'important');
+          card.style.setProperty('width', '100%', 'important');
+          card.style.setProperty('max-width', '100%', 'important');
+          card.style.setProperty('position', 'relative', 'important');
+          card.style.setProperty('z-index', '1', 'important');
+          console.log('[Mobile Cards] Card', index, 'made visible');
+        } else {
+          card.style.setProperty('display', 'none', 'important');
+        }
+      });
+    }
+    
+    // Run immediately
+    setTimeout(showMobileCards, 0);
+    
+    // Run on load
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(showMobileCards, 100);
+      });
+    } else {
+      setTimeout(showMobileCards, 100);
+    }
+    
+    // Run on resize
+    let resizeTimeout;
+    window.addEventListener('resize', () => {
+      clearTimeout(resizeTimeout);
+      resizeTimeout = setTimeout(showMobileCards, 100);
+    });
   })();
 </script>

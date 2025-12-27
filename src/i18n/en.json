@@ -56,7 +56,17 @@
     "relatedPrograms": "Related {category} Programs",
     "relatedProgramsInterest": "You might be interested in {category}",
     "searchGoal": "Search Program Goal",
-    "searchGoalPlaceholder": "Type to search program goals..."
+    "searchGoalPlaceholder": "Type to search program goals...",
+    "categoryDescriptions": {
+      "talent-career-starter": "Discover comprehensive programs designed to launch careers and develop talent. Explore strategies for early career development, talent identification, and building strong foundations for professional growth.",
+      "professional-development": "Discover comprehensive programs designed to enhance professional skills and capabilities. Explore strategies for continuous learning, skill development, and career advancement.",
+      "entrepreneurship-program": "Discover comprehensive programs designed to support entrepreneurship and startup success. Explore strategies for business development, innovation, and scaling ventures.",
+      "leadership": "Discover comprehensive programs designed to develop effective leadership skills. Explore strategies for leadership development, team management, and organizational transformation.",
+      "mentoring-program": "Discover comprehensive programs designed to facilitate impactful mentoring relationships. Explore strategies for mentor matching, relationship building, and professional growth through mentorship.",
+      "coaching-program": "Discover comprehensive programs designed to provide effective coaching support. Explore strategies for coach training, performance improvement, and personal development through coaching.",
+      "erg": "Discover comprehensive programs designed to support Employee Resource Groups (ERGs). Explore strategies for ERG development, community building, and fostering inclusive workplace cultures.",
+      "dei": "Discover comprehensive programs designed to promote Diversity, Equity, and Inclusion. Explore strategies for building inclusive workplaces, addressing bias, and creating equitable opportunities for all."
+    }
   },
   "resources": {
     "title": "Resources",
@@ -66,7 +76,15 @@
     "noResources": "No resources found.",
     "readMore": "Read More",
     "seeMore": "See More {category} Articles",
-    "relatedArticles": "You might be interested in {category} articles"
+    "relatedArticles": "You might be interested in {category} articles",
+    "categoryDescriptions": {
+      "mentoring-coaching": "Explore insights, guides, and tools to enhance your mentoring and coaching programs. Discover best practices, strategies, and resources to build effective mentorship relationships and drive professional growth.",
+      "career-talent": "Explore insights, guides, and tools to enhance your career and talent management programs. Discover strategies for career development, talent retention, and building high-performing teams.",
+      "employee-experience": "Explore insights, guides, and tools to enhance your employee experience and culture programs. Discover strategies for building positive workplace cultures, improving employee engagement, and creating meaningful work experiences.",
+      "hr-tech": "Explore insights, guides, and tools to enhance your HR technology and innovation programs. Discover the latest HR tech trends, automation strategies, and digital transformation solutions for modern workplaces.",
+      "entrepreneurship": "Explore insights, guides, and tools to enhance your entrepreneurship and startup programs. Discover strategies for building successful startups, scaling businesses, and fostering innovation in entrepreneurial ecosystems.",
+      "community-management": "Explore insights, guides, and tools to enhance your community management programs. Discover strategies for building engaged communities, fostering connections, and creating meaningful member experiences."
+    }
   },
   "search": {
     "title": "Search",

@@ -56,7 +56,17 @@
     "relatedPrograms": "Liittyvät {category} ohjelmat",
     "relatedProgramsInterest": "Saatat olla kiinnostunut {category}",
     "searchGoal": "Hae ohjelman tavoitetta",
-    "searchGoalPlaceholder": "Kirjoita hakeaksesi ohjelman tavoitteita..."
+    "searchGoalPlaceholder": "Kirjoita hakeaksesi ohjelman tavoitteita...",
+    "categoryDescriptions": {
+      "talent-career-starter": "Tutustu kattaviin ohjelmiin, jotka on suunniteltu uran käynnistämiseen ja talenttien kehittämiseen. Löydä strategioita varhaisen uran kehityksen, talenttien tunnistamisen ja vahvan ammatillisen kasvun perustan rakentamiseen.",
+      "professional-development": "Tutustu kattaviin ohjelmiin, jotka on suunniteltu ammatillisten taitojen ja kykyjen kehittämiseen. Löydä strategioita jatkuvaan oppimiseen, taitojen kehittämiseen ja uran edistämiseen.",
+      "entrepreneurship-program": "Tutustu kattaviin ohjelmiin, jotka on suunniteltu yrittäjyyden ja startup-menestyksen tukemiseen. Löydä strategioita liiketoiminnan kehittämiseen, innovaatioon ja yritysten skaalauttamiseen.",
+      "leadership": "Tutustu kattaviin ohjelmiin, jotka on suunniteltu tehokkaiden johtamistaitojen kehittämiseen. Löydä strategioita johtajuuden kehittämiseen, tiiminhallintaan ja organisaatiomuutokseen.",
+      "mentoring-program": "Tutustu kattaviin ohjelmiin, jotka on suunniteltu vaikuttavien mentorointisuhteiden helpottamiseen. Löydä strategioita mentorin yhdistämiseen, suhteiden rakentamiseen ja ammatilliseen kasvuun mentorointin kautta.",
+      "coaching-program": "Tutustu kattaviin ohjelmiin, jotka on suunniteltu tehokkaan valmennustuen tarjoamiseen. Löydä strategioita valmentajien koulutukseen, suorituskyvyn parantamiseen ja henkilökohtaiseen kehitykseen valmennuksen kautta.",
+      "erg": "Tutustu kattaviin ohjelmiin, jotka on suunniteltu työntekijöiden resurssiryhmien (ERG) tukemiseen. Löydä strategioita ERG-kehitykseen, yhteisön rakentamiseen ja inklusiivisten työpaikkakulttuurien edistämiseen.",
+      "dei": "Tutustu kattaviin ohjelmiin, jotka on suunniteltu monimuotoisuuden, oikeudenmukaisuuden ja osallisuuden edistämiseen. Löydä strategioita inklusiivisten työpaikkojen rakentamiseen, ennakkoluulojen käsittelemiseen ja tasa-arvoisten mahdollisuuksien luomiseen kaikille."
+    }
   },
   "resources": {
     "title": "Resurssit",
@@ -66,7 +76,15 @@
     "noResources": "Resursseja ei löytynyt.",
     "readMore": "Lue lisää",
     "seeMore": "Katso lisää {category} artikkeleita",
-    "relatedArticles": "Saatat olla kiinnostunut {category} artikkeleista"
+    "relatedArticles": "Saatat olla kiinnostunut {category} artikkeleista",
+    "categoryDescriptions": {
+      "mentoring-coaching": "Tutustu näkemyksiin, oppaisiin ja työkaluihin, jotka parantavat mentorointi- ja valmennusohjelmiasi. Löydä parhaat käytännöt, strategiat ja resurssit tehokkaiden mentorointisuhteiden rakentamiseen ja ammatilliseen kasvuun.",
+      "career-talent": "Tutustu näkemyksiin, oppaisiin ja työkaluihin, jotka parantavat ura- ja talentinhallintaohjelmiasi. Löydä strategioita uran kehittämiseen, talenttien säilyttämiseen ja korkean suorituskyvyn tiimien rakentamiseen.",
+      "employee-experience": "Tutustu näkemyksiin, oppaisiin ja työkaluihin, jotka parantavat työntekijäkokemus- ja kulttuuriohjelmiasi. Löydä strategioita positiivisten työpaikkakulttuurien rakentamiseen, työntekijöiden sitoutumisen parantamiseen ja merkityksellisten työkokemusten luomiseen.",
+      "hr-tech": "Tutustu näkemyksiin, oppaisiin ja työkaluihin, jotka parantavat HR-teknologia- ja innovaatioohjelmiasi. Löydä uusimmat HR-tekniikan trendit, automatisointistrategiat ja digitaalisen muutoksen ratkaisut nykyaikaisille työpaikoille.",
+      "entrepreneurship": "Tutustu näkemyksiin, oppaisiin ja työkaluihin, jotka parantavat yrittäjyys- ja startup-ohjelmiasi. Löydä strategioita menestyksekkäiden startup-yritysten rakentamiseen, liiketoimintojen skaalauttamiseen ja innovaation edistämiseen yrittäjäekosysteemeissä.",
+      "community-management": "Tutustu näkemyksiin, oppaisiin ja työkaluihin, jotka parantavat yhteisönhallintaohjelmiasi. Löydä strategioita sitoutuneiden yhteisöjen rakentamiseen, yhteyksien luomiseen ja merkityksellisten jäsenkokemusten luomiseen."
+    }
   },
   "search": {
     "title": "Haku",

@@ -1,10 +1,17 @@
 ---
 import ContentLayout from '@layouts/ContentLayout.astro';
-import { supabase, type Resource, type Category } from '@lib/supabase';
+import { supabase, type Resource, type Category, CATEGORY_FULL_FIELDS } from '@lib/supabase';
 import { getTranslations, getLocalizedPath, type Language, getLanguageFromCookie } from '@lib/i18n';
 import { marked } from 'marked';
 
 export const prerender = false; // Edge SSR
+
+// Set cache headers for Edge SSR
+// Set cache headers for Edge SSR (detail pages: 10 min)
+Astro.response.headers.set(
+  'Cache-Control',
+  'public, max-age=600, stale-while-revalidate=1200'
+);
 
 const lang = getLanguageFromCookie(Astro.cookies, Astro.url) || 'en';
 const slug = (Astro.params.slug || '').trim();
@@ -13,114 +20,85 @@ const t = getTranslations(lang);
 let resource: Resource | null = null;
 let category: Category | null = null;
 let relatedResources: Resource[] = [];
+let categoryMap: Map<string, Category> = new Map();
 
 try {
-  // Use same pattern as homepage - get all and filter by slug
-  const { data: resources } = await supabase
+  // Get all categories first for mapping (selective fields)
+  const { data: categoriesData } = await supabase
+    .from('categories')
+    .select(CATEGORY_FULL_FIELDS)
+    .eq('type', 'resource')
+    .order('sort_order', { ascending: true });
+
+  if (categoriesData) {
+    categoriesData.forEach((cat) => {
+      categoryMap.set(cat.id, cat);
+      categoryMap.set(cat.slug, cat);
+      categoryMap.set(cat.name_en, cat);
+      if (cat.name_fi) categoryMap.set(cat.name_fi, cat);
+      if (cat.name_sv) categoryMap.set(cat.name_sv, cat);
+    });
+  }
+
+  // Get resource by slug directly (optimized query)
+  const { data: resourceData } = await supabase
     .from('resources')
     .select('*')
+    .eq('slug', slug)
     .eq('language', lang)
     .eq('is_published', true)
-    .order('published_at', { ascending: false })
-    .limit(100);
+    .single();
 
-  // Find by slug in results
-  if (resources && resources.length > 0) {
-    resource = resources.find(r => (r.slug || '').trim() === slug) || null;
-  }
-
-  // If not found, try all languages
-  if (!resource) {
-    const { data: allResources } = await supabase
+  // If not found, try all languages as fallback
+  if (!resourceData) {
+    const { data: fallbackResource } = await supabase
       .from('resources')
       .select('*')
+      .eq('slug', slug)
       .eq('is_published', true)
-      .limit(100);
+      .single();
     
-    if (allResources && allResources.length > 0) {
-      resource = allResources.find(r => (r.slug || '').trim() === slug) || null;
-    }
+    resource = fallbackResource || null;
+  } else {
+    resource = resourceData;
   }
 
-  // Get category info if resource found
+  // Get category info if resource found (optimized lookup)
   if (resource?.category) {
-    // Try to fetch by ID first (category.id is TEXT, e.g., "community-management")
-    let categoryData = null;
-    const { data: dataById } = await supabase
-      .from('categories')
-      .select('*')
-      .eq('id', resource.category)
-      .eq('type', 'resource')
-      .maybeSingle();
+    // First try categoryMap
+    let categoryData = categoryMap.get(resource.category);
     
-    if (dataById) {
-      categoryData = dataById;
-    } else {
-      // If ID lookup fails, try by slug
-      const { data: dataBySlug } = await supabase
+    // If not found in map, try single optimized query with .or()
+    if (!categoryData) {
+      const { data: catData } = await supabase
         .from('categories')
-        .select('*')
-        .eq('slug', resource.category)
+        .select('id, slug, name_en, name_fi, name_sv, description_en, description_fi, description_sv, type, sort_order')
+        .or(`id.eq.${resource.category},slug.eq.${resource.category},name_en.eq.${resource.category},name_fi.eq.${resource.category},name_sv.eq.${resource.category}`)
         .eq('type', 'resource')
         .maybeSingle();
       
-      if (dataBySlug) {
-        categoryData = dataBySlug;
-      } else {
-        // If slug lookup fails, try by name_en (category name might be stored)
-        const { data: dataByNameEn } = await supabase
-          .from('categories')
-          .select('*')
-          .eq('name_en', resource.category)
-          .eq('type', 'resource')
-          .maybeSingle();
-        
-        if (dataByNameEn) {
-          categoryData = dataByNameEn;
-        } else {
-          // Try name_fi and name_sv as well
-          const { data: dataByNameFi } = await supabase
-            .from('categories')
-            .select('*')
-            .eq('name_fi', resource.category)
-            .eq('type', 'resource')
-            .maybeSingle();
-          
-          if (dataByNameFi) {
-            categoryData = dataByNameFi;
-          } else {
-            const { data: dataByNameSv } = await supabase
-              .from('categories')
-              .select('*')
-              .eq('name_sv', resource.category)
-              .eq('type', 'resource')
-              .maybeSingle();
-            
-            if (dataByNameSv) {
-              categoryData = dataByNameSv;
-            }
-          }
-        }
-      }
+      categoryData = catData || null;
     }
     
-    category = categoryData || null;
+    category = categoryData;
   }
 
-  // Get related resources (same category, excluding current resource)
+  // Get related resources (same category, excluding current resource) - optimized with selective fields
+  // Resources.category stores category NAME, so match by category name
   if (resource && category) {
     try {
+      const categoryName = category[`name_${lang}` as keyof Category] || category.name_en;
       const { data: relatedData } = await supabase
         .from('resources')
-        .select('*')
+        .select('id, slug, title, excerpt, cover_image_url, category, published_at')
         .eq('language', lang)
         .eq('is_published', true)
-        .eq('category', category.id)
+        .eq('category', categoryName)
         .neq('id', resource.id)
         .order('published_at', { ascending: false })
         .limit(10);
 
-      relatedResources = relatedData || [];
+      relatedResources = (relatedData || []) as Resource[];
     } catch (error) {
       console.error('Error fetching related resources:', error);
     }
@@ -144,6 +122,12 @@ if (category) {
 
 // Process resource content - moved from IIFE to frontmatter
 let processedContent: string | null = null;
+// Privacy notice HTML - moved from JSX attribute to frontmatter
+let privacyNoticeHTML: string = '';
+if (t.forms.resource.privacyNotice) {
+  privacyNoticeHTML = t.forms.resource.privacyNotice.replace('{privacyPolicy}', `<a href="${getLocalizedPath('/privacy', lang)}" class="font-bold">${t.forms.resource.privacyPolicy}</a>`);
+}
+
 if (resource && resource.content) {
   // Clean up malformed checkmark patterns - catch ALL variations of $render with checkmark
   const cleanedContent = resource.content
@@ -261,7 +245,7 @@ if (resource && resource.content) {
         >
           Get Started For Free
         </button>
-        <p class="!text-[10px] text-gray-600 md:col-span-2 not-prose" set:html={t.forms.resource.privacyNotice.replace('{privacyPolicy}', `<a href="${getLocalizedPath('/privacy', lang)}" class="font-bold">${t.forms.resource.privacyPolicy}</a>`)}></p>
+        <p class="!text-[10px] text-gray-600 md:col-span-2 not-prose" set:html={privacyNoticeHTML}></p>
       </div>
     </form>
     <div id="resource-form-success" class="hidden text-center py-8">
@@ -353,7 +337,7 @@ if (resource && resource.content) {
         >
           Get Started For Free
         </button>
-        <p class="!text-[10px] text-gray-600 md:col-span-2 not-prose" set:html={t.forms.resource.privacyNotice.replace('{privacyPolicy}', `<a href="${getLocalizedPath('/privacy', lang)}" class="font-bold">${t.forms.resource.privacyPolicy}</a>`)}></p>
+        <p class="!text-[10px] text-gray-600 md:col-span-2 not-prose" set:html={privacyNoticeHTML}></p>
       </div>
     </form>
     <div id="resource-form-bottom-success" class="hidden text-center py-8">

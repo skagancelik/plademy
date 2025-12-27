@@ -86,10 +86,15 @@ breadcrumbs.push({ name: title, url: canonicalUrl });
           {description && <p class="text-xl text-black mb-4">{description}</p>}
           <slot name="after-description" />
         </header>
-        <slot name="before-content" />
+        <slot name="before-content">
+          <!-- Default content if slot is not provided -->
+        </slot>
         <div class="prose prose-lg max-w-none content-prose">
           <slot />
         </div>
+        <slot name="after-content">
+          <!-- Default content if slot is not provided -->
+        </slot>
       </div>
       {(tableOfContents.length > 0 || relatedResources.length > 0 || relatedPrograms.length > 0 || programGoal || programDuration || programAudience) && (
         <aside class="hidden lg:block w-64 flex-shrink-0">

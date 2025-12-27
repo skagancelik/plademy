@@ -1,0 +1,330 @@
+---
+import PageLayout from '@layouts/PageLayout.astro';
+import ProgramCard from '@components/programs/ProgramCard.astro';
+import { supabase, type Program, type Category } from '@lib/supabase';
+import { getTranslations, type Language, getLanguageFromCookie } from '@lib/i18n';
+import { slugify } from '@lib/utils';
+
+export const prerender = false; // Edge SSR
+
+// Set cache headers for Edge SSR (list pages: 5 min)
+Astro.response.headers.set(
+  'Cache-Control',
+  'public, max-age=300, stale-while-revalidate=600'
+);
+
+const lang = getLanguageFromCookie(Astro.cookies, Astro.url) || 'en';
+const t = getTranslations(lang);
+
+// Get category and audience from URL path
+const categorySlug = Astro.params.category || '';
+const audienceSlug = Astro.params.audience || '';
+
+// CRITICAL: Check if this is actually a program slug (not a category/audience filter)
+// If categorySlug looks like a program slug (long, multiple dashes), it might be a program slug
+if (categorySlug && categorySlug.length > 15 && categorySlug.split('-').length > 3 && audienceSlug === 'all-audiences') {
+  // This might be a program slug - check
+  const { data: programData } = await supabase
+    .from('programs')
+    .select('id, slug')
+    .eq('slug', categorySlug)
+    .eq('is_published', true)
+    .maybeSingle();
+  
+  if (programData?.id) {
+    // This is a program slug - redirect to correct route
+    return Astro.redirect(`/programs/${categorySlug}`, 301);
+  }
+}
+
+// Handle "all" cases
+const isAllCategories = categorySlug === 'all-categories';
+const isAllAudiences = audienceSlug === 'all-audiences';
+
+let programs: Program[] = [];
+let categories: Category[] = [];
+let uniqueAudiences: string[] = [];
+let categoryMap: Map<string, Category> = new Map();
+let totalCount = 0;
+let hasMore = false;
+let selectedCategory: Category | null = null;
+let selectedAudience: string | null = null;
+
+// Get goal filter from query parameter (search functionality)
+const goalFilter = Astro.url.searchParams.get('goal') || '';
+
+try {
+  // Get all categories
+  const { data: categoriesData } = await supabase
+    .from('categories')
+    .select('id, slug, name_en, name_fi, name_sv, type, sort_order')
+    .eq('type', 'program')
+    .order('sort_order', { ascending: true });
+
+  categories = categoriesData || [];
+
+  // Create category map
+  categories.forEach((cat) => {
+    categoryMap.set(cat.id, cat);
+    categoryMap.set(cat.slug, cat);
+    categoryMap.set(cat.name_en, cat);
+  });
+
+  // Find selected category if not "all"
+  if (!isAllCategories && categorySlug) {
+    selectedCategory = categoryMap.get(categorySlug) || null;
+    // If not found by slug, try to find by name
+    if (!selectedCategory) {
+      for (const cat of categories) {
+        if (slugify(cat.name_en) === categorySlug || 
+            slugify(cat.name_fi || '') === categorySlug || 
+            slugify(cat.name_sv || '') === categorySlug) {
+          selectedCategory = cat;
+          break;
+        }
+      }
+    }
+  }
+
+  // Get all unique audiences from programs
+  const { data: allPrograms } = await supabase
+    .from('programs')
+    .select('audience')
+    .eq('language', lang)
+    .eq('is_published', true);
+
+  const audiences = new Set<string>();
+  allPrograms?.forEach((program) => {
+    if (program.audience && program.audience.trim()) {
+      audiences.add(program.audience.trim());
+    }
+  });
+  uniqueAudiences = Array.from(audiences).sort();
+
+  // Find selected audience if not "all"
+  if (!isAllAudiences && audienceSlug) {
+    const normalizedAudienceSlug = audienceSlug.replace(/-/g, ' ');
+    selectedAudience = uniqueAudiences.find(aud => 
+      slugify(aud) === audienceSlug || 
+      aud.toLowerCase().replace(/\s+/g, '-') === audienceSlug
+    ) || null;
+  }
+
+  // Build query
+  let programsQuery = supabase
+    .from('programs')
+    .select('id, slug, title, excerpt, cover_image_url, category, published_at, goal, duration, audience', { count: 'exact' })
+    .eq('language', lang)
+    .eq('is_published', true);
+
+  // Apply category filter
+  if (!isAllCategories && selectedCategory) {
+    const categoryName = selectedCategory[`name_${lang}` as keyof Category] || selectedCategory.name_en;
+    programsQuery = programsQuery.eq('category', categoryName);
+  }
+
+  // Apply audience filter
+  if (!isAllAudiences && selectedAudience) {
+    programsQuery = programsQuery.eq('audience', selectedAudience);
+  }
+
+  // Apply goal filter (already retrieved from query params above)
+  if (goalFilter) {
+    programsQuery = programsQuery.ilike('goal', `%${goalFilter}%`);
+  }
+
+  // Get total count
+  const { count } = await programsQuery;
+  totalCount = count || 0;
+
+  // Fetch programs
+  const { data: programsData } = await programsQuery
+    .order('published_at', { ascending: false })
+    .limit(18);
+
+  programs = programsData || [];
+  hasMore = programs.length < totalCount;
+} catch (error) {
+  console.error('Error fetching programs:', error);
+}
+
+// If category or audience not found and not "all", return 404
+if (!isAllCategories && categorySlug && !selectedCategory) {
+  return new Response(null, { status: 404 });
+}
+if (!isAllAudiences && audienceSlug && !selectedAudience) {
+  return new Response(null, { status: 404 });
+}
+---
+<PageLayout
+  title={t.programs.title}
+  description={t.programs.description}
+  lang={lang}
+>
+  <div class="container py-12">
+    <div class="mb-8">
+      <h1 class="text-4xl font-bold mb-4">{t.programs.title}</h1>
+      <p class="text-xl text-black">{t.programs.description}</p>
+    </div>
+
+    <!-- Filters Section -->
+    <div class="mb-8">
+      <div class="flex flex-wrap gap-4 items-center">
+        <!-- Category Dropdown -->
+        <div class="flex-1 min-w-[200px] relative">
+          <select
+            id="category-filter"
+            class="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-full focus:ring-2 focus:ring-primary focus:border-transparent appearance-none cursor-pointer pr-12"
+            style="background-image: url('data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2712%27 height=%2712%27 viewBox=%270 0 12 12%27%3E%3Cpath fill=%27%23333%27 d=%27M6 9L1 4h10z%27/%3E%3C/svg%3E'); background-repeat: no-repeat; background-position: right 1rem center;"
+          >
+            <option value="all-categories" selected={isAllCategories}>{t.programs.allPrograms || 'All Programs'}</option>
+            {categories.map((category) => {
+              const categoryName = category[`name_${lang}` as keyof Category] || category.name_en;
+              const categorySlugValue = category.slug;
+              const isSelected = !isAllCategories && selectedCategory?.id === category.id;
+              return (
+                <option value={categorySlugValue} selected={isSelected}>
+                  {categoryName}
+                </option>
+              );
+            })}
+          </select>
+        </div>
+
+        <!-- Audience Dropdown -->
+        <div class="flex-1 min-w-[200px] relative">
+          <select
+            id="audience-filter"
+            class="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-full focus:ring-2 focus:ring-primary focus:border-transparent appearance-none cursor-pointer pr-12"
+            style="background-image: url('data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2712%27 height=%2712%27 viewBox=%270 0 12 12%27%3E%3Cpath fill=%27%23333%27 d=%27M6 9L1 4h10z%27/%3E%3C/svg%3E'); background-repeat: no-repeat; background-position: right 1rem center;"
+          >
+            <option value="all-audiences" selected={isAllAudiences}>{t.programs.allAudiences || 'All Audiences'}</option>
+            {uniqueAudiences.map((audience) => {
+              const audienceSlugValue = slugify(audience);
+              const isSelected = !isAllAudiences && selectedAudience === audience;
+              return (
+                <option value={audienceSlugValue} selected={isSelected}>
+                  {audience}
+                </option>
+              );
+            })}
+          </select>
+        </div>
+
+        <!-- Goal Search Filter -->
+        <div class="flex-1 min-w-[250px] relative">
+          <input
+            type="text"
+            id="goal-search"
+            placeholder={t.programs.searchGoalPlaceholder || 'Type to search program goals...'}
+            value={goalFilter}
+            class="w-full px-4 py-2.5 pr-10 border border-gray-300 rounded-full focus:ring-2 focus:ring-primary focus:border-transparent bg-white"
+          />
+          {goalFilter && (
+            <button
+              id="clear-goal"
+              type="button"
+              class="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 flex items-center justify-center text-gray-400 hover:text-gray-600 transition-colors z-10"
+              aria-label="Clear goal search"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="11" y1="3" x2="3" y2="11"></line>
+                <line x1="3" y1="3" x2="11" y2="11"></line>
+              </svg>
+            </button>
+          )}
+        </div>
+      </div>
+    </div>
+
+    <!-- Programs Grid -->
+    <div id="programs-container">
+      {programs.length > 0 ? (
+        <div class="grid md:grid-cols-3 gap-6" id="programs-grid">
+          {programs.map((program) => {
+            let programCategory: Category | null = null;
+            
+            if (program.category) {
+              programCategory = categoryMap.get(program.category) || null;
+              if (!programCategory) {
+                for (const cat of categories) {
+                  if (cat.id === program.category || 
+                      cat.slug === program.category || 
+                      cat.name_en === program.category ||
+                      cat.name_fi === program.category ||
+                      cat.name_sv === program.category) {
+                    programCategory = cat;
+                    break;
+                  }
+                }
+              }
+            }
+            
+            return (
+              <div class="program-item h-full">
+                <ProgramCard program={program} lang={lang} category={programCategory} />
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        <div id="no-results" class="text-center text-gray-500 py-12">
+          {t.programs.noPrograms}
+        </div>
+      )}
+    </div>
+  </div>
+</PageLayout>
+
+<script is:inline>
+  (function() {
+    const categoryFilter = document.getElementById('category-filter');
+    const audienceFilter = document.getElementById('audience-filter');
+    const goalSearch = document.getElementById('goal-search');
+    const clearGoal = document.getElementById('clear-goal');
+
+    function updateURL() {
+      const category = categoryFilter?.value || 'all-categories';
+      const audience = audienceFilter?.value || 'all-audiences';
+      const goal = goalSearch?.value.trim() || '';
+      
+      let newURL = `/programs/${category}/${audience}`;
+      if (goal) {
+        newURL += `?goal=${encodeURIComponent(goal)}`;
+      }
+      window.location.href = newURL;
+    }
+
+    if (categoryFilter) {
+      categoryFilter.addEventListener('change', updateURL);
+    }
+
+    if (audienceFilter) {
+      audienceFilter.addEventListener('change', updateURL);
+    }
+
+    // Goal search input - reload page with filter (debounced)
+    if (goalSearch) {
+      let searchTimeout;
+      goalSearch.addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+          updateURL();
+        }, 500); // Debounce 500ms for search
+      });
+    }
+
+    // Clear goal button
+    if (clearGoal) {
+      clearGoal.addEventListener('click', function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        if (goalSearch) {
+          goalSearch.value = '';
+          updateURL();
+        }
+      });
+    }
+  })();
+</script>
+

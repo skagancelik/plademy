@@ -16,12 +16,17 @@ const { program, lang, category, hideCategory = false, homepageStyle = false } =
 if (!program.slug) {
   console.error('[ProgramCard] Program missing slug:', program.id, program.title);
 }
+
+const programUrl = program.slug ? `/programs/${program.slug}` : '#';
 ---
 
 <a
-  href={program.slug ? `/programs/${program.slug}` : '#'}
-  class={`block transition-opacity hover:opacity-80 h-full flex flex-col ${homepageStyle ? 'bg-blue-50 rounded-[25px] p-6' : 'card'}`}
+  href={programUrl}
+  class={`block transition-opacity hover:opacity-80 h-full flex flex-col program-card-link ${homepageStyle ? 'bg-blue-50 rounded-[25px] p-6' : 'card'}`}
   data-testid="program-card"
+  data-program-slug={program.slug || ''}
+  data-astro-reload
+  rel="external"
 >
   {program.cover_image_url && (
     <img
@@ -49,4 +54,5 @@ if (!program.slug) {
     <p class="text-black text-sm mb-0 line-clamp-2 flex-grow">{program.goal}</p>
   )}
 </a>
+
 

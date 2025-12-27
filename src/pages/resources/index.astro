@@ -6,26 +6,49 @@ import { getTranslations, type Language, getLanguageFromCookie } from '@lib/i18n
 
 export const prerender = false; // Edge SSR
 
+// Set cache headers for Edge SSR (list pages: 5 min)
+Astro.response.headers.set(
+  'Cache-Control',
+  'public, max-age=300, stale-while-revalidate=600'
+);
+
 const lang = getLanguageFromCookie(Astro.cookies, Astro.url) || 'en';
 const t = getTranslations(lang);
+
+// Get page from URL query parameter
+const page = parseInt(Astro.url.searchParams.get('page') || '1', 10);
+const pageSize = 20;
+const offset = (page - 1) * pageSize;
 
 let resources: Resource[] = [];
 let categories: Category[] = [];
 let categoryMap: Map<string, Category> = new Map();
+let totalCount = 0;
+let hasMore = false;
 
 try {
-  // Initial load: 18 resources
+  // Get total count for pagination
+  const { count } = await supabase
+    .from('resources')
+    .select('id', { count: 'exact', head: true })
+    .eq('language', lang)
+    .eq('is_published', true);
+
+  totalCount = count || 0;
+  hasMore = offset + pageSize < totalCount;
+
+  // Fetch resources with pagination and selective fields
   const { data: resourcesData } = await supabase
     .from('resources')
-    .select('*')
+    .select('id, slug, title, excerpt, cover_image_url, category, published_at')
     .eq('language', lang)
     .eq('is_published', true)
     .order('published_at', { ascending: false })
-    .limit(18);
+    .range(offset, offset + pageSize - 1);
 
   const { data: categoriesData } = await supabase
     .from('categories')
-    .select('*')
+    .select('id, slug, name_en, name_fi, name_sv, type, sort_order')
     .eq('type', 'resource')
     .order('sort_order', { ascending: true });
 
@@ -49,43 +72,47 @@ try {
   lang={lang}
 >
   <div class="container py-12">
-    <div class="mb-8">
-      <h1 class="text-4xl font-bold mb-4">{t.resources.title}</h1>
-      <p class="text-xl text-black">{t.resources.description}</p>
-    </div>
-
-    {categories.length > 0 && (
-      <div class="mb-8">
-        <div class="flex flex-wrap gap-2">
-          <a
-            href="/resources/"
-            class="px-4 py-2 bg-[#2841CF] text-white rounded-full hover:opacity-90"
-          >
-            {t.resources.allResources}
-          </a>
-          {categories.map((category) => {
-            const categoryName = category[`name_${lang}` as keyof Category] || category.name_en;
-            return (
-              <a
-                href={`/resources/${category.slug}`}
-                class="px-4 py-2 bg-[#F6F7FB] text-black rounded-full hover:opacity-80"
-              >
-                {categoryName}
-              </a>
-            );
-          })}
-        </div>
+    <!-- Header Section: Title/Description (Left 50%) + Filters (Right 50%) -->
+    <div class="mb-8 flex flex-col md:flex-row md:items-start gap-6">
+      <!-- Left: Title and Description (50%) -->
+      <div class="w-full md:w-1/2">
+        <h1 class="text-4xl font-bold mb-4">{t.resources.title}</h1>
+        <p class="text-xl text-black">{t.resources.description}</p>
       </div>
-    )}
+
+      <!-- Right: Category Filter Buttons (50%) -->
+      {categories.length > 0 && (
+        <div class="w-full md:w-1/2 flex justify-end">
+          <div class="flex flex-wrap gap-2 justify-end">
+            <a
+              href="/resources/"
+              class="px-4 py-2 bg-[#2841CF] text-white rounded-full hover:bg-black hover:text-white transition-colors"
+              data-astro-reload
+            >
+              {t.resources.allResources}
+            </a>
+            {categories.map((category) => {
+              const categoryName = category[`name_${lang}` as keyof Category] || category.name_en;
+              return (
+                <a
+                  href={`/resources/${category.slug}`}
+                  class="px-4 py-2 bg-[#F6F7FB] text-black rounded-full hover:bg-black hover:text-white transition-colors"
+                  data-astro-reload
+                >
+                  {categoryName}
+                </a>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
 
     {resources.length > 0 ? (
       <>
         <div 
           id="resources-grid" 
           class="grid md:grid-cols-3 gap-6"
-          data-supabase-url={import.meta.env.PUBLIC_SUPABASE_URL}
-          data-supabase-key={import.meta.env.PUBLIC_SUPABASE_ANON_KEY}
-          data-lang={lang}
         >
           {resources.map((resource) => {
             const resourceCategory = resource.category ? categoryMap.get(resource.category) || null : null;
@@ -94,8 +121,28 @@ try {
             );
           })}
         </div>
-        <div id="loading-indicator" class="text-center py-8 hidden">
-          <p class="text-gray-500">Loading more resources...</p>
+        
+        <!-- Pagination -->
+        <div class="mt-8 flex justify-center items-center gap-4">
+          {page > 1 && (
+            <a
+              href={`/resources/?page=${page - 1}`}
+              class="px-4 py-2 bg-[#F6F7FB] text-black rounded-full hover:opacity-80 transition-colors"
+            >
+              ← Previous
+            </a>
+          )}
+          <span class="text-gray-600">
+            Page {page} {totalCount > 0 && `of ${Math.ceil(totalCount / pageSize)}`}
+          </span>
+          {hasMore && (
+            <a
+              href={`/resources/?page=${page + 1}`}
+              class="px-4 py-2 bg-[#2841CF] text-white rounded-full hover:opacity-90 transition-colors"
+            >
+              Next →
+            </a>
+          )}
         </div>
       </>
     ) : (
@@ -104,147 +151,4 @@ try {
   </div>
 </PageLayout>
 
-<script is:inline>
-  (function() {
-    function initInfiniteScroll() {
-      const resourcesGrid = document.getElementById('resources-grid');
-      if (!resourcesGrid) return;
-      
-      const SUPABASE_URL = resourcesGrid.dataset.supabaseUrl;
-      const SUPABASE_ANON_KEY = resourcesGrid.dataset.supabaseKey;
-      const lang = resourcesGrid.dataset.lang || 'en';
-      
-      let currentPage = 1;
-      const pageSize = 18;
-      let isLoading = false;
-      // Check if initial load has less than pageSize items
-      const initialItemsCount = resourcesGrid.querySelectorAll('.card').length;
-      let hasMore = initialItemsCount >= pageSize;
-      let categoryMap = new Map();
-      
-      const loadingIndicator = document.getElementById('loading-indicator');
-    
-    // Get categories once for mapping
-    (async () => {
-      try {
-        const response = await fetch(
-          `${SUPABASE_URL}/rest/v1/categories?type=eq.resource&order=sort_order.asc`,
-          {
-            headers: {
-              'apikey': SUPABASE_ANON_KEY,
-              'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-            }
-          }
-        );
-        const categories = await response.json();
-        if (categories) {
-          categories.forEach((cat) => {
-            categoryMap.set(cat.id, cat);
-            categoryMap.set(cat.slug, cat);
-            categoryMap.set(cat.name_en, cat);
-          });
-        }
-      } catch (error) {
-        console.error('Error loading categories:', error);
-      }
-    })();
-    
-    function escapeHtml(text) {
-      const div = document.createElement('div');
-      div.textContent = text;
-      return div.innerHTML;
-    }
-    
-    async function loadMoreResources() {
-      if (isLoading || !hasMore) return;
-      
-      isLoading = true;
-      if (loadingIndicator) loadingIndicator.classList.remove('hidden');
-      
-      try {
-        const offset = currentPage * pageSize;
-        const response = await fetch(
-          `${SUPABASE_URL}/rest/v1/resources?language=eq.${lang}&is_published=eq.true&order=published_at.desc&limit=${pageSize}&offset=${offset}`,
-          {
-            headers: {
-              'apikey': SUPABASE_ANON_KEY,
-              'Authorization': `Bearer ${SUPABASE_ANON_KEY}`
-            }
-          }
-        );
-        
-        const newResources = await response.json();
-        
-        if (!newResources || newResources.length === 0) {
-          hasMore = false;
-          if (loadingIndicator) loadingIndicator.classList.add('hidden');
-          return;
-        }
-        
-        // Render new resources
-        newResources.forEach((resource) => {
-          const resourceCategory = resource.category ? categoryMap.get(resource.category) || null : null;
-          
-          const cardDiv = document.createElement('div');
-          cardDiv.className = 'card block';
-          cardDiv.setAttribute('data-testid', 'resource-card');
-          
-          let html = '';
-          
-          if (resource.cover_image_url) {
-            html += `<a href="/${escapeHtml(resource.slug)}"><img src="${escapeHtml(resource.cover_image_url)}" alt="${escapeHtml(resource.title)}" class="w-full h-48 object-cover rounded-lg mb-4 transition-opacity hover:opacity-80" loading="lazy" /></a>`;
-          }
-          
-          if (resourceCategory) {
-            const categoryName = resourceCategory['name_' + lang] || resourceCategory.name_en;
-            html += `<a href="/resources/${escapeHtml(resourceCategory.slug)}" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm transition-colors bg-white border border-gray-200 hover:border-[#2841CF] text-black mb-2 block">${escapeHtml(categoryName)}</a>`;
-          }
-          
-          html += `<a href="/${escapeHtml(resource.slug)}" class="block transition-opacity hover:opacity-80">`;
-          html += `<h3 class="text-xl font-bold mb-2">${escapeHtml(resource.title)}</h3>`;
-          if (resource.excerpt) {
-            const excerpt = resource.excerpt.length > 150 ? resource.excerpt.substring(0, 150) + '...' : resource.excerpt;
-            html += `<p class="text-black mb-4">${escapeHtml(excerpt)}</p>`;
-          }
-          html += `</a>`;
-          
-          cardDiv.innerHTML = html;
-          resourcesGrid.appendChild(cardDiv);
-        });
-        
-        currentPage++;
-        if (newResources.length < pageSize) {
-          hasMore = false;
-        }
-      } catch (error) {
-        console.error('Error loading more resources:', error);
-        hasMore = false;
-      } finally {
-        isLoading = false;
-        if (loadingIndicator) loadingIndicator.classList.add('hidden');
-      }
-    }
-    
-      let scrollTimeout;
-      function handleScroll() {
-        // Throttle scroll events
-        if (scrollTimeout) return;
-        scrollTimeout = setTimeout(() => {
-          scrollTimeout = null;
-          if (window.innerHeight + window.scrollY >= document.documentElement.scrollHeight - 500) {
-            loadMoreResources();
-          }
-        }, 200);
-      }
-      
-      window.addEventListener('scroll', handleScroll, { passive: true });
-    }
-    
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', initInfiniteScroll);
-    } else {
-      initInfiniteScroll();
-    }
-  })();
-</script>
 

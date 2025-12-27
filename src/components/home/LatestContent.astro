@@ -1,5 +1,5 @@
 ---
-import { supabase, type Resource, type Program, type Category } from '@lib/supabase';
+import { supabase, type Resource, type Program, type Category, CATEGORY_FULL_FIELDS } from '@lib/supabase';
 import { getTranslations, type Language } from '@lib/i18n';
 import { truncate } from '@lib/utils';
 import ResourceCard from '@components/resources/ResourceCard.astro';
@@ -16,15 +16,14 @@ let resourceCategories: Category[] = [];
 let programCategories: Category[] = [];
 let resourcesByCategory: Map<string, Resource[]> = new Map();
 let programsByCategory: Map<string, Program[]> = new Map();
-let latestPrograms: Program[] = [];
 let resourceCategoryMap: Map<string, Category> = new Map();
 let programCategoryMap: Map<string, Category> = new Map();
 
 try {
-  // Get resource categories
+  // Get resource categories (full fields needed for descriptions)
   const { data: resourceCategoriesData } = await supabase
     .from('categories')
-    .select('*')
+    .select(CATEGORY_FULL_FIELDS)
     .eq('type', 'resource')
     .order('sort_order', { ascending: true });
 
@@ -37,10 +36,10 @@ try {
     resourceCategoryMap.set(cat.name_en, cat);
   });
 
-  // Get program categories
+  // Get program categories (full fields needed for descriptions)
   const { data: programCategoriesData } = await supabase
     .from('categories')
-    .select('*')
+    .select(CATEGORY_FULL_FIELDS)
     .eq('type', 'program')
     .order('sort_order', { ascending: true });
 
@@ -53,63 +52,43 @@ try {
     programCategoryMap.set(cat.name_en, cat);
   });
 
-  // Get all published resources
-  const { data: allResources } = await supabase
-    .from('resources')
-    .select('*')
-    .eq('language', lang)
-    .eq('is_published', true)
-    .order('published_at', { ascending: false });
-
-  if (allResources) {
-    // Group resources by category
-    resourceCategories.forEach((category) => {
-      const categoryResources = allResources.filter((resource) => {
-        if (!resource.category) return false;
-        const resourceCategory = resourceCategoryMap.get(resource.category);
-        if (resourceCategory) {
-          return resourceCategory.id === category.id;
-        }
-        return resource.category === category.id || 
-               resource.category === category.slug || 
-               resource.category === category.name_en;
-      }).slice(0, 6);
-      
-      if (categoryResources.length > 0) {
-        resourcesByCategory.set(category.id, categoryResources);
-      }
-    });
+  // Get resources by category (optimized: separate query per category with selective fields)
+  // Resources.category stores category NAME, so match by category name
+  // Limit 2: Only fetch what we display (desktop: 2, mobile: 1)
+  for (const category of resourceCategories) {
+    const categoryName = category[`name_${lang}` as keyof Category] || category.name_en;
+    const { data: categoryResources } = await supabase
+      .from('resources')
+      .select('id, slug, title, excerpt, cover_image_url, category, published_at')
+      .eq('language', lang)
+      .eq('is_published', true)
+      .eq('category', categoryName)
+      .order('published_at', { ascending: false })
+      .limit(2); // Only fetch what we display
+    
+    if (categoryResources && categoryResources.length > 0) {
+      resourcesByCategory.set(category.id, categoryResources as Resource[]);
+    }
   }
 
-  // Get all published programs
-  const { data: allPrograms } = await supabase
-    .from('programs')
-    .select('*')
-    .eq('language', lang)
-    .eq('is_published', true)
-    .order('published_at', { ascending: false });
-
-  if (allPrograms) {
-    // Group programs by category
-    programCategories.forEach((category) => {
-      const categoryPrograms = allPrograms.filter((program) => {
-        if (!program.category) return false;
-        const programCategory = programCategoryMap.get(program.category);
-        if (programCategory) {
-          return programCategory.id === category.id;
-        }
-        return program.category === category.id || 
-               program.category === category.slug || 
-               program.category === category.name_en;
-      }).slice(0, 6);
-      
-      if (categoryPrograms.length > 0) {
-        programsByCategory.set(category.id, categoryPrograms);
-      }
-    });
+  // Get programs by category (optimized: separate query per category with selective fields)
+  // Programs.category stores category NAME, so match by category name
+  // Limit 2: Only fetch what we display (desktop: 2, mobile: 1)
+  for (const category of programCategories) {
+    const categoryName = category[`name_${lang}` as keyof Category] || category.name_en;
+    const { data: categoryPrograms } = await supabase
+      .from('programs')
+      .select('id, slug, title, excerpt, cover_image_url, category, published_at, goal, duration, audience')
+      .eq('language', lang)
+      .eq('is_published', true)
+      .eq('category', categoryName)
+      .order('published_at', { ascending: false })
+      .limit(2); // Only fetch what we display
+    
+    if (categoryPrograms && categoryPrograms.length > 0) {
+      programsByCategory.set(category.id, categoryPrograms as Program[]);
+    }
   }
-
-  latestPrograms = allPrograms?.slice(0, 5) || [];
 } catch (error) {
   console.error('Error fetching latest content:', error);
 }
@@ -260,8 +239,8 @@ const programFallbackDescriptions: Record<string, Record<Language, string>> = {
             const categoryDescription = (category[`description_${lang}` as keyof Category] || category.description_en) as string | undefined;
             const displayDescription = categoryDescription || fallbackDescriptions[category.id]?.[lang] || '';
             
-            // Get first 2 resources for desktop, 1 for mobile
-            const displayResources = categoryResources.slice(0, 2);
+            // Use all resources (already limited to 2 in query)
+            const displayResources = categoryResources;
             
             // Alternate layout: even index = left-right, odd index = right-left
             const isReversed = index % 2 === 1;
@@ -335,8 +314,8 @@ const programFallbackDescriptions: Record<string, Record<Language, string>> = {
             const categoryDescription = (category[`description_${lang}` as keyof Category] || category.description_en) as string | undefined;
             const displayDescription = categoryDescription || programFallbackDescriptions[category.id]?.[lang] || '';
             
-            // Get first 2 programs for desktop, 1 for mobile
-            const displayPrograms = categoryPrograms.slice(0, 2);
+            // Use all programs (already limited to 2 in query)
+            const displayPrograms = categoryPrograms;
             
             // Alternate layout: even index = left-right, odd index = right-left
             const isReversed = index % 2 === 1;
@@ -352,7 +331,7 @@ const programFallbackDescriptions: Record<string, Record<Language, string>> = {
                     )}
                     <div class="mt-6 flex justify-center md:justify-start">
                       <a
-                        href={`/programs/${category.slug}`}
+                        href={`/programs?category=${category.slug}`}
                         class="inline-flex items-center justify-center px-6 py-3 rounded-full bg-[#2841CF] text-white font-bold transition-colors hover:bg-black hover:text-white"
                         style="font-family: 'Bricolage Grotesque', sans-serif;"
                       >
