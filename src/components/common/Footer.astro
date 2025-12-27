@@ -118,7 +118,7 @@ try {
         padding-right: 2rem;
       }
       .footer-grid-custom {
-        grid-template-columns: minmax(0, 16%) minmax(0, 21%) minmax(0, 21%) minmax(0, 21%) minmax(0, 21%) !important;
+        grid-template-columns: minmax(0, 16%) minmax(0, 16.8%) minmax(0, 16.8%) minmax(0, 16.8%) minmax(0, 16.8%) minmax(0, 16.8%) !important;
         gap: 4rem !important;
       }
     }
@@ -142,7 +142,7 @@ try {
     }
   </style>
   <div class="footer-container py-12">
-    <div class="footer-grid-custom grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 md:gap-12 lg:gap-16">
+    <div class="footer-grid-custom grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8 md:gap-12 lg:gap-16">
       <!-- About (16%) -->
       <div class="md:col-span-2 lg:col-span-1 text-center md:text-left">
         <div class="mb-4 flex justify-center md:justify-start">
@@ -170,7 +170,7 @@ try {
         </div>
       </div>
 
-      <!-- Latest Programs (21%) -->
+      <!-- Latest Programs (21%) - Moved above Latest Resources -->
       <div class="min-w-0 text-center md:text-left">
         <h4 class="text-white font-semibold mb-4 text-sm">{t.home.latestPrograms}</h4>
         <ul class="space-y-4 text-sm">
@@ -191,7 +191,7 @@ try {
         </ul>
       </div>
 
-      <!-- Latest Resources (21%) -->
+      <!-- Latest Resources (21%) - Original position -->
       <div class="min-w-0 text-center md:text-left">
         <h4 class="text-white font-semibold mb-4 text-sm">{t.home.latestResources}</h4>
         <ul class="space-y-4 text-sm">
@@ -212,7 +212,7 @@ try {
         </ul>
       </div>
 
-      <!-- Resource Categories (21%) -->
+      <!-- Resource Categories (21%) - Original position -->
       <div class="min-w-0 text-center md:text-left">
         <h4 class="text-white font-semibold mb-4 text-sm">Resource Categories</h4>
         <ul class="space-y-4 text-sm">
@@ -236,7 +236,7 @@ try {
         </ul>
       </div>
 
-      <!-- Program Categories (21%) -->
+      <!-- Program Categories (21%) - Original position -->
       <div class="min-w-0 text-center md:text-left">
         <h4 class="text-white font-semibold mb-4 text-sm">Program Categories</h4>
         <ul class="space-y-4 text-sm">
@@ -260,7 +260,7 @@ try {
         </ul>
       </div>
 
-      <!-- Programs by Audience (21%) -->
+      <!-- Programs by Audience (21%) - Replaces Latest Programs' old position (rightmost) -->
       <div class="min-w-0 text-center md:text-left">
         <h4 class="text-white font-semibold mb-4 text-sm">Programs by Audience</h4>
         <ul class="space-y-4 text-sm">
