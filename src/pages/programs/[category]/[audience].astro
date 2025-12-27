@@ -155,16 +155,42 @@ if (!isAllCategories && categorySlug && !selectedCategory) {
 if (!isAllAudiences && audienceSlug && !selectedAudience) {
   return new Response(null, { status: 404 });
 }
+
+// Build dynamic title and description for SEO
+let pageTitle = t.programs.title;
+let pageDescription = t.programs.description;
+
+if (!isAllCategories && selectedCategory && !isAllAudiences && selectedAudience) {
+  // Both category and audience selected: "Networking Program for Community Members"
+  const categoryName = selectedCategory[`name_${lang}` as keyof Category] || selectedCategory.name_en;
+  pageTitle = `${categoryName} for ${selectedAudience}`;
+  pageDescription = `Discover ${categoryName.toLowerCase()} programs designed for ${selectedAudience.toLowerCase()}. Explore comprehensive solutions to transform your organization.`;
+} else if (!isAllCategories && selectedCategory) {
+  // Only category selected: "Networking Programs"
+  const categoryName = selectedCategory[`name_${lang}` as keyof Category] || selectedCategory.name_en;
+  // Check if category name already ends with "Program" or "Programs"
+  const categoryNameLower = categoryName.toLowerCase();
+  if (categoryNameLower.includes('program')) {
+    pageTitle = categoryName;
+  } else {
+    pageTitle = `${categoryName} Programs`;
+  }
+  pageDescription = `Discover ${categoryName.toLowerCase()} programs designed to transform your organization. Explore comprehensive solutions and strategies.`;
+} else if (!isAllAudiences && selectedAudience) {
+  // Only audience selected: "Programs For Community Members"
+  pageTitle = `Programs For ${selectedAudience}`;
+  pageDescription = `Discover programs designed for ${selectedAudience.toLowerCase()}. Explore comprehensive solutions to transform your organization.`;
+}
 ---
 <PageLayout
-  title={t.programs.title}
-  description={t.programs.description}
+  title={pageTitle}
+  description={pageDescription}
   lang={lang}
 >
   <div class="container py-12">
     <div class="mb-8">
-      <h1 class="text-4xl font-bold mb-4">{t.programs.title}</h1>
-      <p class="text-xl text-black">{t.programs.description}</p>
+      <h1 class="text-4xl font-bold mb-4">{pageTitle}</h1>
+      <p class="text-xl text-black">{pageDescription}</p>
     </div>
 
     <!-- Filters Section -->

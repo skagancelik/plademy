@@ -2021,6 +2021,7 @@ Detaylı performans ve güvenlik test raporu için `PERFORMANCE_SECURITY_REPORT.
 **Etkilenen Dosyalar:**
 - `src/pages/resources/index.astro` - Dropdown filtre, "Filter by Categories" placeholder
 - `src/pages/resources/[category]/index.astro` - Dropdown filtre, "See All" seçeneği
+- `src/components/resources/ResourceCard.astro` - Category badge genişlik düzeltmesi (`block` class kaldırıldı, `inline-flex` korundu)
 - `src/i18n/en.json`, `src/i18n/fi.json`, `src/i18n/sv.json` - Yeni çeviriler eklendi
 
 ### Header Navigation & Button Styling Updates (Aralık 2025)
@@ -2069,4 +2070,31 @@ Detaylı performans ve güvenlik test raporu için `PERFORMANCE_SECURITY_REPORT.
 **Etkilenen Dosyalar:**
 - `src/components/common/Footer.astro` - Copyright metni, grid gap, list spacing
 
-*Son güncelleme: 27 Aralık 2025, 15:20*
+### Programs Page Dynamic SEO Titles & Descriptions (Aralık 2025)
+
+**Değişiklikler:**
+1. **Dinamik Başlık ve Description:**
+   - Category ve audience seçiliyse: "{Category} for {Audience}" (örn: "Networking Program for Community Members")
+   - Sadece category seçiliyse: "{Category}" veya "{Category} Programs" (category name'e göre)
+   - Sadece audience seçiliyse: "Programs For {Audience}" (örn: "Programs For Community Members")
+   - İkisi de seçili değilse: "Programs" (default)
+
+2. **SEO Meta Tags:**
+   - PageLayout'a dinamik `title` ve `description` geçiliyor
+   - Meta tag'ler otomatik olarak güncelleniyor (SEO component üzerinden)
+   - Her filtre kombinasyonu için özel başlık ve açıklama
+
+3. **Sayfa İçeriği:**
+   - H1 başlığı dinamik olarak güncelleniyor
+   - Description paragrafı dinamik olarak güncelleniyor
+   - Hem sayfa içeriği hem meta tag'ler tutarlı
+
+**SEO İyileştirmeleri:**
+- ✅ Her filtre kombinasyonu için özel başlık ve açıklama
+- ✅ Daha iyi SEO performansı (arama motorları için daha açıklayıcı)
+- ✅ Kullanıcı deneyimi iyileştirmesi (sayfa başlığı filtreyi yansıtıyor)
+
+**Etkilenen Dosyalar:**
+- `src/pages/programs/[category]/[audience].astro` - Dinamik başlık ve description logic'i eklendi
+
+*Son güncelleme: 27 Aralık 2025, 15:30*
