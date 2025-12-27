@@ -1,6 +1,7 @@
 ---
 import { supabase, type Category, type Program, type Resource } from '@lib/supabase';
 import { getTranslations, type Language } from '@lib/i18n';
+import { slugify } from '@lib/utils';
 
 interface Props {
   lang: Language;
@@ -14,6 +15,7 @@ let resourceCategories: Category[] = [];
 let programCategories: Category[] = [];
 let latestResources: Resource[] = [];
 let latestPrograms: Program[] = [];
+let uniqueAudiences: string[] = [];
 
 try {
   const { data: resourceCategoriesData, error: resourceCategoriesError } = await supabase
@@ -68,6 +70,25 @@ try {
     console.error('Error fetching footer programs:', programsError);
   } else {
     latestPrograms = programs || [];
+  }
+
+  // Fetch unique audiences from programs
+  const { data: allProgramsForAudiences, error: audiencesError } = await supabase
+    .from('programs')
+    .select('audience')
+    .eq('language', lang)
+    .eq('is_published', true);
+
+  if (audiencesError) {
+    console.error('Error fetching footer audiences:', audiencesError);
+  } else {
+    const audiences = new Set<string>();
+    allProgramsForAudiences?.forEach((program) => {
+      if (program.audience && program.audience.trim()) {
+        audiences.add(program.audience.trim());
+      }
+    });
+    uniqueAudiences = Array.from(audiences).sort();
   }
 } catch (error) {
   console.error('Error fetching footer content:', error);
@@ -149,6 +170,27 @@ try {
         </div>
       </div>
 
+      <!-- Latest Programs (21%) -->
+      <div class="min-w-0 text-center md:text-left">
+        <h4 class="text-white font-semibold mb-4 text-sm">{t.home.latestPrograms}</h4>
+        <ul class="space-y-4 text-sm">
+          {latestPrograms.length > 0 ? (
+            latestPrograms.map((program) => (
+              <li>
+                <a
+                  href={`/programs/${program.slug}`}
+                  class="text-white/80 hover:text-white transition-colors break-words"
+                >
+                  {program.title}
+                </a>
+              </li>
+            ))
+          ) : (
+            <li class="text-white/70">{t.programs.noPrograms}</li>
+          )}
+        </ul>
+      </div>
+
       <!-- Latest Resources (21%) -->
       <div class="min-w-0 text-center md:text-left">
         <h4 class="text-white font-semibold mb-4 text-sm">{t.home.latestResources}</h4>
@@ -218,23 +260,26 @@ try {
         </ul>
       </div>
 
-      <!-- Latest Programs (21%) -->
+      <!-- Programs by Audience (21%) -->
       <div class="min-w-0 text-center md:text-left">
-        <h4 class="text-white font-semibold mb-4 text-sm">{t.home.latestPrograms}</h4>
+        <h4 class="text-white font-semibold mb-4 text-sm">Programs by Audience</h4>
         <ul class="space-y-4 text-sm">
-          {latestPrograms.length > 0 ? (
-            latestPrograms.map((program) => (
-              <li>
-                <a
-                  href={`/programs/${program.slug}`}
-                  class="text-white/80 hover:text-white transition-colors break-words"
-                >
-                  {program.title}
-                </a>
-              </li>
-            ))
+          {uniqueAudiences.length > 0 ? (
+            uniqueAudiences.map((audience) => {
+              const audienceSlug = slugify(audience);
+              return (
+                <li>
+                  <a
+                    href={`/programs/all-categories/${audienceSlug}`}
+                    class="text-white/80 hover:text-white transition-colors break-words"
+                  >
+                    {audience}
+                  </a>
+                </li>
+              );
+            })
           ) : (
-            <li class="text-white/70">{t.programs.noPrograms}</li>
+            <li class="text-white/70">No audiences found.</li>
           )}
         </ul>
       </div>

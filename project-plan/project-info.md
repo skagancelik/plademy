@@ -2097,4 +2097,29 @@ Detaylı performans ve güvenlik test raporu için `PERFORMANCE_SECURITY_REPORT.
 **Etkilenen Dosyalar:**
 - `src/pages/programs/[category]/[audience].astro` - Dinamik başlık ve description logic'i eklendi
 
-*Son güncelleme: 27 Aralık 2025, 15:30*
+### Footer Layout Reorganization (Aralık 2025)
+
+**Değişiklikler:**
+1. **Sıralama Değişikliği:**
+   - Latest Programs listesi Latest Resources'ın üstüne taşındı
+   - Yeni sıralama: About, Latest Programs, Latest Resources, Resource Categories, Program Categories, Programs by Audience
+
+2. **Programs by Audience Bölümü:**
+   - En sağa yeni "Programs by Audience" bölümü eklendi
+   - Tüm unique audience'lar Supabase'den çekiliyor
+   - Her audience için `/programs/all-categories/[audience-slug]` formatında link oluşturuluyor
+   - Audience'lar alfabetik olarak sıralanıyor
+
+3. **Data Fetching:**
+   - Footer'da unique audiences'ları çekmek için yeni query eklendi
+   - `slugify` utility function import edildi
+
+**UX İyileştirmeleri:**
+- ✅ Latest Programs daha üstte (daha görünür)
+- ✅ Programs by Audience ile kullanıcılar audience'a göre filtreleyebiliyor
+- ✅ Footer'da daha fazla navigasyon seçeneği
+
+**Etkilenen Dosyalar:**
+- `src/components/common/Footer.astro` - Sıralama değişikliği, Programs by Audience bölümü eklendi
+
+*Son güncelleme: 27 Aralık 2025, 15:36*
