@@ -68,7 +68,7 @@ const splitTitleIntoLines = (title: string): string[] => {
   {category && !hideCategory && (
     <a
       href={`/resources/${category.slug}`}
-      class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm transition-colors bg-white border border-gray-200 hover:border-[#2841CF] text-black mb-2 block flex-shrink-0"
+      class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-sm transition-colors bg-white border border-gray-200 hover:border-[#2841CF] text-black mb-2 flex-shrink-0"
     >
       {category[`name_${lang}` as keyof Category] || category.name_en}
     </a>

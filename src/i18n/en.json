@@ -77,6 +77,8 @@
     "readMore": "Read More",
     "seeMore": "See More {category} Articles",
     "relatedArticles": "You might be interested in {category} articles",
+    "filterByCategories": "Filter by Categories",
+    "seeAll": "See All",
     "categoryDescriptions": {
       "mentoring-coaching": "Explore insights, guides, and tools to enhance your mentoring and coaching programs. Discover best practices, strategies, and resources to build effective mentorship relationships and drive professional growth.",
       "career-talent": "Explore insights, guides, and tools to enhance your career and talent management programs. Discover strategies for career development, talent retention, and building high-performing teams.",

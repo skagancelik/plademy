@@ -375,18 +375,28 @@ Resources ile benzer, ama ekstra alanlar:
 
 ### Filter UI (Aralık 2025)
 
+**URL Yapısı:**
+- Path-based routing: `/programs/[category-slug]/[audience-slug]`
+- "All" durumları: `/programs/all-categories/all-audiences`
+- Goal search: Query parameter olarak (`?goal=...`)
+- Örnek: `/programs/mentoring-program/employees?goal=partnership`
+
 **Dropdown Filtreler:**
 - Category ve Audience filtreleri dropdown olarak tasarlandı
 - Tam yuvarlak tasarım (`rounded-full`)
 - Dropdown ok işareti kenardan 1rem mesafede
 - Clear (X) butonları: Filtre seçildiğinde görünür, tıklanınca "All" seçeneğine geçer
 - Dropdown ok işareti clear butonu göründüğünde gizlenir
+- Goal search için de clear butonu eklendi
 
 **Server-side Filtering:**
-- URL query params ile filtreleme (`?category=...&audience=...&goal=...`)
+- Path-based routing ile filtreleme (`/programs/[category]/[audience]`)
+- Goal search query parameter ile (`?goal=...`)
 - Filtre değiştiğinde sayfa yenileniyor (ekonomik)
 - Sadece filtrelenmiş programlar çekiliyor
 - Pagination: 18 program per page, "Load More" butonu
+
+**Not:** Detaylı bilgi için "Programs Page URL Structure Refactoring" bölümüne bakın (satır 1881+).
 
 ---
 
@@ -1004,9 +1014,10 @@ export function getLanguageFromCookie(
    - Minimal data transfer
 
 5. **Server-side Filtering (`/programs`):**
-   - URL query params (`?category=...&audience=...&goal=...`) ile database'de filtreleme
-   - Client-side filtering hala çalışıyor ama URL sync ile
+   - Path-based routing (`/programs/[category]/[audience]`) ile database'de filtreleme
+   - Goal search query parameter ile (`?goal=...`)
    - **Kazanım:** Filtre uygulandığında %50-90 veri transferi azalması
+   - **Not:** URL yapısı refactoring sonrası path-based routing kullanılıyor. Detaylar için "Programs Page URL Structure Refactoring" bölümüne bakın (satır 1881+).
 
 6. **Helper Functions:**
    - `getResourceBySlug()`, `getProgramBySlug()`
@@ -1145,9 +1156,12 @@ export function getLanguageFromCookie(
 
 - **Server-side Filtering:**
   - Dropdown değişikliklerinde sayfa yenileniyor (server-side filtering)
-  - URL query params ile filtreleme (`?category=...&audience=...&goal=...`)
+  - Path-based routing ile filtreleme (`/programs/[category]/[audience]`)
+  - Goal search query parameter ile (`?goal=...`)
   - Filtre değiştiğinde pagination reset ediliyor (page 1)
   - Sadece filtrelenmiş programlar çekiliyor (ekonomik)
+  
+  **Not:** URL yapısı refactoring sonrası path-based routing kullanılıyor. Detaylar için "Programs Page URL Structure Refactoring" bölümüne bakın (satır 1881+).
 
 - **Pagination:**
   - İlk yüklemede 18 program gösteriliyor
@@ -1341,9 +1355,10 @@ Detaylı performans ve güvenlik test raporu için `PERFORMANCE_SECURITY_REPORT.
    - Minimal data transfer
 
 5. **Server-side Filtering (`/programs`):**
-   - URL query params (`?category=...&audience=...&goal=...`) ile database'de filtreleme
-   - Client-side filtering hala çalışıyor ama URL sync ile
+   - Path-based routing (`/programs/[category]/[audience]`) ile database'de filtreleme
+   - Goal search query parameter ile (`?goal=...`)
    - **Kazanım:** Filtre uygulandığında %50-90 veri transferi azalması
+   - **Not:** URL yapısı refactoring sonrası path-based routing kullanılıyor. Detaylar için "Programs Page URL Structure Refactoring" bölümüne bakın (satır 1881+).
 
 6. **Helper Functions:**
    - `getResourceBySlug()`, `getProgramBySlug()`
@@ -1473,7 +1488,7 @@ Detaylı performans ve güvenlik test raporu için `PERFORMANCE_SECURITY_REPORT.
 6. ✅ **Kategori Sayfaları:** Category name matching, selective fields, pagination
 7. ✅ **İçerik Sayfaları:** Related content selective fields, category name matching
 8. ✅ **Arama:** Client-side Fuse.js, selective fields ile optimize (search için normal)
-9. ✅ **Filtre Özellikleri:** Server-side filtering (`/programs`), URL sync
+9. ✅ **Filtre Özellikleri:** Server-side filtering (`/programs`), path-based routing (`/programs/[category]/[audience]`)
 
 **Bulunan ve Düzeltilen Sorunlar:**
 
@@ -1518,7 +1533,7 @@ Detaylı performans ve güvenlik test raporu için `PERFORMANCE_SECURITY_REPORT.
 ✅ **Category Filtering:**
 - Category name matching: `category.name_en` (veya localized name)
 - Resources ve Programs için tutarlı kullanım
-- Server-side filtering (`/programs` sayfası)
+- Server-side filtering (`/programs` sayfası), path-based routing (`/programs/[category]/[audience]`)
 
 ✅ **Related Content:**
 - Selective fields kullanılıyor
@@ -1612,9 +1627,12 @@ Detaylı performans ve güvenlik test raporu için `PERFORMANCE_SECURITY_REPORT.
 
 3. **Server-side Filtering:**
    - Dropdown değişikliklerinde sayfa yenileniyor (server-side filtering)
-   - URL query params ile filtreleme (`?category=...&audience=...&goal=...`)
+   - Path-based routing ile filtreleme (`/programs/[category]/[audience]`)
+   - Goal search query parameter ile (`?goal=...`)
    - Filtre değiştiğinde pagination reset ediliyor (page 1)
    - Sadece filtrelenmiş programlar çekiliyor (ekonomik)
+   
+   **Not:** URL yapısı refactoring sonrası path-based routing kullanılıyor. Detaylar için "Programs Page URL Structure Refactoring" bölümüne bakın (satır 1881+).
 
 4. **Pagination:**
    - İlk yüklemede 18 program gösteriliyor
@@ -1977,4 +1995,78 @@ Detaylı performans ve güvenlik test raporu için `PERFORMANCE_SECURITY_REPORT.
 - ✅ Eski URL'ler yeni format'a yönlendiriliyor (301 redirect)
 - ✅ Browser testleri başarılı
 
-*Son güncelleme: Aralık 2025*
+### Resources Page Filter UI Redesign (Aralık 2025)
+
+**Değişiklikler:**
+1. **Dropdown Filtreler:**
+   - Resources sayfasında kategori butonları dropdown'a dönüştürüldü
+   - Ana sayfada (`/resources`): "Filter by Categories" placeholder ile dropdown
+   - Kategori sayfalarında (`/resources/[category]`): "See All" seçeneği ile dropdown
+   - Tam yuvarlak tasarım (`rounded-full`)
+   - Dropdown ok işareti kenardan 1rem mesafede konumlandırıldı
+
+2. **i18n Çevirileri:**
+   - `filterByCategories`: "Filter by Categories" (EN), "Suodata kategorioiden mukaan" (FI), "Filtrera efter kategorier" (SV)
+   - `seeAll`: "See All" (EN), "Näytä kaikki" (FI), "Se alla" (SV)
+
+3. **JavaScript Navigation:**
+   - Dropdown değişikliklerinde sayfa yenileniyor (server-side filtering)
+   - Full page reload ile kategori sayfasına yönlendiriyor
+
+**UX İyileştirmeleri:**
+- ✅ Dropdown'lar daha temiz ve modern görünüm
+- ✅ "See All" seçeneği ile kolay kategori değiştirme
+- ✅ Programs sayfasıyla tutarlı tasarım
+
+**Etkilenen Dosyalar:**
+- `src/pages/resources/index.astro` - Dropdown filtre, "Filter by Categories" placeholder
+- `src/pages/resources/[category]/index.astro` - Dropdown filtre, "See All" seçeneği
+- `src/i18n/en.json`, `src/i18n/fi.json`, `src/i18n/sv.json` - Yeni çeviriler eklendi
+
+### Header Navigation & Button Styling Updates (Aralık 2025)
+
+**Değişiklikler:**
+1. **Navigation Link Hover Colors:**
+   - Hero'da (scroll yokken): Navigation linklerinde hover durumunda %60 beyaz opacity (`hover:text-white/60`)
+   - Scroll sonrası: Navigation linklerinde hover durumunda mavi (`hover:text-primary`)
+   - JavaScript ile scroll durumunda hover class'ları dinamik olarak ekleniyor
+
+2. **Start Button Styling:**
+   - Hero'da (scroll yokken): Beyaz arka plan, mavi yazı (`bg-white text-[#2841CF]`), hover'da mavi arka plan (`hover:bg-[#2841CF] hover:text-white`)
+   - Scroll sonrası: Siyah arka plan, beyaz yazı (`bg-black text-white`), hover'da mavi arka plan (`hover:bg-[#2841CF] hover:text-white`)
+   - CSS ve JavaScript ile dinamik stil yönetimi
+
+**UX İyileştirmeleri:**
+- ✅ Hero'da navigation linkleri hover'da daha yumuşak görünüm (%60 opacity)
+- ✅ Scroll sonrası navigation linkleri hover'da mavi (daha belirgin)
+- ✅ Start butonu hero'da beyaz, scroll'da siyah (daha kontrastlı)
+- ✅ Hover durumlarında mavi vurgu (tutarlı tasarım)
+
+**Etkilenen Dosyalar:**
+- `src/components/common/Header.astro` - Navigation link hover class'ları, Start butonu stilleri, JavaScript logic
+- `src/styles/global.css` - Start butonu CSS kuralları
+
+### Footer Layout & Spacing Updates (Aralık 2025)
+
+**Değişiklikler:**
+1. **Copyright Text:**
+   - "Plademy Oy" ve "© All Rights Reserved" ayrı satırlara alındı
+   - Copyright simgesi (`&copy;`) `text-base` class'ı ile normal boyutta gösteriliyor
+
+2. **Grid Spacing:**
+   - Grid gap değerleri artırıldı: `gap-8 md:gap-12 lg:gap-16` (mobil: 32px, tablet: 48px, desktop: 64px)
+   - CSS'te desktop gap `4rem` (64px) olarak ayarlandı
+
+3. **List Item Spacing:**
+   - Tüm footer listelerinde satır araları artırıldı: `space-y-2` → `space-y-4` (8px → 16px)
+   - Etkilenen listeler: Latest Resources, Resource Categories, Program Categories, Latest Programs
+
+**UX İyileştirmeleri:**
+- ✅ Copyright metni daha okunabilir (ayrı satırlar)
+- ✅ Footer listeler arası daha fazla boşluk (daha temiz görünüm)
+- ✅ List item'lar arası daha fazla boşluk (daha okunabilir)
+
+**Etkilenen Dosyalar:**
+- `src/components/common/Footer.astro` - Copyright metni, grid gap, list spacing
+
+*Son güncelleme: 27 Aralık 2025, 15:20*

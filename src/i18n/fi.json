@@ -77,6 +77,8 @@
     "readMore": "Lue lisää",
     "seeMore": "Katso lisää {category} artikkeleita",
     "relatedArticles": "Saatat olla kiinnostunut {category} artikkeleista",
+    "filterByCategories": "Suodata kategorioiden mukaan",
+    "seeAll": "Näytä kaikki",
     "categoryDescriptions": {
       "mentoring-coaching": "Tutustu näkemyksiin, oppaisiin ja työkaluihin, jotka parantavat mentorointi- ja valmennusohjelmiasi. Löydä parhaat käytännöt, strategiat ja resurssit tehokkaiden mentorointisuhteiden rakentamiseen ja ammatilliseen kasvuun.",
       "career-talent": "Tutustu näkemyksiin, oppaisiin ja työkaluihin, jotka parantavat ura- ja talentinhallintaohjelmiasi. Löydä strategioita uran kehittämiseen, talenttien säilyttämiseen ja korkean suorituskyvyn tiimien rakentamiseen.",

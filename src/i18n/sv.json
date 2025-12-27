@@ -77,6 +77,8 @@
     "readMore": "Läs mer",
     "seeMore": "Se mer {category} artiklar",
     "relatedArticles": "Du kanske är intresserad av {category} artiklar",
+    "filterByCategories": "Filtrera efter kategorier",
+    "seeAll": "Se alla",
     "categoryDescriptions": {
       "mentoring-coaching": "Utforska insikter, guider och verktyg för att förbättra dina mentor- och coachningsprogram. Upptäck bästa praxis, strategier och resurser för att bygga effektiva mentorrelationer och driva professionell utveckling.",
       "career-talent": "Utforska insikter, guider och verktyg för att förbättra dina karriär- och talenthanteringsprogram. Upptäck strategier för karriärutveckling, talentrekrytering och byggande av högpresterande team.",

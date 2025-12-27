@@ -98,7 +98,7 @@ try {
       }
       .footer-grid-custom {
         grid-template-columns: minmax(0, 16%) minmax(0, 21%) minmax(0, 21%) minmax(0, 21%) minmax(0, 21%) !important;
-        gap: 1.5rem !important;
+        gap: 4rem !important;
       }
     }
     .footer-grid-custom {
@@ -121,7 +121,7 @@ try {
     }
   </style>
   <div class="footer-container py-12">
-    <div class="footer-grid-custom grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 md:gap-6 lg:gap-6">
+    <div class="footer-grid-custom grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 md:gap-12 lg:gap-16">
       <!-- About (16%) -->
       <div class="md:col-span-2 lg:col-span-1 text-center md:text-left">
         <div class="mb-4 flex justify-center md:justify-start">
@@ -132,7 +132,8 @@ try {
           <p class="mb-2">Maria 01, Lapinlahdenkatu 16, 00180 Helsinki, Finland</p>
           <p class="mb-2">Business-ID: 3386328-3</p>
           <p class="mb-2">VAT NO: FI33863283</p>
-          <p class="mb-4">Plademy Oy © All Rights Reserved</p>
+          <p class="mb-2">Plademy Oy</p>
+          <p class="mb-4"><span class="text-base">&copy;</span> All Rights Reserved</p>
           <ul class="space-y-2">
             <li>
               <a href="/privacy" class="text-white/80 hover:text-white transition-colors">
@@ -151,7 +152,7 @@ try {
       <!-- Latest Resources (21%) -->
       <div class="min-w-0 text-center md:text-left">
         <h4 class="text-white font-semibold mb-4 text-sm">{t.home.latestResources}</h4>
-        <ul class="space-y-2 text-sm">
+        <ul class="space-y-4 text-sm">
           {latestResources.length > 0 ? (
             latestResources.map((resource) => (
               <li>
@@ -172,7 +173,7 @@ try {
       <!-- Resource Categories (21%) -->
       <div class="min-w-0 text-center md:text-left">
         <h4 class="text-white font-semibold mb-4 text-sm">Resource Categories</h4>
-        <ul class="space-y-2 text-sm">
+        <ul class="space-y-4 text-sm">
           {resourceCategories.length > 0 ? (
             resourceCategories.map((category) => {
               const categoryName = category[`name_${lang}` as keyof Category] || category.name_en;
@@ -196,7 +197,7 @@ try {
       <!-- Program Categories (21%) -->
       <div class="min-w-0 text-center md:text-left">
         <h4 class="text-white font-semibold mb-4 text-sm">Program Categories</h4>
-        <ul class="space-y-2 text-sm">
+        <ul class="space-y-4 text-sm">
           {programCategories.length > 0 ? (
             programCategories.map((category) => {
               const categoryName = category[`name_${lang}` as keyof Category] || category.name_en;
@@ -220,7 +221,7 @@ try {
       <!-- Latest Programs (21%) -->
       <div class="min-w-0 text-center md:text-left">
         <h4 class="text-white font-semibold mb-4 text-sm">{t.home.latestPrograms}</h4>
-        <ul class="space-y-2 text-sm">
+        <ul class="space-y-4 text-sm">
           {latestPrograms.length > 0 ? (
             latestPrograms.map((program) => (
               <li>

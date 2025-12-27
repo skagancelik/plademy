@@ -29,10 +29,10 @@ const isHomepage = currentPath === '/' || currentPath === '';
               <li>
                 <a
                   href={getLocalizedPath('/programs', lang)}
-                  class={`hover:text-primary transition-colors ${
+                  class={`transition-colors ${
                     currentPath.startsWith('/programs') || currentPath.startsWith('/ohjelmat') || currentPath.startsWith('/program')
                       ? 'text-primary font-semibold'
-                      : isHomepage ? 'text-white' : 'text-black'
+                      : isHomepage ? 'text-white hover:text-white/60' : 'text-black hover:text-primary'
                   }`}
                 >
                   {t.nav.programs}
@@ -41,10 +41,10 @@ const isHomepage = currentPath === '/' || currentPath === '';
               <li>
                 <a
                   href={getLocalizedPath('/solutions', lang)}
-                  class={`hover:text-primary transition-colors ${
+                  class={`transition-colors ${
                     currentPath.startsWith('/solutions')
                       ? 'text-primary font-semibold'
-                      : isHomepage ? 'text-white' : 'text-black'
+                      : isHomepage ? 'text-white hover:text-white/60' : 'text-black hover:text-primary'
                   }`}
                 >
                   {t.nav.solutions}
@@ -53,10 +53,10 @@ const isHomepage = currentPath === '/' || currentPath === '';
               <li>
                 <a
                   href={getLocalizedPath('/resources', lang)}
-                  class={`hover:text-primary transition-colors ${
+                  class={`transition-colors ${
                     currentPath.startsWith('/resources') || currentPath.startsWith('/resurssit') || currentPath.startsWith('/resurser')
                       ? 'text-primary font-semibold'
-                      : isHomepage ? 'text-white' : 'text-black'
+                      : isHomepage ? 'text-white hover:text-white/60' : 'text-black hover:text-primary'
                   }`}
                 >
                   {t.nav.resources}
@@ -65,10 +65,10 @@ const isHomepage = currentPath === '/' || currentPath === '';
               <li>
                 <a
                   href={getLocalizedPath('/integrations', lang)}
-                  class={`hover:text-primary transition-colors ${
+                  class={`transition-colors ${
                     currentPath.startsWith('/integrations') || currentPath.startsWith('/integraatiot') || currentPath.startsWith('/integrationer')
                       ? 'text-primary font-semibold'
-                      : isHomepage ? 'text-white' : 'text-black'
+                      : isHomepage ? 'text-white hover:text-white/60' : 'text-black hover:text-primary'
                   }`}
                 >
                   {t.nav.integrations}
@@ -77,10 +77,10 @@ const isHomepage = currentPath === '/' || currentPath === '';
               <li>
                 <a
                   href={getLocalizedPath('/contact', lang)}
-                  class={`hover:text-primary transition-colors ${
+                  class={`transition-colors ${
                     currentPath.startsWith('/contact') || currentPath.startsWith('/yhteystiedot') || currentPath.startsWith('/kontakt')
                       ? 'text-primary font-semibold'
-                      : isHomepage ? 'text-white' : 'text-black'
+                      : isHomepage ? 'text-white hover:text-white/60' : 'text-black hover:text-primary'
                   }`}
                 >
                   {t.nav.contact}
@@ -93,8 +93,8 @@ const isHomepage = currentPath === '/' || currentPath === '';
           <a
             href={getLocalizedPath('/start', lang)}
             id="header-start-btn"
-            class={`btn transition-colors ${isHomepage ? 'bg-white text-[#2841CF] hover:bg-black hover:text-white' : 'btn-primary'}`}
-            style={isHomepage ? 'background-color: white !important; color: #2841CF !important; border: none !important;' : ''}
+            class={`btn transition-colors ${isHomepage ? 'bg-white text-[#2841CF] hover:bg-[#2841CF] hover:text-white' : 'bg-black text-white hover:bg-[#2841CF] hover:text-white'}`}
+            style={isHomepage ? 'background-color: white !important; color: #2841CF !important; border: none !important;' : 'background-color: black !important; color: white !important; border: none !important;'}
           >
             {t.nav.start}
           </a>
@@ -153,7 +153,7 @@ const isHomepage = currentPath === '/' || currentPath === '';
               }
             });
             
-            // White text for start button - keep btn-primary but override colors
+            // White background for start button in hero
             if (startBtn) {
               startBtn.style.setProperty('background-color', 'white', 'important');
               startBtn.style.setProperty('color', '#2841CF', 'important');
@@ -180,24 +180,19 @@ const isHomepage = currentPath === '/' || currentPath === '';
             // Black logo
             logo.src = '/plademy-black-logo.svg';
             
-            // Black text for nav links
+            // Black text for nav links with blue hover
             navLinks.forEach(link => {
               if (!link.classList.contains('text-primary')) {
-                link.classList.remove('text-white');
-                link.classList.add('text-black');
+                link.classList.remove('text-white', 'hover:text-white/60');
+                link.classList.add('text-black', 'hover:text-primary');
               }
             });
             
-            // Normal start button - remove all inline styles and update classes
+            // Black background for start button when scrolled
             if (startBtn) {
-              // Remove all inline styles
-              startBtn.removeAttribute('style');
-              // Remove white background classes
-              startBtn.classList.remove('bg-white', 'text-[#2841CF]');
-              // Ensure btn-primary is present
-              if (!startBtn.classList.contains('btn-primary')) {
-                startBtn.classList.add('btn-primary');
-              }
+              startBtn.style.setProperty('background-color', 'black', 'important');
+              startBtn.style.setProperty('color', 'white', 'important');
+              startBtn.style.setProperty('border', 'none', 'important');
             }
             
             // Normal language switcher

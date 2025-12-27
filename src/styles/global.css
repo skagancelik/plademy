@@ -61,30 +61,26 @@
   }
 
   /* Homepage header start button - white background (only when not scrolled) */
-  #header-start-btn[style*="background-color: white"],
   #main-header[data-homepage="true"]:not(.scrolled) #header-start-btn {
     background-color: white !important;
     color: #2841CF !important;
     border: none !important;
   }
 
-  #header-start-btn[style*="background-color: white"]:hover,
   #main-header[data-homepage="true"]:not(.scrolled) #header-start-btn:hover {
-    background-color: black !important;
+    background-color: #2841CF !important;
     color: white !important;
   }
 
-  /* Scrolled header - normal btn-primary styling (override everything) */
-  #main-header.scrolled #header-start-btn,
-  #main-header.scrolled #header-start-btn.bg-white,
-  #main-header.scrolled #header-start-btn.text-\[#2841CF\] {
-    background-color: #2841CF !important;
+  /* Scrolled header - black background */
+  #main-header.scrolled #header-start-btn {
+    background-color: black !important;
     color: white !important;
     border: none !important;
   }
 
   #main-header.scrolled #header-start-btn:hover {
-    background-color: black !important;
+    background-color: #2841CF !important;
     color: white !important;
   }
   
