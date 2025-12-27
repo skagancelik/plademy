@@ -118,7 +118,7 @@ try {
         padding-right: 2rem;
       }
       .footer-grid-custom {
-        grid-template-columns: minmax(0, 16%) minmax(0, 21%) minmax(0, 21%) minmax(0, 21%) minmax(0, 21%) !important;
+        grid-template-columns: minmax(0, 16%) minmax(0, 28%) minmax(0, 28%) minmax(0, 28%) !important;
         gap: 4rem !important;
       }
     }
@@ -142,7 +142,7 @@ try {
     }
   </style>
   <div class="footer-container py-12">
-    <div class="footer-grid-custom grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8 md:gap-12 lg:gap-16">
+    <div class="footer-grid-custom grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12 lg:gap-16">
       <!-- About (16%) -->
       <div class="md:col-span-2 lg:col-span-1 text-center md:text-left">
         <div class="mb-4 flex justify-center md:justify-start">
@@ -170,7 +170,7 @@ try {
         </div>
       </div>
 
-      <!-- Latest Programs + Latest Resources (21%) - Combined column -->
+      <!-- Latest Programs + Latest Resources (25%) - Combined column -->
       <div class="min-w-0 text-center md:text-left">
         <h4 class="text-white font-semibold mb-4 text-sm">{t.home.latestPrograms}</h4>
         <ul class="space-y-4 text-sm mb-8">
@@ -208,10 +208,10 @@ try {
         </ul>
       </div>
 
-      <!-- Resource Categories (21%) -->
+      <!-- Resource Categories + Programs by Audience (25%) - Combined column -->
       <div class="min-w-0 text-center md:text-left">
         <h4 class="text-white font-semibold mb-4 text-sm">Resource Categories</h4>
-        <ul class="space-y-4 text-sm">
+        <ul class="space-y-4 text-sm mb-8">
           {resourceCategories.length > 0 ? (
             resourceCategories.map((category) => {
               const categoryName = category[`name_${lang}` as keyof Category] || category.name_en;
@@ -230,9 +230,29 @@ try {
             <li class="text-white/70">No categories found.</li>
           )}
         </ul>
+        <h4 class="text-white font-semibold mb-4 text-sm">Programs by Audience</h4>
+        <ul class="space-y-4 text-sm">
+          {uniqueAudiences.length > 0 ? (
+            uniqueAudiences.map((audience) => {
+              const audienceSlug = slugify(audience);
+              return (
+                <li>
+                  <a
+                    href={`/programs/all-categories/${audienceSlug}`}
+                    class="text-white/80 hover:text-white transition-colors break-words"
+                  >
+                    {audience}
+                  </a>
+                </li>
+              );
+            })
+          ) : (
+            <li class="text-white/70">No audiences found.</li>
+          )}
+        </ul>
       </div>
 
-      <!-- Program Categories (21%) -->
+      <!-- Program Categories (25%) -->
       <div class="min-w-0 text-center md:text-left">
         <h4 class="text-white font-semibold mb-4 text-sm">Program Categories</h4>
         <ul class="space-y-4 text-sm">
@@ -252,30 +272,6 @@ try {
             })
           ) : (
             <li class="text-white/70">No categories found.</li>
-          )}
-        </ul>
-      </div>
-
-      <!-- Programs by Audience (21%) - Rightmost position -->
-      <div class="min-w-0 text-center md:text-left">
-        <h4 class="text-white font-semibold mb-4 text-sm">Programs by Audience</h4>
-        <ul class="space-y-4 text-sm">
-          {uniqueAudiences.length > 0 ? (
-            uniqueAudiences.map((audience) => {
-              const audienceSlug = slugify(audience);
-              return (
-                <li>
-                  <a
-                    href={`/programs/all-categories/${audienceSlug}`}
-                    class="text-white/80 hover:text-white transition-colors break-words"
-                  >
-                    {audience}
-                  </a>
-                </li>
-              );
-            })
-          ) : (
-            <li class="text-white/70">No audiences found.</li>
           )}
         </ul>
       </div>
