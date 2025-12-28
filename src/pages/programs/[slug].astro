@@ -156,7 +156,7 @@ let processedContent: string | null = null;
 // Privacy notice HTML - moved from JSX attribute to frontmatter
 let privacyNoticeHTML: string = '';
 if (t.forms.program.privacyNotice) {
-  privacyNoticeHTML = t.forms.program.privacyNotice.replace('{privacyPolicy}', `<a href="${getLocalizedPath('/privacy', lang)}" class="font-bold">${t.forms.program.privacyPolicy}</a>`);
+  privacyNoticeHTML = t.forms.program.privacyNotice.replace('{privacyPolicy}', `<a href="${getLocalizedPath('/privacy', lang)}" class="font-bold text-sm">${t.forms.program.privacyPolicy}</a>`);
 }
 
 if (program && program.content) {
@@ -348,7 +348,7 @@ if (program && (program.goal || program.duration || program.audience)) {
         >
           Get Started For Free
         </button>
-        <p class="!text-[10px] text-gray-600 md:col-span-2 not-prose" set:html={privacyNoticeHTML}></p>
+        <p class="text-gray-600 md:col-span-2 not-prose" style="font-size: 14px !important;" set:html={privacyNoticeHTML}></p>
       </div>
     </form>
     <div id="resource-form-success" class="hidden text-center py-8">
@@ -441,7 +441,7 @@ if (program && (program.goal || program.duration || program.audience)) {
         >
           Get Started For Free
         </button>
-        <p class="!text-[10px] text-gray-600 md:col-span-2 not-prose" set:html={privacyNoticeHTML}></p>
+        <p class="text-gray-600 md:col-span-2 not-prose" style="font-size: 14px !important;" set:html={privacyNoticeHTML}></p>
       </div>
     </form>
     <div id="resource-form-bottom-success" class="hidden text-center py-8">
