@@ -57,6 +57,10 @@
     "relatedProgramsInterest": "Saatat olla kiinnostunut {category}",
     "searchGoal": "Hae ohjelman tavoitetta",
     "searchGoalPlaceholder": "Kirjoita hakeaksesi ohjelman tavoitteita...",
+    "page": "Sivu",
+    "previous": "Edellinen",
+    "next": "Seuraava",
+    "programsByAudience": "Ohjelmat kohderyhmittäin",
     "categoryDescriptions": {
       "talent-career-starter": "Tutustu kattaviin ohjelmiin, jotka on suunniteltu uran käynnistämiseen ja talenttien kehittämiseen. Löydä strategioita varhaisen uran kehityksen, talenttien tunnistamisen ja vahvan ammatillisen kasvun perustan rakentamiseen.",
       "professional-development": "Tutustu kattaviin ohjelmiin, jotka on suunniteltu ammatillisten taitojen ja kykyjen kehittämiseen. Löydä strategioita jatkuvaan oppimiseen, taitojen kehittämiseen ja uran edistämiseen.",

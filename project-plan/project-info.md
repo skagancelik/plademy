@@ -2100,26 +2100,33 @@ Detaylı performans ve güvenlik test raporu için `PERFORMANCE_SECURITY_REPORT.
 ### Footer Layout Reorganization (Aralık 2025)
 
 **Değişiklikler:**
-1. **Sıralama Değişikliği:**
-   - Latest Programs listesi Latest Resources'ın üstüne taşındı
-   - Yeni sıralama: About, Latest Programs, Latest Resources, Resource Categories, Program Categories, Programs by Audience
+1. **4 Sütunlu Yapı:**
+   - Footer 4 sütuna düşürüldü (önceden 5-6 sütun)
+   - Grid genişlikleri: 16% - 28% - 28% - 28%
 
-2. **Programs by Audience Bölümü:**
-   - En sağa yeni "Programs by Audience" bölümü eklendi
+2. **Birleştirilmiş Sütunlar:**
+   - **Sütun 2:** Latest Programs (üstte) + Latest Resources (altta) - tek sütunda birleştirildi
+   - **Sütun 3:** Resource Categories (üstte) + Programs by Audience (altta) - tek sütunda birleştirildi
+   - **Sütun 4:** Program Categories (ayrı sütun olarak kaldı)
+
+3. **Programs by Audience Bölümü:**
+   - Resource Categories sütununun altına taşındı
    - Tüm unique audience'lar Supabase'den çekiliyor
    - Her audience için `/programs/all-categories/[audience-slug]` formatında link oluşturuluyor
    - Audience'lar alfabetik olarak sıralanıyor
 
-3. **Data Fetching:**
+4. **Data Fetching:**
    - Footer'da unique audiences'ları çekmek için yeni query eklendi
    - `slugify` utility function import edildi
 
 **UX İyileştirmeleri:**
-- ✅ Latest Programs daha üstte (daha görünür)
+- ✅ Footer daha kompakt ve organize (4 sütun)
+- ✅ Latest Programs ve Latest Resources birleşik sütunda (daha verimli alan kullanımı)
+- ✅ Resource Categories ve Programs by Audience birleşik sütunda (daha verimli alan kullanımı)
 - ✅ Programs by Audience ile kullanıcılar audience'a göre filtreleyebiliyor
 - ✅ Footer'da daha fazla navigasyon seçeneği
 
 **Etkilenen Dosyalar:**
-- `src/components/common/Footer.astro` - Sıralama değişikliği, Programs by Audience bölümü eklendi
+- `src/components/common/Footer.astro` - 4 sütunlu yapı, birleştirilmiş sütunlar, Programs by Audience bölümü
 
-*Son güncelleme: 27 Aralık 2025, 15:36*
+*Son güncelleme: 27 Aralık 2025, 15:42*
