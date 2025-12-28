@@ -57,6 +57,10 @@
     "relatedProgramsInterest": "Du kanske är intresserad av {category}",
     "searchGoal": "Sök programmål",
     "searchGoalPlaceholder": "Skriv för att söka programmål...",
+    "page": "Sida",
+    "previous": "Föregående",
+    "next": "Nästa",
+    "programsByAudience": "Program efter målgrupp",
     "categoryDescriptions": {
       "talent-career-starter": "Upptäck omfattande program designade för att lansera karriärer och utveckla talanger. Utforska strategier för tidig karriärutveckling, talentidentifiering och byggande av starka grunder för professionell utveckling.",
       "professional-development": "Upptäck omfattande program designade för att förbättra professionella färdigheter och förmågor. Utforska strategier för kontinuerligt lärande, färdighetsutveckling och karriärframsteg.",

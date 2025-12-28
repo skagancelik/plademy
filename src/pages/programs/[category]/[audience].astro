@@ -17,12 +17,30 @@ const lang = getLanguageFromCookie(Astro.cookies, Astro.url) || 'en';
 const t = getTranslations(lang);
 
 // Get category and audience from URL path
-const categorySlug = Astro.params.category || '';
-const audienceSlug = Astro.params.audience || '';
+// CRITICAL: Trim whitespace to ensure exact matching
+const categorySlug = (Astro.params.category || '').trim();
+const audienceSlug = (Astro.params.audience || '').trim();
+
+// Handle "all" cases FIRST - before any other processing
+// CRITICAL: Explicitly check for "all-categories" string or empty string
+// This must be checked BEFORE program slug detection to avoid false matches
+const isAllCategories = 
+  categorySlug === 'all-categories' || 
+  categorySlug === '' || 
+  categorySlug === undefined ||
+  categorySlug === null ||
+  !categorySlug;
+const isAllAudiences = 
+  audienceSlug === 'all-audiences' || 
+  audienceSlug === '' || 
+  audienceSlug === undefined ||
+  audienceSlug === null ||
+  !audienceSlug;
 
 // CRITICAL: Check if this is actually a program slug (not a category/audience filter)
+// Only check if NOT "all-categories" to avoid false matches
 // If categorySlug looks like a program slug (long, multiple dashes), it might be a program slug
-if (categorySlug && categorySlug.length > 15 && categorySlug.split('-').length > 3 && audienceSlug === 'all-audiences') {
+if (!isAllCategories && categorySlug && categorySlug.length > 15 && categorySlug.split('-').length > 3 && audienceSlug === 'all-audiences') {
   // This might be a program slug - check
   const { data: programData } = await supabase
     .from('programs')
@@ -37,10 +55,6 @@ if (categorySlug && categorySlug.length > 15 && categorySlug.split('-').length >
   }
 }
 
-// Handle "all" cases
-const isAllCategories = categorySlug === 'all-categories';
-const isAllAudiences = audienceSlug === 'all-audiences';
-
 let programs: Program[] = [];
 let categories: Category[] = [];
 let uniqueAudiences: string[] = [];
@@ -53,6 +67,11 @@ let selectedAudience: string | null = null;
 // Get goal filter from query parameter (search functionality)
 const goalFilter = Astro.url.searchParams.get('goal') || '';
 
+// Get page from URL query parameter for pagination
+const page = parseInt(Astro.url.searchParams.get('page') || '1', 10);
+const pageSize = 18; // Keep 18 for grid layout (3 columns x 6 rows)
+const offset = (page - 1) * pageSize;
+
 try {
   // Get all categories
   const { data: categoriesData } = await supabase
@@ -64,34 +83,60 @@ try {
   categories = categoriesData || [];
 
   // Create category map
+  // CRITICAL: Only map by id and slug, NOT by name_en to avoid false matches
+  // categorySlug should match category.slug, not category.name_en
   categories.forEach((cat) => {
     categoryMap.set(cat.id, cat);
     categoryMap.set(cat.slug, cat);
-    categoryMap.set(cat.name_en, cat);
+    // DO NOT map by name_en - this can cause false matches if categorySlug accidentally matches a category name
   });
 
   // Find selected category if not "all"
-  if (!isAllCategories && categorySlug) {
+  // CRITICAL: Only set selectedCategory if NOT "all-categories"
+  // This is the most critical check - if isAllCategories is true, selectedCategory MUST be null
+  // DO NOT try to find category if isAllCategories is true - this prevents false matches
+  if (isAllCategories === true) {
+    // Explicitly set to null if "all-categories" - this is the most important check
+    // DO NOT try to find category if isAllCategories is true
+    // DO NOT do any category lookup if isAllCategories is true
+    selectedCategory = null;
+  } else if (categorySlug && categorySlug !== 'all-categories' && categorySlug !== '' && !isAllCategories) {
+    // Only try to find category if:
+    // 1. We have a valid categorySlug
+    // 2. categorySlug is not "all-categories"
+    // 3. categorySlug is not empty
+    // 4. isAllCategories is false (double-check)
+    // First try to find by slug in categoryMap
     selectedCategory = categoryMap.get(categorySlug) || null;
-    // If not found by slug, try to find by name
-    if (!selectedCategory) {
+    // If not found by slug, try to find by slugified name (fallback)
+    // This is a fallback for edge cases where slug might not match exactly
+    // BUT: Only do this if isAllCategories is still false
+    if (!selectedCategory && !isAllCategories) {
       for (const cat of categories) {
-        if (slugify(cat.name_en) === categorySlug || 
-            slugify(cat.name_fi || '') === categorySlug || 
-            slugify(cat.name_sv || '') === categorySlug) {
+        const slugifiedNameEn = slugify(cat.name_en);
+        const slugifiedNameFi = cat.name_fi ? slugify(cat.name_fi) : '';
+        const slugifiedNameSv = cat.name_sv ? slugify(cat.name_sv) : '';
+        if (slugifiedNameEn === categorySlug || 
+            slugifiedNameFi === categorySlug || 
+            slugifiedNameSv === categorySlug) {
           selectedCategory = cat;
           break;
         }
       }
     }
+  } else {
+    // Explicitly set to null if categorySlug is empty or "all-categories" or isAllCategories is true
+    selectedCategory = null;
   }
 
-  // Get all unique audiences from programs
+  // Get all unique audiences from programs (optimized: only distinct values)
+  // Note: Supabase doesn't support DISTINCT on single column easily, so we fetch minimal data
   const { data: allPrograms } = await supabase
     .from('programs')
     .select('audience')
     .eq('language', lang)
-    .eq('is_published', true);
+    .eq('is_published', true)
+    .not('audience', 'is', null); // Only get programs with audience
 
   const audiences = new Set<string>();
   allPrograms?.forEach((program) => {
@@ -110,18 +155,42 @@ try {
     ) || null;
   }
 
-  // Build query
+  // Build query for fetching programs (without count - we do that separately)
+  // CRITICAL: Only apply category filter if NOT "all-categories" AND selectedCategory is set
+  // FINAL SAFETY CHECK: Force selectedCategory to null if isAllCategories is true (defensive programming)
+  if (isAllCategories === true) {
+    selectedCategory = null; // Force null one more time before building query
+  }
+  
   let programsQuery = supabase
     .from('programs')
-    .select('id, slug, title, excerpt, cover_image_url, category, published_at, goal, duration, audience', { count: 'exact' })
+    .select('id, slug, title, excerpt, cover_image_url, category, published_at, goal, duration, audience')
     .eq('language', lang)
     .eq('is_published', true);
 
-  // Apply category filter
-  if (!isAllCategories && selectedCategory) {
-    const categoryName = selectedCategory[`name_${lang}` as keyof Category] || selectedCategory.name_en;
-    programsQuery = programsQuery.eq('category', categoryName);
+  // Apply category filter ONLY if we have a valid selected category
+  // CRITICAL: Check isAllCategories FIRST - if true, NEVER apply category filter
+  // This ensures all programs are shown when "all-categories" is selected
+  
+  // FINAL CHECK: If isAllCategories is true, NEVER apply category filter (even if selectedCategory is somehow set)
+  // ULTRA-SAFE: Multiple checks to ensure category filter is NOT applied when isAllCategories is true
+  if (isAllCategories === true) {
+    // Explicitly do nothing - no category filter applied
+    // This shows all programs from all categories
+    // DO NOT apply any category filter, even if selectedCategory is somehow set
+  } else {
+    // Only apply category filter if:
+    // 1. isAllCategories is false (checked above)
+    // 2. selectedCategory is not null
+    // 3. selectedCategory is truthy
+    if (selectedCategory !== null && selectedCategory) {
+      const categoryName = selectedCategory[`name_${lang}` as keyof Category] || selectedCategory.name_en;
+      if (categoryName) {
+        programsQuery = programsQuery.eq('category', categoryName);
+      }
+    }
   }
+  // If isAllCategories is true OR selectedCategory is null, NO category filter is applied (shows all categories)
 
   // Apply audience filter
   if (!isAllAudiences && selectedAudience) {
@@ -133,17 +202,51 @@ try {
     programsQuery = programsQuery.ilike('goal', `%${goalFilter}%`);
   }
 
-  // Get total count
-  const { count } = await programsQuery;
+  // Get total count with same filters (separate optimized query)
+  // FINAL SAFETY CHECK: Force selectedCategory to null if isAllCategories is true (defensive programming)
+  if (isAllCategories === true) {
+    selectedCategory = null; // Force null one more time before building count query
+  }
+  
+  let countQuery = supabase
+    .from('programs')
+    .select('id', { count: 'exact', head: true })
+    .eq('language', lang)
+    .eq('is_published', true);
+
+  // Apply category filter to count query ONLY if category is selected (same logic as programsQuery)
+  // CRITICAL: Check isAllCategories FIRST - if true, NEVER apply category filter
+  if (isAllCategories === true) {
+    // Explicitly do nothing - no category filter applied
+    // This counts all programs from all categories
+  } else if (selectedCategory !== null && selectedCategory) {
+    // Only apply filter if we have a selected category AND isAllCategories is false
+    const categoryName = selectedCategory[`name_${lang}` as keyof Category] || selectedCategory.name_en;
+    if (categoryName) {
+      countQuery = countQuery.eq('category', categoryName);
+    }
+  }
+
+  if (!isAllAudiences && selectedAudience) {
+    countQuery = countQuery.eq('audience', selectedAudience);
+  }
+
+  if (goalFilter) {
+    countQuery = countQuery.ilike('goal', `%${goalFilter}%`);
+  }
+
+  const { count } = await countQuery;
   totalCount = count || 0;
 
-  // Fetch programs
-  const { data: programsData } = await programsQuery
-    .order('published_at', { ascending: false })
-    .limit(18);
+  // Fetch programs with pagination
+  // Order by published_at descending (newest first) - always show newest programs first
+  programsQuery = programsQuery.order('published_at', { ascending: false });
+  
+  const { data: programsData, error: programsError } = await programsQuery
+    .range(offset, offset + pageSize - 1);
 
   programs = programsData || [];
-  hasMore = programs.length < totalCount;
+  hasMore = offset + pageSize < totalCount;
 } catch (error) {
   console.error('Error fetching programs:', error);
 }
@@ -155,6 +258,17 @@ if (!isAllCategories && categorySlug && !selectedCategory) {
 if (!isAllAudiences && audienceSlug && !selectedAudience) {
   return new Response(null, { status: 404 });
 }
+
+// Build pagination URLs
+const buildPaginationURL = (pageNum: number): string => {
+  const params = new URLSearchParams();
+  if (goalFilter) params.set('goal', goalFilter);
+  params.set('page', String(pageNum));
+  return `/programs/${categorySlug}/${audienceSlug}?${params.toString()}`;
+};
+
+const prevPageURL = page > 1 ? buildPaginationURL(page - 1) : '';
+const nextPageURL = hasMore ? buildPaginationURL(page + 1) : '';
 
 // Build dynamic title and description for SEO
 let pageTitle = t.programs.title;
@@ -266,33 +380,60 @@ if (!isAllCategories && selectedCategory && !isAllAudiences && selectedAudience)
     <!-- Programs Grid -->
     <div id="programs-container">
       {programs.length > 0 ? (
-        <div class="grid md:grid-cols-3 gap-6" id="programs-grid">
-          {programs.map((program) => {
-            let programCategory: Category | null = null;
-            
-            if (program.category) {
-              programCategory = categoryMap.get(program.category) || null;
-              if (!programCategory) {
-                for (const cat of categories) {
-                  if (cat.id === program.category || 
-                      cat.slug === program.category || 
-                      cat.name_en === program.category ||
-                      cat.name_fi === program.category ||
-                      cat.name_sv === program.category) {
-                    programCategory = cat;
-                    break;
+        <>
+          <div class="grid md:grid-cols-3 gap-6" id="programs-grid">
+            {programs.map((program) => {
+              let programCategory: Category | null = null;
+              
+              if (program.category) {
+                programCategory = categoryMap.get(program.category) || null;
+                if (!programCategory) {
+                  for (const cat of categories) {
+                    if (cat.id === program.category || 
+                        cat.slug === program.category || 
+                        cat.name_en === program.category ||
+                        cat.name_fi === program.category ||
+                        cat.name_sv === program.category) {
+                      programCategory = cat;
+                      break;
+                    }
                   }
                 }
               }
-            }
-            
-            return (
-              <div class="program-item h-full">
-                <ProgramCard program={program} lang={lang} category={programCategory} />
-              </div>
-            );
-          })}
-        </div>
+              
+              return (
+                <div class="program-item h-full">
+                  <ProgramCard program={program} lang={lang} category={programCategory} />
+                </div>
+              );
+            })}
+          </div>
+          
+          <!-- Pagination -->
+          {(hasMore || page > 1) && totalCount > 0 && (
+            <div class="mt-8 flex justify-center items-center gap-4">
+              {page > 1 && prevPageURL && (
+                <a
+                  href={prevPageURL}
+                  class="px-4 py-2 bg-[#F6F7FB] text-black rounded-full hover:opacity-80 transition-colors"
+                >
+                  ← {t.programs.previous || 'Previous'}
+                </a>
+              )}
+              <span class="text-gray-600">
+                {t.programs.page || 'Page'} {page} of {Math.ceil(totalCount / pageSize)}
+              </span>
+              {hasMore && nextPageURL && (
+                <a
+                  href={nextPageURL}
+                  class="px-4 py-2 bg-[#2841CF] text-white rounded-full hover:opacity-90 transition-colors"
+                >
+                  {t.programs.next || 'Next'} →
+                </a>
+              )}
+            </div>
+          )}
+        </>
       ) : (
         <div id="no-results" class="text-center text-gray-500 py-12">
           {t.programs.noPrograms}
@@ -314,9 +455,16 @@ if (!isAllCategories && selectedCategory && !isAllAudiences && selectedAudience)
       const audience = audienceFilter?.value || 'all-audiences';
       const goal = goalSearch?.value.trim() || '';
       
+      // Reset to page 1 when filters change
       let newURL = `/programs/${category}/${audience}`;
+      const params = new URLSearchParams();
       if (goal) {
-        newURL += `?goal=${encodeURIComponent(goal)}`;
+        params.set('goal', goal);
+      }
+      // Always reset to page 1 when filters change
+      const queryString = params.toString();
+      if (queryString) {
+        newURL += `?${queryString}`;
       }
       window.location.href = newURL;
     }

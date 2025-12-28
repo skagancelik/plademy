@@ -57,6 +57,10 @@
     "relatedProgramsInterest": "You might be interested in {category}",
     "searchGoal": "Search Program Goal",
     "searchGoalPlaceholder": "Type to search program goals...",
+    "page": "Page",
+    "previous": "Previous",
+    "next": "Next",
+    "programsByAudience": "Programs by Audience",
     "categoryDescriptions": {
       "talent-career-starter": "Discover comprehensive programs designed to launch careers and develop talent. Explore strategies for early career development, talent identification, and building strong foundations for professional growth.",
       "professional-development": "Discover comprehensive programs designed to enhance professional skills and capabilities. Explore strategies for continuous learning, skill development, and career advancement.",
