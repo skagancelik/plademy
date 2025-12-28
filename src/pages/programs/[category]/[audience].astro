@@ -239,19 +239,8 @@ try {
   totalCount = count || 0;
 
   // Fetch programs with pagination
-  // Order by published_at descending (newest first)
-  // CRITICAL: When showing all categories, also order by category to mix different categories
-  // This ensures page 1 shows programs from different categories, not just one category
-  if (isAllCategories) {
-    // When showing all categories, order by category first, then by published_at
-    // This ensures different categories are mixed together on page 1
-    programsQuery = programsQuery
-      .order('category', { ascending: true })
-      .order('published_at', { ascending: false });
-  } else {
-    // When showing specific category, just order by published_at
-    programsQuery = programsQuery.order('published_at', { ascending: false });
-  }
+  // Order by published_at descending (newest first) - always show newest programs first
+  programsQuery = programsQuery.order('published_at', { ascending: false });
   
   const { data: programsData, error: programsError } = await programsQuery
     .range(offset, offset + pageSize - 1);
