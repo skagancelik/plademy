@@ -3,6 +3,8 @@ import PageLayout from '@layouts/PageLayout.astro';
 import StartForm from '@components/forms/StartForm.astro';
 import { getTranslations, type Language, getLanguageFromCookie } from '@lib/i18n';
 
+export const prerender = false; // SSR so Turnstile site key is available at runtime (same as form pages)
+
 const lang = getLanguageFromCookie(Astro.cookies, Astro.url) || 'en';
 const t = getTranslations(lang);
 ---

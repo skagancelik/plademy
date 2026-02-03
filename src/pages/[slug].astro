@@ -268,15 +268,17 @@ if (resource && resource.citations && Array.isArray(resource.citations)) {
             class="w-full px-4 py-3 border border-gray-300 rounded-full focus:ring-2 focus:ring-primary focus:border-transparent h-12"
           />
         </div>
-        {turnstileSiteKey && (
-          <div class="cf-turnstile" data-sitekey={turnstileSiteKey} data-size="normal" data-theme="light" />
-        )}
         <button
           type="submit"
           class="btn btn-primary w-full"
         >
           Get Started For Free
         </button>
+        {turnstileSiteKey && (
+          <div class="turnstile-widget-wrap mt-3 flex justify-center">
+            <div class="cf-turnstile" data-sitekey={turnstileSiteKey} data-size="normal" data-theme="light" />
+          </div>
+        )}
         <p class="text-gray-600 md:col-span-2 not-prose" style="font-size: 14px !important;" set:html={privacyNoticeHTML}></p>
       </div>
     </form>
@@ -360,15 +362,17 @@ if (resource && resource.citations && Array.isArray(resource.citations)) {
             class="w-full px-4 py-3 border border-gray-300 rounded-full focus:ring-2 focus:ring-primary focus:border-transparent h-12"
           />
         </div>
-        {turnstileSiteKey && (
-          <div class="cf-turnstile" data-sitekey={turnstileSiteKey} data-size="normal" data-theme="light" />
-        )}
         <button
           type="submit"
           class="btn btn-primary w-full"
         >
           Get Started For Free
         </button>
+        {turnstileSiteKey && (
+          <div class="turnstile-widget-wrap mt-3 flex justify-center">
+            <div class="cf-turnstile" data-sitekey={turnstileSiteKey} data-size="normal" data-theme="light" />
+          </div>
+        )}
         <p class="text-gray-600 md:col-span-2 not-prose" style="font-size: 14px !important;" set:html={privacyNoticeHTML}></p>
       </div>
     </form>

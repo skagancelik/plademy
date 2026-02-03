@@ -951,13 +951,13 @@ export function getLanguageFromCookie(
 
 ### Form Security Enhancements (2025)
 
-- **Input Validation:** Email format, string length limits, XSS protection
-- **Sanitization:** Tüm string alanlar temizleniyor, HTML karakterleri kaldırılıyor
-- **URL Validation:** page_url geçerli URL formatında kontrol ediliyor
-- **Error Handling:** Daha detaylı hata mesajları ve logging
-- **Page URL Tracking:** Tüm form submission'lara `page_url` eklendi
-- **Client-side Error Logging:** Response body console'da loglanıyor, webhook response detayları gösteriliyor
-- **Environment Variable Debugging:** Debug bilgileri eklendi (hasProcessEnv, hasImportMetaEnv, etc.)
+- **Cloudflare Turnstile (Şubat 2025):** CAPTCHA alternatifi; Managed mod, ücretsiz. `PUBLIC_TURNSTILE_SITE_KEY` (client), `TURNSTILE_SECRET_KEY` (server). Tüm formlarda widget, API'de Siteverify doğrulaması.
+- **Rate limiting:** IP başına 5 istek/dk (`src/lib/formSecurity.ts`). 429 döner.
+- **Honeypot:** Gizli `website` alanı tüm formlarda; bot doldurursa 400.
+- **Input Validation:** Form type whitelist, name/email zorunlu, email format, uzunluk limitleri.
+- **Sanitization:** Tüm string alanlar trim, null byte/control char temizleme.
+- **CORS:** Sadece plademy.com ve localhost origin'leri; wildcard kaldırıldı.
+- **Dosyalar:** `src/lib/formSecurity.ts`, `src/pages/api/form.ts`, tüm form bileşenleri. Ayrıntı: `project-plan/security.md` Form Security bölümü.
 
 ### Program Form Content Personalization (2025)
 
@@ -2129,4 +2129,99 @@ Detaylı performans ve güvenlik test raporu için `PERFORMANCE_SECURITY_REPORT.
 **Etkilenen Dosyalar:**
 - `src/components/common/Footer.astro` - 4 sütunlu yapı, birleştirilmiş sütunlar, Programs by Audience bölümü
 
-*Son güncelleme: 27 Aralık 2025, 15:42*
+### Programs Page Pagination & Sorting Fix (Aralık 2025)
+
+**Yapılan Düzeltmeler:**
+1. **Server-side Pagination:**
+   - Programs listing sayfalarına pagination eklendi
+   - 18 program per page (grid layout için optimal)
+   - `range(offset, offset + pageSize - 1)` ile server-side pagination
+   - `totalCount` ile toplam program sayısı hesaplanıyor
+   - `hasMore` ile "Next" butonu kontrolü
+
+2. **Category Filtering Logic Fix:**
+   - `isAllCategories` kontrolü güçlendirildi (multiple checks)
+   - `selectedCategory` null kontrolü eklendi (defensive programming)
+   - Category filter sadece `isAllCategories === false` ve `selectedCategory !== null` durumunda uygulanıyor
+   - `categoryMap` sadece `id` ve `slug` ile mapping yapıyor (`name_en` mapping kaldırıldı - false match önleme)
+   - Program slug detection `isAllCategories` kontrolünden önce yapılıyor
+
+3. **Sorting:**
+   - Tüm programlar `published_at` descending sıralanıyor (en yeni en üstte)
+   - Category-based sorting kaldırıldı
+   - Hem `isAllCategories` true hem false durumlarında aynı sıralama
+
+4. **Pagination UI:**
+   - Previous/Next butonları eklendi
+   - Sayfa bilgisi gösteriliyor ("Page X of Y")
+   - Pagination URL'leri filtreleri koruyor (`buildPaginationURL` helper function)
+   - Filtre değiştiğinde pagination reset ediliyor (page 1)
+
+5. **JavaScript Updates:**
+   - `updateURL` function filtre değiştiğinde `page` parametresini 1'e reset ediyor
+   - Pagination linkleri filtreleri koruyor
+
+**Ekonomik Etki:**
+- ✅ İlk yüklemede sadece 18 program çekiliyor (önceden tüm programlar)
+- ✅ Pagination ile veri transferi optimize edildi
+- ✅ Category filtering doğru çalışıyor (all-categories durumunda tüm programlar gösteriliyor)
+
+**UX İyileştirmeleri:**
+- ✅ Pagination ile daha fazla program görüntülenebiliyor
+- ✅ En yeni programlar en üstte görünüyor
+- ✅ Filtreler pagination ile birlikte çalışıyor
+- ✅ Sayfa bilgisi kullanıcıya gösteriliyor
+
+**Etkilenen Dosyalar:**
+- `src/pages/programs/[category]/[audience].astro` - Pagination logic, category filtering fix, sorting
+- `src/i18n/en.json`, `src/i18n/fi.json`, `src/i18n/sv.json` - Pagination çevirileri (`page`, `previous`, `next`)
+
+**Öğrenilenler:**
+1. **Category Filtering:**
+   - `isAllCategories` kontrolü en başta yapılmalı (program slug detection'tan önce)
+   - `selectedCategory` null kontrolü kritik (defensive programming)
+   - Category map'te sadece `id` ve `slug` kullanılmalı (`name_en` false match'e neden olabilir)
+
+2. **Pagination:**
+   - Server-side pagination ekonomik (sadece gösterilecek kadar kayıt çekiliyor)
+   - `range(offset, offset + pageSize - 1)` ile Supabase pagination
+   - `count: 'exact'` ile toplam sayı hesaplanıyor
+   - Pagination URL'leri filtreleri korumalı
+
+3. **Sorting:**
+   - En yeni içerik en üstte olmalı (`published_at` descending)
+   - Category-based sorting kullanıcı deneyimini bozabilir
+
+### Form Security & Turnstile (Şubat 2025)
+
+**Amaç:** Form spam ve bot saldırılarına köklü çözüm; CAPTCHA alternatifi (Cloudflare Turnstile) ve ek katmanlar.
+
+**Değişiklikler:**
+
+1. **Cloudflare Turnstile**
+   - Ücretsiz, gizlilik dostu; Managed mod (bazen invisible, bazen checkbox).
+   - **Env:** `PUBLIC_TURNSTILE_SITE_KEY` (tarayıcı), `TURNSTILE_SECRET_KEY` (sadece sunucu).
+   - **Akış:** BaseLayout'ta script yüklenir; her formda widget div; submit'te token `cf_turnstile_response` ile API'ye gider; API Cloudflare Siteverify ile doğrular.
+   - Key yoksa widget gösterilmez, API doğrulama atlar (local geliştirme). Key varsa token yok/geçersizse 400.
+
+2. **Rate limiting**
+   - IP başına 1 dakikada en fazla 5 istek (`src/lib/formSecurity.ts`). Aşımda 429.
+
+3. **Honeypot**
+   - Tüm formlarda gizli `website` alanı (CSS ile ekran dışı). Bot doldurursa 400.
+
+4. **Validation & sanitization**
+   - Form type whitelist; name/email zorunlu; email format; tüm string alanlarda uzunluk limitleri ve sanitization (trim, null byte temizleme).
+
+5. **CORS**
+   - `Access-Control-Allow-Origin` artık sadece `https://plademy.com`, `http://localhost:4321`, `http://localhost:8888`.
+
+**Etkilenen dosyalar:**
+- `src/lib/formSecurity.ts` (yeni): rate limit, honeypot check, validateFormBody, verifyTurnstile
+- `src/pages/api/form.ts`: Turnstile verify, rate limit, validateFormBody, CORS sıkılaştırma
+- `src/layouts/BaseLayout.astro`: Turnstile script (site key varsa)
+- `src/components/forms/ContactForm.astro`, `StartForm.astro`: Turnstile widget, honeypot, token gönderimi
+- `src/pages/[slug].astro`, `programs/[slug].astro`, `resources/[slug].astro`: Her sayfada 2 form; Turnstile widget + honeypot + token
+- `project-plan/security.md`, `README.md`: Form security ve env dokümantasyonu
+
+*Son güncelleme: 3 Şubat 2025*

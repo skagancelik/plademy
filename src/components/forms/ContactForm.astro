@@ -62,21 +62,23 @@ const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY as string | u
     ></textarea>
   </div>
 
-  {turnstileSiteKey && (
-    <div
-      class="cf-turnstile"
-      data-sitekey={turnstileSiteKey}
-      data-size="normal"
-      data-theme="light"
-    />
-  )}
-
   <button
     type="submit"
     class="btn btn-primary w-full"
   >
     {t.forms.contact.submit}
   </button>
+
+  {turnstileSiteKey && (
+    <div class="turnstile-widget-wrap mt-3 flex justify-center">
+      <div
+        class="cf-turnstile"
+        data-sitekey={turnstileSiteKey}
+        data-size="normal"
+        data-theme="light"
+      />
+    </div>
+  )}
 
   <p class="text-sm text-gray-600 text-center" set:html={t.forms.contact.privacyNotice.replace('{privacyPolicy}', `<a href="${privacyPath}" class="font-bold">${t.forms.contact.privacyPolicy}</a>`)}></p>
 
