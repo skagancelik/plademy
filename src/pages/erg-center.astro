@@ -1,0 +1,174 @@
+---
+import PageLayout from '@layouts/PageLayout.astro';
+import { getTranslations, type Language, getLanguageFromCookie } from '@lib/i18n';
+
+export const prerender = true; // Static page
+
+const lang = getLanguageFromCookie(Astro.cookies, Astro.url) || 'en';
+const t = getTranslations(lang);
+---
+
+<PageLayout
+  title={t.solutions.ergCenter.page.title || 'ERG Center - Employee Resource Group Solutions'}
+  description={t.solutions.ergCenter.page.description || 'Comprehensive solutions for Employee Resource Groups (ERGs) to support diversity, equity, and inclusion initiatives.'}
+  lang={lang}
+>
+  <div class="container py-12">
+    <!-- Hero Section -->
+    <div class="mb-16 text-center">
+      <div class="mb-8 flex justify-center">
+        <img 
+          src="/erg-center-logo.svg" 
+          alt="ERG Center" 
+          class="h-24 object-contain"
+        />
+      </div>
+      <h1 class="text-4xl md:text-5xl font-bold mb-6">{t.solutions.ergCenter.page.heroTitle || 'ERG Center'}</h1>
+      <p class="text-xl text-gray-700 max-w-3xl mx-auto mb-8">
+        {t.solutions.ergCenter.page.heroDescription || 'Empowering Employee Resource Groups with comprehensive solutions to build inclusive workplace cultures and drive meaningful change.'}
+      </p>
+    </div>
+
+    <!-- What are ERGs Section -->
+    <section class="mb-16">
+      <div class="max-w-4xl mx-auto">
+        <h2 class="text-3xl font-bold mb-6 text-center">{t.solutions.ergCenter.page.whatAreErgsTitle || 'What are Employee Resource Groups?'}</h2>
+        <p class="text-lg text-gray-700 mb-6 leading-relaxed">
+          {t.solutions.ergCenter.page.whatAreErgsDescription || 'Employee Resource Groups (ERGs) are voluntary, employee-led groups organized around shared identities, experiences, or interests. Originally pioneered by Xerox in the 1960s to address racial tensions, ERGs are now utilized by 90% of Fortune 500 companies to foster inclusive workplace cultures.'}
+        </p>
+        <div class="grid md:grid-cols-2 gap-6 mt-8">
+          <div class="card p-6 rounded-[30px]">
+            <h3 class="text-xl font-bold mb-3">{t.solutions.ergCenter.page.communityTitle || 'Community'}</h3>
+            <p class="text-gray-700">
+              {t.solutions.ergCenter.page.communityDescription || 'Providing safe spaces and a sense of belonging for employees from diverse backgrounds.'}
+            </p>
+          </div>
+          <div class="card p-6 rounded-[30px]">
+            <h3 class="text-xl font-bold mb-3">{t.solutions.ergCenter.page.connectionTitle || 'Connection'}</h3>
+            <p class="text-gray-700">
+              {t.solutions.ergCenter.page.connectionDescription || 'Facilitating internal networking and camaraderie among employees with shared experiences.'}
+            </p>
+          </div>
+          <div class="card p-6 rounded-[30px]">
+            <h3 class="text-xl font-bold mb-3">{t.solutions.ergCenter.page.careerTitle || 'Career Development'}</h3>
+            <p class="text-gray-700">
+              {t.solutions.ergCenter.page.careerDescription || 'Offering mentorship, skill-building, and leadership opportunities within the group.'}
+            </p>
+          </div>
+          <div class="card p-6 rounded-[30px]">
+            <h3 class="text-xl font-bold mb-3">{t.solutions.ergCenter.page.changeTitle || 'Change'}</h3>
+            <p class="text-gray-700">
+              {t.solutions.ergCenter.page.changeDescription || 'Advocating for policy improvements and driving DEI initiatives across the organization.'}
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Benefits Section -->
+    <section class="mb-16 bg-gray-50 py-12 rounded-[30px]">
+      <div class="max-w-6xl mx-auto">
+        <h2 class="text-3xl font-bold mb-8 text-center">{t.solutions.ergCenter.page.benefitsTitle || 'Key Benefits of ERG Programs'}</h2>
+        <div class="grid md:grid-cols-2 gap-8">
+          <div>
+            <h3 class="text-2xl font-bold mb-4">{t.solutions.ergCenter.page.forEmployersTitle || 'For Employers'}</h3>
+            <ul class="space-y-3 text-gray-700">
+              <li class="flex items-start">
+                <span class="text-blue-600 mr-2">✓</span>
+                <span>{t.solutions.ergCenter.page.benefitTalent || 'Talent Management: Improves recruitment, streamlines onboarding, and significantly increases retention'}</span>
+              </li>
+              <li class="flex items-start">
+                <span class="text-blue-600 mr-2">✓</span>
+                <span>{t.solutions.ergCenter.page.benefitInnovation || 'Business Innovation: Provides diverse perspectives that drive creativity and problem-solving'}</span>
+              </li>
+              <li class="flex items-start">
+                <span class="text-blue-600 mr-2">✓</span>
+                <span>{t.solutions.ergCenter.page.benefitInsights || 'Market Insights: Better understanding of diverse customer bases and market segments'}</span>
+              </li>
+              <li class="flex items-start">
+                <span class="text-blue-600 mr-2">✓</span>
+                <span>{t.solutions.ergCenter.page.benefitEngagement || 'Employee Engagement: Boosts morale and productivity by fostering a culture where employees feel heard and valued'}</span>
+              </li>
+            </ul>
+          </div>
+          <div>
+            <h3 class="text-2xl font-bold mb-4">{t.solutions.ergCenter.page.forEmployeesTitle || 'For Employees'}</h3>
+            <ul class="space-y-3 text-gray-700">
+              <li class="flex items-start">
+                <span class="text-blue-600 mr-2">✓</span>
+                <span>{t.solutions.ergCenter.page.benefitGrowth || 'Professional Growth: Access to executive sponsors, formal mentorship, and leadership roles'}</span>
+              </li>
+              <li class="flex items-start">
+                <span class="text-blue-600 mr-2">✓</span>
+                <span>{t.solutions.ergCenter.page.benefitSupport || 'Support Systems: Enhances well-being and mental health through mutual support'}</span>
+              </li>
+              <li class="flex items-start">
+                <span class="text-blue-600 mr-2">✓</span>
+                <span>{t.solutions.ergCenter.page.benefitAdvocacy || 'Advocacy: Provides a collective voice to influence company benefits and workplace accessibility'}</span>
+              </li>
+              <li class="flex items-start">
+                <span class="text-blue-600 mr-2">✓</span>
+                <span>{t.solutions.ergCenter.page.benefitNetworking || 'Networking: Builds meaningful connections with colleagues across the organization'}</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Our Solutions Section -->
+    <section class="mb-16">
+      <div class="max-w-4xl mx-auto">
+        <h2 class="text-3xl font-bold mb-8 text-center">{t.solutions.ergCenter.page.solutionsTitle || 'Our Solutions for ERG Programs'}</h2>
+        <div class="space-y-6">
+          <div class="card p-6 rounded-[30px]">
+            <h3 class="text-xl font-bold mb-3">{t.solutions.ergCenter.page.solution1Title || 'ERG Management Platform'}</h3>
+            <p class="text-gray-700">
+              {t.solutions.ergCenter.page.solution1Description || 'Comprehensive platform to manage ERG memberships, events, communications, and activities all in one place.'}
+            </p>
+          </div>
+          <div class="card p-6 rounded-[30px]">
+            <h3 class="text-xl font-bold mb-3">{t.solutions.ergCenter.page.solution2Title || 'Executive Sponsorship Tools'}</h3>
+            <p class="text-gray-700">
+              {t.solutions.ergCenter.page.solution2Description || 'Facilitate connections between ERG leaders and executive sponsors to ensure organizational support and alignment.'}
+            </p>
+          </div>
+          <div class="card p-6 rounded-[30px]">
+            <h3 class="text-xl font-bold mb-3">{t.solutions.ergCenter.page.solution3Title || 'Event & Activity Management'}</h3>
+            <p class="text-gray-700">
+              {t.solutions.ergCenter.page.solution3Description || 'Organize and manage guest speaker events, networking sessions, professional workshops, and community activities.'}
+            </p>
+          </div>
+          <div class="card p-6 rounded-[30px]">
+            <h3 class="text-xl font-bold mb-3">{t.solutions.ergCenter.page.solution4Title || 'Impact Measurement & Analytics'}</h3>
+            <p class="text-gray-700">
+              {t.solutions.ergCenter.page.solution4Description || 'Track member engagement, measure belonging, and demonstrate the value of ERG programs to leadership with comprehensive analytics.'}
+            </p>
+          </div>
+          <div class="card p-6 rounded-[30px]">
+            <h3 class="text-xl font-bold mb-3">{t.solutions.ergCenter.page.solution5Title || 'Mentorship & Development Programs'}</h3>
+            <p class="text-gray-700">
+              {t.solutions.ergCenter.page.solution5Description || 'Connect ERG members with mentors, provide skill-building opportunities, and support career development within the group.'}
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="text-center bg-blue-50 py-12 rounded-[30px]">
+      <div class="max-w-2xl mx-auto">
+        <h2 class="text-3xl font-bold mb-4">{t.solutions.ergCenter.page.ctaTitle || 'Ready to Empower Your ERG Programs?'}</h2>
+        <p class="text-lg text-gray-700 mb-8">
+          {t.solutions.ergCenter.page.ctaDescription || 'Discover how our comprehensive solutions can help you build stronger, more impactful Employee Resource Groups.'}
+        </p>
+        <a 
+          href="/start" 
+          class="inline-block bg-blue-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors"
+        >
+          {t.solutions.ergCenter.page.ctaButton || 'Get Started'}
+        </a>
+      </div>
+    </section>
+  </div>
+</PageLayout>
