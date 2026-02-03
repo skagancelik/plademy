@@ -8,6 +8,7 @@ interface Props {
 const { lang } = Astro.props;
 const t = getTranslations(lang);
 const privacyPath = getLocalizedPath('/privacy', lang);
+const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY as string | undefined;
 ---
 
 <div style="min-height: 400px;">
@@ -15,7 +16,13 @@ const privacyPath = getLocalizedPath('/privacy', lang);
   id="contact-form"
   class="space-y-6"
   data-testid="contact-form"
+  autocomplete="on"
 >
+  <!-- Honeypot: hidden from users, bots often fill it. Leave empty. -->
+  <div class="absolute -left-[9999px] opacity-0 pointer-events-none h-0 overflow-hidden" aria-hidden="true">
+    <label for="contact-website">Website</label>
+    <input type="text" id="contact-website" name="website" tabindex="-1" autocomplete="off" />
+  </div>
   <div>
     <label for="name" class="block text-sm font-medium text-gray-700 mb-2">
       {t.forms.contact.name}
@@ -55,6 +62,15 @@ const privacyPath = getLocalizedPath('/privacy', lang);
     ></textarea>
   </div>
 
+  {turnstileSiteKey && (
+    <div
+      class="cf-turnstile"
+      data-sitekey={turnstileSiteKey}
+      data-size="normal"
+      data-theme="light"
+    />
+  )}
+
   <button
     type="submit"
     class="btn btn-primary w-full"
@@ -82,13 +98,16 @@ const privacyPath = getLocalizedPath('/privacy', lang);
     e.preventDefault();
     
     const formData = new FormData(form);
-    const data = {
+    const turnstileInput = form.querySelector<HTMLInputElement>('input[name="cf-turnstile-response"]');
+    const data: Record<string, unknown> = {
       type: 'contact',
       name: formData.get('name'),
       email: formData.get('email'),
       message: formData.get('message'),
       page_url: window.location.href,
+      website: formData.get('website') || '',
     };
+    if (turnstileInput?.value) data.cf_turnstile_response = turnstileInput.value;
 
     try {
       const response = await fetch('/api/form', {

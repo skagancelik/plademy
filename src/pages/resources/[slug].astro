@@ -16,6 +16,7 @@ Astro.response.headers.set(
 const lang = getLanguageFromCookie(Astro.cookies, Astro.url) || 'en';
 const slug = (Astro.params.slug || '').trim();
 const t = getTranslations(lang);
+const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY as string | undefined;
 
 let resource: Resource | null = null;
 let category: Category | null = null;
@@ -213,7 +214,12 @@ if (resource && resource.content) {
       id="resource-form"
       name="resource form"
       class="grid md:grid-cols-2 gap-8 items-center"
+      autocomplete="on"
     >
+      <div class="absolute -left-[9999px] opacity-0 pointer-events-none h-0 overflow-hidden" aria-hidden="true">
+        <label for="resource-form-website">Website</label>
+        <input type="text" id="resource-form-website" name="website" tabindex="-1" autocomplete="off" />
+      </div>
       <div>
         <h3 class="text-2xl font-bold mb-3">Boost your organization with Plademy solutions</h3>
         <p class="text-black">AI Powered Mentoring, Coaching, Community Management and Training Platforms</p>
@@ -239,6 +245,9 @@ if (resource && resource.content) {
             class="w-full px-4 py-3 border border-gray-300 rounded-full focus:ring-2 focus:ring-primary focus:border-transparent h-12"
           />
         </div>
+        {turnstileSiteKey && (
+          <div class="cf-turnstile" data-sitekey={turnstileSiteKey} data-size="normal" data-theme="light" />
+        )}
         <button
           type="submit"
           class="btn btn-primary w-full"
@@ -305,7 +314,12 @@ if (resource && resource.content) {
       id="resource-form-bottom"
       name="resource form"
       class="grid md:grid-cols-2 gap-8 items-center"
+      autocomplete="on"
     >
+      <div class="absolute -left-[9999px] opacity-0 pointer-events-none h-0 overflow-hidden" aria-hidden="true">
+        <label for="resource-form-bottom-website">Website</label>
+        <input type="text" id="resource-form-bottom-website" name="website" tabindex="-1" autocomplete="off" />
+      </div>
       <div>
         <h3 class="text-2xl font-bold mb-3">Boost your organization with Plademy solutions</h3>
         <p class="text-black">AI Powered Mentoring, Coaching, Community Management and Training Platforms</p>
@@ -331,6 +345,9 @@ if (resource && resource.content) {
             class="w-full px-4 py-3 border border-gray-300 rounded-full focus:ring-2 focus:ring-primary focus:border-transparent h-12"
           />
         </div>
+        {turnstileSiteKey && (
+          <div class="cf-turnstile" data-sitekey={turnstileSiteKey} data-size="normal" data-theme="light" />
+        )}
         <button
           type="submit"
           class="btn btn-primary w-full"
@@ -366,6 +383,7 @@ if (resource && resource.content) {
         e.preventDefault();
         
         const formData = new FormData(form);
+        const turnstileInput = form.querySelector('input[name="cf-turnstile-response"]');
         const data = {
           type: 'resource form',
           name: formData.get('name'),
@@ -373,6 +391,8 @@ if (resource && resource.content) {
           resource_slug: window.location.pathname.split('/').pop() || '',
           resource_title: document.querySelector('h1')?.textContent || '',
           page_url: window.location.href,
+          website: formData.get('website') || '',
+          ...(turnstileInput?.value && { cf_turnstile_response: turnstileInput.value }),
         };
         
         try {
@@ -408,6 +428,7 @@ if (resource && resource.content) {
         e.preventDefault();
         
         const formData = new FormData(formBottom);
+        const turnstileInput = formBottom.querySelector('input[name="cf-turnstile-response"]');
         const data = {
           type: 'resource form bottom',
           name: formData.get('name'),
@@ -415,6 +436,8 @@ if (resource && resource.content) {
           resource_slug: window.location.pathname.split('/').pop() || '',
           resource_title: document.querySelector('h1')?.textContent || '',
           page_url: window.location.href,
+          website: formData.get('website') || '',
+          ...(turnstileInput?.value && { cf_turnstile_response: turnstileInput.value }),
         };
         
         try {
