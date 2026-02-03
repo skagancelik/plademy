@@ -1,118 +1,117 @@
 import type { APIRoute } from 'astro';
+import {
+  isRateLimited,
+  validateFormBody,
+  verifyTurnstile,
+} from '@lib/formSecurity';
 
 export const prerender = false;
 
-export const POST: APIRoute = async ({ request }) => {
-  const corsHeaders = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type',
-    'Content-Type': 'application/json',
-  };
+const corsHeaders: Record<string, string> = {
+  'Access-Control-Allow-Origin': 'https://plademy.com',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type',
+  'Content-Type': 'application/json',
+};
 
+export const POST: APIRoute = async ({ request }) => {
   try {
-    // In Netlify SSR, environment variables are available via import.meta.env
-    // But we need to access them at runtime, so we use process.env as fallback
-    // Netlify injects env vars into process.env for serverless functions
-    const webhookUrl = process.env.N8N_WEBHOOK_URL || import.meta.env.N8N_WEBHOOK_URL;
-    
-    if (!webhookUrl) {
-      const envInfo = {
-        hasProcessEnv: !!process.env.N8N_WEBHOOK_URL,
-        hasImportMetaEnv: !!import.meta.env.N8N_WEBHOOK_URL,
-        processEnvKeys: Object.keys(process.env || {}).filter(k => k.includes('N8N') || k.includes('WEBHOOK')),
-        importMetaKeys: Object.keys(import.meta.env || {}).filter(k => k.includes('N8N') || k.includes('WEBHOOK')),
-      };
-      console.error('N8N_WEBHOOK_URL is not configured', envInfo);
+    // Rate limit: reject excessive requests per IP
+    if (isRateLimited(request)) {
       return new Response(
-        JSON.stringify({ 
-          error: 'Service not configured',
-          details: 'N8N_WEBHOOK_URL environment variable is missing',
-          debug: envInfo,
-        }),
-        { status: 500, headers: corsHeaders }
+        JSON.stringify({ error: 'Too many requests. Please try again later.' }),
+        { status: 429, headers: corsHeaders }
       );
     }
 
-    // Parse request body
-    let body;
+    // Only accept same-origin or our site (no wildcard CORS for POST)
+    const origin = request.headers.get('origin');
+    const allowedOrigins = ['https://plademy.com', 'http://localhost:4321', 'http://localhost:8888'];
+    const responseOrigin = origin && allowedOrigins.includes(origin) ? origin : 'https://plademy.com';
+    const responseCors = { ...corsHeaders, 'Access-Control-Allow-Origin': responseOrigin };
+
+    const webhookUrl = process.env.N8N_WEBHOOK_URL || import.meta.env.N8N_WEBHOOK_URL;
+
+    if (!webhookUrl) {
+      console.error('N8N_WEBHOOK_URL is not configured');
+      return new Response(
+        JSON.stringify({
+          error: 'Service not configured',
+          details: 'N8N_WEBHOOK_URL environment variable is missing',
+        }),
+        { status: 500, headers: responseCors }
+      );
+    }
+
+    let body: unknown;
     try {
       body = await request.json();
     } catch {
       return new Response(
         JSON.stringify({ error: 'Invalid JSON' }),
-        { status: 400, headers: corsHeaders }
+        { status: 400, headers: responseCors }
       );
     }
 
-    // Validate required fields
-    if (!body.name || !body.email) {
+    const turnstileSecret = process.env.TURNSTILE_SECRET_KEY || import.meta.env.TURNSTILE_SECRET_KEY;
+    const rawBody = body as Record<string, unknown>;
+    const turnstileToken =
+      (rawBody.cf_turnstile_response as string | undefined) ??
+      (rawBody['cf-turnstile-response'] as string | undefined);
+
+    if (turnstileSecret) {
+      const turnstileResult = await verifyTurnstile(turnstileToken, request, turnstileSecret);
+      if (!turnstileResult.success) {
+        return new Response(
+          JSON.stringify({
+            error: 'Verification failed. Please complete the security check and try again.',
+          }),
+          { status: 400, headers: responseCors }
+        );
+      }
+    }
+
+    const validation = validateFormBody(body);
+    if (!validation.ok) {
       return new Response(
-        JSON.stringify({ error: 'Name and email are required' }),
-        { status: 400, headers: corsHeaders }
+        JSON.stringify({ error: validation.error }),
+        { status: validation.status, headers: responseCors }
       );
     }
 
-    // Prepare form data
-    const formData = {
-      type: body.type || 'contact',
-      name: body.name,
-      email: body.email,
-      message: body.message || '',
-      organization: body.organization || '',
-      needs: body.needs || '',
-      page_url: body.page_url || '',
-      resource_slug: body.resource_slug || '',
-      resource_title: body.resource_title || '',
-      program_slug: body.program_slug || '',
-      program_title: body.program_title || '',
-      category: body.category || '',
-      audience: body.audience || '',
-      timestamp: new Date().toISOString(),
-      source: 'plademy-website',
-    };
+    const formPayload = validation.data;
 
-    console.log('Sending form data to webhook...');
-
-    // Forward to n8n webhook
-    const response = await fetch(webhookUrl, {
+    const webhookResponse = await fetch(webhookUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(formData),
+      body: JSON.stringify(formPayload),
     });
 
-    if (!response.ok) {
-      const responseText = await response.text().catch(() => 'Unable to read response');
+    if (!webhookResponse.ok) {
+      const responseText = await webhookResponse.text().catch(() => 'Unable to read response');
       console.error('Webhook failed:', {
-        status: response.status,
-        statusText: response.statusText,
+        status: webhookResponse.status,
+        statusText: webhookResponse.statusText,
         url: webhookUrl.substring(0, 50) + '...',
-        responseBody: responseText.substring(0, 500),
       });
       return new Response(
-        JSON.stringify({ 
+        JSON.stringify({
           error: 'Failed to process form',
-          details: `Webhook returned ${response.status}: ${response.statusText}`,
-          webhookResponse: responseText.substring(0, 200),
+          details: `Webhook returned ${webhookResponse.status}: ${webhookResponse.statusText}`,
         }),
-        { status: 500, headers: corsHeaders }
+        { status: 500, headers: responseCors }
       );
     }
 
-    console.log('Form submitted successfully');
     return new Response(
       JSON.stringify({ success: true }),
-      { status: 200, headers: corsHeaders }
+      { status: 200, headers: responseCors }
     );
   } catch (error) {
     const errorMessage = error instanceof Error ? error.message : String(error);
-    const errorStack = error instanceof Error ? error.stack : undefined;
-    console.error('API error:', {
-      message: errorMessage,
-      stack: errorStack,
-    });
+    console.error('API error:', errorMessage);
     return new Response(
-      JSON.stringify({ 
+      JSON.stringify({
         error: 'Internal server error',
         message: errorMessage,
       }),
@@ -121,11 +120,14 @@ export const POST: APIRoute = async ({ request }) => {
   }
 };
 
-export const OPTIONS: APIRoute = async () => {
+export const OPTIONS: APIRoute = async ({ request }) => {
+  const origin = request.headers.get('origin');
+  const allowedOrigins = ['https://plademy.com', 'http://localhost:4321', 'http://localhost:8888'];
+  const allowOrigin = origin && allowedOrigins.includes(origin) ? origin : 'https://plademy.com';
   return new Response(null, {
     status: 204,
     headers: {
-      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Origin': allowOrigin,
       'Access-Control-Allow-Methods': 'POST, OPTIONS',
       'Access-Control-Allow-Headers': 'Content-Type',
     },

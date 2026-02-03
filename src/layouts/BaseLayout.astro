@@ -48,6 +48,12 @@ const {
     <link rel="icon" type="image/svg+xml" href="/plademy-favicon.svg" />
     <link rel="apple-touch-icon" href="/plademy-favicon.svg" />
     <link rel="manifest" href="/site.webmanifest" />
+    {import.meta.env.PUBLIC_TURNSTILE_SITE_KEY && (
+      <>
+        <link rel="preconnect" href="https://challenges.cloudflare.com" />
+        <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer />
+      </>
+    )}
     <SEO
       title={title}
       description={description}

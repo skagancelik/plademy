@@ -156,6 +156,51 @@ curl -X GET https://[project].supabase.co/rest/v1/resources \
 
 ---
 
+## Form Security (Site Formları)
+
+Tüm formlar (`/api/form`) aşağıdaki katmanlarla korunur:
+
+### 1. Cloudflare Turnstile (CAPTCHA alternatifi)
+- **Ücretsiz, gizlilik dostu.** Managed mod: bazen invisible, bazen kısa checkbox.
+- **Env:** `PUBLIC_TURNSTILE_SITE_KEY` (tarayıcıda), `TURNSTILE_SECRET_KEY` (sadece sunucu).
+- **Akış:** Formda widget yüklenir → kullanıcı doğrulamayı geçer → token form ile gönderilir → API Cloudflare Siteverify ile doğrular.
+- **Key yoksa:** Widget gösterilmez, API doğrulama atlar (local geliştirme için).
+- **Key varsa token yok/geçersizse:** `400 Verification failed` döner.
+- **Kurulum:** [Cloudflare Turnstile](https://dash.cloudflare.com/) → Create Widget → Site key + Secret key al. Production’da mutlaka kullan (spam için en etkili katman).
+
+### 2. Rate limiting
+- **Dosya:** `src/lib/formSecurity.ts`
+- IP başına 1 dakika içinde en fazla **5** istek.
+- Aşılırsa `429 Too Many Requests` döner.
+
+### 3. Honeypot (bot tuzak)
+- Her formda gizli `website` alanı (CSS ile ekran dışı, `aria-hidden`).
+- Gerçek kullanıcı boş bırakır; botlar doldurursa istek reddedilir (`400 Invalid request`).
+
+### 4. Input validation & sanitization
+- **Whitelist:** Sadece izinli `type` değerleri: `contact`, `start`, `resource form`, `resource form bottom`, `program form`, `program form bottom`.
+- **Zorunlu:** `name`, `email`; email format kontrolü.
+- **Uzunluk limitleri:** name 200, email 254, message 10000, organization 300, needs 5000, slug/title 500, page_url 2048 karakter.
+- Tüm string alanlar: trim, null byte/control char temizleme, tek boşluk normalleştirme.
+
+### 5. CORS
+- `Access-Control-Allow-Origin` artık `*` değil; sadece `https://plademy.com`, `http://localhost:4321`, `http://localhost:8888`.
+- OPTIONS ve POST yanıtlarında `Origin` header’a göre uygun origin dönülür.
+
+### Form bileşenleri (honeypot + Turnstile)
+- `ContactForm.astro`, `StartForm.astro`
+- `[slug].astro` (resource), `programs/[slug].astro`, `resources/[slug].astro` (her sayfada 2 form)
+
+### Yapılması gerekenler
+- [x] Turnstile entegrasyonu (production’da key zorunlu)
+- [x] Rate limit 5/dk (in-memory; serverless’ta instance bazlı)
+- [x] Honeypot tüm formlarda
+- [x] Validation + sanitization API’de
+- [x] CORS sıkılaştırıldı
+- [ ] İsteğe bağlı: Production’da rate limit için Redis/Netlify Blobs gibi kalıcı store
+
+---
+
 ## Best Practices
 
 1. **Always Use RLS:** Tüm tablolarda RLS enabled
