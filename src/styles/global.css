@@ -98,6 +98,21 @@
     @apply bg-white rounded-2xl p-6 border border-gray-200;
   }
 
+  /* Turnstile widget: below button, borderless, rounded, vertically aligned */
+  .turnstile-widget-wrap {
+    border: none;
+    border-radius: 1rem;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  .turnstile-widget-wrap .cf-turnstile,
+  .turnstile-widget-wrap iframe {
+    border: none !important;
+    border-radius: 1rem;
+  }
+
   .faq-item:hover {
     border-color: black !important;
   }
