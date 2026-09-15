@@ -143,6 +143,7 @@
     "description": "Plademy är en AI-driven integrationsnav anpassad för både medarbetar- och gemenskapsutvecklingsprogram.",
     "stayConnected": "Håll kontakten på sociala medier",
     "links": {
+      "about": "Om oss",
       "security": "Säkerhet",
       "privacy": "Integritetspolicy",
       "cookies": "Cookiepolicy"
@@ -151,6 +152,15 @@
     "businessId": "Företags-ID",
     "vat": "MOMS-nr",
     "rights": "© Alla rättigheter förbehållna"
+  },
+  "about": {
+    "title": "Om Plademy",
+    "description": "Plademy Oy — AI-driven plattform för mentor-, coachnings- och organisationsutvecklingsprogram, baserad i Helsingfors, Finland.",
+    "lead": "Människocentrerad, AI-driven lärande och utveckling för organisationer och gemenskaper.",
+    "body1": "Plademy är en AI-driven plattform som hjälper organisationer att designa, driva och mäta mentor-, coachnings-, utbildnings-, onboarding- och andra utvecklingsprogram — utan kalkylblad och utspridda verktyg.",
+    "body2": "Vi bygger produktupplevelser som Mentorship Center, Membership Center och ERG Center, med säkra integrationer mot HR-, LMS- och samarbetsverktyg.",
+    "companyHeading": "Företag",
+    "founded": "Grundat"
   },
   "solutions": {
     "title": "Lösningar",

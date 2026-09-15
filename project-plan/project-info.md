@@ -952,12 +952,14 @@ export function getLanguageFromCookie(
 ### Form Security Enhancements (2025)
 
 - **Cloudflare Turnstile (Şubat 2025):** CAPTCHA alternatifi; Managed mod, ücretsiz. `PUBLIC_TURNSTILE_SITE_KEY` (client), `TURNSTILE_SECRET_KEY` (server). Tüm formlarda widget, API'de Siteverify doğrulaması.
+- **Widget UX:** Butonun altında; `data-size="compact"` (~150×140px); borderless, rounded wrapper (`turnstile-widget-wrap`). Tamamen gizli istersen Dashboard’da Widget Mode → Invisible.
+- **Contact/Start SSR:** `contact.astro` ve `start.astro` için `prerender = false`; Turnstile site key runtime’da alınsın diye (statik build’de key yoksa widget çıkmıyordu).
 - **Rate limiting:** IP başına 5 istek/dk (`src/lib/formSecurity.ts`). 429 döner.
 - **Honeypot:** Gizli `website` alanı tüm formlarda; bot doldurursa 400.
 - **Input Validation:** Form type whitelist, name/email zorunlu, email format, uzunluk limitleri.
 - **Sanitization:** Tüm string alanlar trim, null byte/control char temizleme.
 - **CORS:** Sadece plademy.com ve localhost origin'leri; wildcard kaldırıldı.
-- **Dosyalar:** `src/lib/formSecurity.ts`, `src/pages/api/form.ts`, tüm form bileşenleri. Ayrıntı: `project-plan/security.md` Form Security bölümü.
+- **Dosyalar:** `src/lib/formSecurity.ts`, `src/pages/api/form.ts`, `src/styles/global.css` (Turnstile wrapper), tüm form bileşenleri. Ayrıntı: `project-plan/security.md` Form Security bölümü.
 
 ### Program Form Content Personalization (2025)
 
@@ -2203,25 +2205,31 @@ Detaylı performans ve güvenlik test raporu için `PERFORMANCE_SECURITY_REPORT.
    - **Env:** `PUBLIC_TURNSTILE_SITE_KEY` (tarayıcı), `TURNSTILE_SECRET_KEY` (sadece sunucu).
    - **Akış:** BaseLayout'ta script yüklenir; her formda widget div; submit'te token `cf_turnstile_response` ile API'ye gider; API Cloudflare Siteverify ile doğrular.
    - Key yoksa widget gösterilmez, API doğrulama atlar (local geliştirme). Key varsa token yok/geçersizse 400.
+   - **Widget görünümü:** Butonun altında; `data-size="compact"` (minimalist, ~150×140px); wrapper sınıfı `turnstile-widget-wrap` (borderless, rounded). Tamamen gizli istersen Cloudflare Dashboard’da Widget Mode → **Invisible** seçilir (kod değişikliği yok).
 
-2. **Rate limiting**
+2. **Contact/Start SSR**
+   - `contact.astro` ve `start.astro` için `export const prerender = false`. Böylece Turnstile site key runtime’da alınır; statik build’de key yokken Contact/Start’ta widget çıkmama sorunu giderildi.
+
+3. **Rate limiting**
    - IP başına 1 dakikada en fazla 5 istek (`src/lib/formSecurity.ts`). Aşımda 429.
 
-3. **Honeypot**
+4. **Honeypot**
    - Tüm formlarda gizli `website` alanı (CSS ile ekran dışı). Bot doldurursa 400.
 
-4. **Validation & sanitization**
+5. **Validation & sanitization**
    - Form type whitelist; name/email zorunlu; email format; tüm string alanlarda uzunluk limitleri ve sanitization (trim, null byte temizleme).
 
-5. **CORS**
+6. **CORS**
    - `Access-Control-Allow-Origin` artık sadece `https://plademy.com`, `http://localhost:4321`, `http://localhost:8888`.
 
 **Etkilenen dosyalar:**
 - `src/lib/formSecurity.ts` (yeni): rate limit, honeypot check, validateFormBody, verifyTurnstile
 - `src/pages/api/form.ts`: Turnstile verify, rate limit, validateFormBody, CORS sıkılaştırma
 - `src/layouts/BaseLayout.astro`: Turnstile script (site key varsa)
-- `src/components/forms/ContactForm.astro`, `StartForm.astro`: Turnstile widget, honeypot, token gönderimi
-- `src/pages/[slug].astro`, `programs/[slug].astro`, `resources/[slug].astro`: Her sayfada 2 form; Turnstile widget + honeypot + token
+- `src/components/forms/ContactForm.astro`, `StartForm.astro`: Turnstile widget (compact, buton altında), honeypot, token gönderimi
+- `src/pages/contact.astro`, `src/pages/start.astro`: `prerender = false`
+- `src/pages/[slug].astro`, `programs/[slug].astro`, `resources/[slug].astro`: Her sayfada 2 form; Turnstile widget (compact, buton altında) + honeypot + token
+- `src/styles/global.css`: `.turnstile-widget-wrap` (borderless, rounded, flex centered)
 - `project-plan/security.md`, `README.md`: Form security ve env dokümantasyonu
 
 *Son güncelleme: 3 Şubat 2025*

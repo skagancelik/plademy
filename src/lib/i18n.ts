@@ -63,16 +63,22 @@ export function getLanguageFromCookie(cookies: any, url?: URL): Language {
   return 'en';
 }
 
-// URL slug mapping for different languages
+// URL slug mapping for different languages.
+// Only map to localized paths that actually exist as routes (avoid 404s).
+// Other static pages share the English URL; language is applied via cookie.
 const pathMapping: Record<string, Record<Language, string>> = {
   '/': { en: '/', fi: '/', sv: '/' },
-  '/programs': { en: '/programs', fi: '/ohjelmat', sv: '/program' },
-  '/resources': { en: '/resources', fi: '/resurssit', sv: '/resurser' },
-  '/integrations': { en: '/integrations', fi: '/integraatiot', sv: '/integrationer' },
-  '/start': { en: '/start', fi: '/aloita', sv: '/starta' },
-  '/contact': { en: '/contact', fi: '/yhteystiedot', sv: '/kontakt' },
-  '/privacy': { en: '/privacy', fi: '/tietosuoja', sv: '/integritet' },
-  '/search': { en: '/search', fi: '/haku', sv: '/sok' },
+  '/programs': { en: '/programs', fi: '/ohjelmat', sv: '/programs' },
+  '/resources': { en: '/resources', fi: '/resurssit', sv: '/resources' },
+  '/integrations': { en: '/integrations', fi: '/integrations', sv: '/integrations' },
+  '/solutions': { en: '/solutions', fi: '/solutions', sv: '/solutions' },
+  '/start': { en: '/start', fi: '/start', sv: '/start' },
+  '/contact': { en: '/contact', fi: '/contact', sv: '/contact' },
+  '/privacy': { en: '/privacy', fi: '/privacy', sv: '/privacy' },
+  '/cookies': { en: '/cookies', fi: '/cookies', sv: '/cookies' },
+  '/about': { en: '/about', fi: '/about', sv: '/about' },
+  '/search': { en: '/search', fi: '/search', sv: '/search' },
+  '/erg-center': { en: '/erg-center', fi: '/erg-center', sv: '/erg-center' },
 };
 
 // Reverse mapping: from localized path to English path
@@ -87,19 +93,11 @@ export function getLocalizedPath(path: string, lang: Language): string {
   // Normalize path
   const normalizedPath = path.startsWith('/') ? path : `/${path}`;
   
-  // Check if path has a mapping
+  // Exact mapped routes only (e.g. /programs → /ohjelmat for FI).
+  // Nested URLs (/programs/[slug], /resources/...) stay on English paths;
+  // language content is selected via cookie — localized FI trees do not exist yet.
   if (pathMapping[normalizedPath]) {
     return pathMapping[normalizedPath][lang] || normalizedPath;
-  }
-  
-  // Handle dynamic paths like /programs/[category] or /resources/[slug]
-  // Try to match the base path
-  for (const [basePath, langs] of Object.entries(pathMapping)) {
-    if (normalizedPath.startsWith(basePath + '/')) {
-      const suffix = normalizedPath.slice(basePath.length);
-      const localizedBase = langs[lang] || basePath;
-      return `${localizedBase}${suffix}`;
-    }
   }
   
   return normalizedPath;
@@ -128,19 +126,23 @@ export function getPathFromLocalizedPath(localizedPath: string): { path: string;
   // If no mapping found, try to detect from path
   if (normalizedPath.startsWith('/ohjelmat')) return { path: '/programs', lang: 'fi' };
   if (normalizedPath.startsWith('/resurssit')) return { path: '/resources', lang: 'fi' };
-  if (normalizedPath.startsWith('/program') && !normalizedPath.startsWith('/programs')) return { path: '/programs', lang: 'sv' };
-  if (normalizedPath.startsWith('/resurser')) return { path: '/resources', lang: 'sv' };
-  if (normalizedPath.startsWith('/integraatiot')) return { path: '/integrations', lang: 'fi' };
-  if (normalizedPath.startsWith('/integrationer')) return { path: '/integrations', lang: 'sv' };
-  if (normalizedPath.startsWith('/aloita')) return { path: '/start', lang: 'fi' };
-  if (normalizedPath.startsWith('/starta')) return { path: '/start', lang: 'sv' };
-  if (normalizedPath.startsWith('/yhteystiedot')) return { path: '/contact', lang: 'fi' };
-  if (normalizedPath.startsWith('/kontakt')) return { path: '/contact', lang: 'sv' };
-  if (normalizedPath.startsWith('/tietosuoja')) return { path: '/privacy', lang: 'fi' };
-  if (normalizedPath.startsWith('/integritet')) return { path: '/privacy', lang: 'sv' };
-  if (normalizedPath.startsWith('/haku')) return { path: '/search', lang: 'fi' };
-  if (normalizedPath.startsWith('/sok')) return { path: '/search', lang: 'sv' };
-  
+
   return null;
+}
+
+/**
+ * Hreflang targets must not advertise 404 URLs.
+ * Finnish aliases exist for programs/resources indexes; otherwise use English path.
+ */
+export function getHreflangPath(path: string, lang: Language): string {
+  const localized = getLocalizedPath(path, lang);
+  if (lang === 'en') return getLocalizedPath(path, 'en');
+
+  // Only advertise Finnish index aliases that exist as real routes
+  if (lang === 'fi' && (localized === '/ohjelmat' || localized === '/resurssit' || localized === '/')) {
+    return localized;
+  }
+
+  return getLocalizedPath(path, 'en');
 }
 

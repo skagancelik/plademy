@@ -99,24 +99,45 @@ const currentPathClean = currentPath || '/';
         const newLang = langButton.getAttribute('data-lang');
         if (newLang) {
           // Get current path and convert to new language path
-          const currentPath = window.location.pathname;
+          let currentPath = window.location.pathname.replace(/\/$/, '') || '/';
+          if (currentPath === '/ohjelmat') currentPath = '/programs';
+          if (currentPath === '/resurssit') currentPath = '/resources';
+
+          // Only map to routes that exist (avoid 404s). Other pages share EN URLs + lang cookie.
           const pathMappings: Record<string, Record<string, string>> = {
             '/': { en: '/', fi: '/', sv: '/' },
-            '/programs': { en: '/programs', fi: '/ohjelmat', sv: '/program' },
-            '/resources': { en: '/resources', fi: '/resurssit', sv: '/resurser' },
-            '/integrations': { en: '/integrations', fi: '/integraatiot', sv: '/integrationer' },
-            '/start': { en: '/start', fi: '/aloita', sv: '/starta' },
-            '/contact': { en: '/contact', fi: '/yhteystiedot', sv: '/kontakt' },
-            '/privacy': { en: '/privacy', fi: '/tietosuoja', sv: '/integritet' },
-            '/search': { en: '/search', fi: '/haku', sv: '/sok' },
+            '/programs': { en: '/programs', fi: '/ohjelmat', sv: '/programs' },
+            '/resources': { en: '/resources', fi: '/resurssit', sv: '/resources' },
+            '/integrations': { en: '/integrations', fi: '/integrations', sv: '/integrations' },
+            '/solutions': { en: '/solutions', fi: '/solutions', sv: '/solutions' },
+            '/start': { en: '/start', fi: '/start', sv: '/start' },
+            '/contact': { en: '/contact', fi: '/contact', sv: '/contact' },
+            '/privacy': { en: '/privacy', fi: '/privacy', sv: '/privacy' },
+            '/cookies': { en: '/cookies', fi: '/cookies', sv: '/cookies' },
+            '/about': { en: '/about', fi: '/about', sv: '/about' },
+            '/search': { en: '/search', fi: '/search', sv: '/search' },
+            '/erg-center': { en: '/erg-center', fi: '/erg-center', sv: '/erg-center' },
           };
           
-          // Find base path
+          // Find base path — nested content stays on shared EN URLs
           let basePath = '/';
           let suffix = '';
-          for (const [base, langs] of Object.entries(pathMappings)) {
-            if (currentPath === base || currentPath.startsWith(base + '/')) {
+          let exactOnly = false;
+          for (const [base] of Object.entries(pathMappings)) {
+            if (currentPath === base) {
               basePath = base;
+              suffix = '';
+              exactOnly = true;
+              break;
+            }
+            if (base !== '/' && currentPath.startsWith(base + '/')) {
+              basePath = base;
+              // Nested /programs/... and /resources/... are not localized as /ohjelmat/...
+              if (base === '/programs' || base === '/resources') {
+                document.cookie = `lang=${newLang};path=/;max-age=31536000;SameSite=Lax`;
+                window.location.href = currentPath + (window.location.search || '');
+                return;
+              }
               suffix = currentPath.slice(base.length);
               break;
             }
@@ -124,7 +145,7 @@ const currentPathClean = currentPath || '/';
           
           // Get localized path for new language
           const newPath = pathMappings[basePath]?.[newLang] || basePath;
-          const fullNewPath = newPath + suffix;
+          const fullNewPath = exactOnly || !suffix ? newPath : newPath + suffix;
           
           // Set cookie and navigate
           document.cookie = `lang=${newLang};path=/;max-age=31536000;SameSite=Lax`;
