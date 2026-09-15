@@ -1,0 +1,58 @@
+---
+import PageLayout from '@layouts/PageLayout.astro';
+import type { Language } from '@lib/i18n';
+import { getLanguageFromCookie, getTranslations } from '@lib/i18n';
+
+export const prerender = true;
+
+const lang = getLanguageFromCookie(Astro.cookies, Astro.url) || 'en';
+const t = getTranslations(lang);
+---
+
+<PageLayout
+  title={t.about?.title || 'About Plademy'}
+  description={t.about?.description || 'Plademy Oy — AI-powered platform for mentoring, coaching, and organizational development programs, based in Helsinki, Finland.'}
+  lang={lang}
+>
+  <div class="container py-12">
+    <article class="max-w-3xl mx-auto">
+      <h1 class="text-4xl md:text-5xl font-bold mb-6" data-testid="about-title">
+        {t.about?.title || 'About Plademy'}
+      </h1>
+      <p class="text-xl text-gray-700 mb-10">
+        {t.about?.lead || 'Human-centered, AI-powered learning and development for organizations and communities.'}
+      </p>
+
+      <div class="space-y-6 text-lg text-gray-800 leading-relaxed">
+        <p>
+          {t.about?.body1 || 'Plademy is an AI-driven platform that helps organizations design, run, and measure mentoring, coaching, training, onboarding, and other development programs — without relying on spreadsheets and scattered tools.'}
+        </p>
+        <p>
+          {t.about?.body2 || 'We build product experiences such as Mentorship Center, Membership Center, and ERG Center, with secure integrations into HR, LMS, and collaboration tools.'}
+        </p>
+      </div>
+
+      <div class="mt-12 p-8 rounded-[30px] bg-[#F6F7FB]" data-testid="about-company">
+        <h2 class="text-2xl font-bold mb-4">{t.about?.companyHeading || 'Company'}</h2>
+        <ul class="space-y-2 text-gray-800">
+          <li><strong>Plademy Oy</strong></li>
+          <li>{t.footer.address}</li>
+          <li>{t.footer.businessId}: 3386328-3</li>
+          <li>{t.footer.vat}: FI33863283</li>
+          <li>{t.about?.founded || 'Founded'}: 2023</li>
+          <li>
+            Email: <a class="text-[#2841CF] font-medium hover:underline" href="mailto:info@plademy.com">info@plademy.com</a>
+          </li>
+          <li>
+            LinkedIn: <a class="text-[#2841CF] font-medium hover:underline" href="https://www.linkedin.com/company/plademy" target="_blank" rel="noopener noreferrer">linkedin.com/company/plademy</a>
+          </li>
+        </ul>
+      </div>
+
+      <div class="mt-10 flex flex-wrap gap-4">
+        <a href="/start" class="btn bg-black text-white hover:bg-[#2841CF]">{t.nav.start}</a>
+        <a href="/contact" class="btn bg-white text-black border border-gray-300 hover:border-[#2841CF]">{t.nav.contact}</a>
+      </div>
+    </article>
+  </div>
+</PageLayout>

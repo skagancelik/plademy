@@ -167,6 +167,7 @@ Tüm formlar (`/api/form`) aşağıdaki katmanlarla korunur:
 - **Key yoksa:** Widget gösterilmez, API doğrulama atlar (local geliştirme için).
 - **Key varsa token yok/geçersizse:** `400 Verification failed` döner.
 - **Kurulum:** [Cloudflare Turnstile](https://dash.cloudflare.com/) → Create Widget → Site key + Secret key al. Production’da mutlaka kullan (spam için en etkili katman).
+- **Widget görünümü:** Sitede `data-size="compact"` kullanılıyor (daha küçük, ~150×140px). Tamamen gizli istersen Dashboard’da Widget Mode → **Invisible** seç; challenge arka planda çalışır, ekranda hiçbir şey görünmez (kod değişikliği gerekmez).
 
 ### 2. Rate limiting
 - **Dosya:** `src/lib/formSecurity.ts`

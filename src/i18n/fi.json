@@ -143,6 +143,7 @@
     "description": "Plademy on tekoälyllä toteutettu integraatiokeskus, joka on räätälöity sekä työntekijä- että yhteisökehitysohjelmille.",
     "stayConnected": "Pysy yhteydessä sosiaalisessa mediassa",
     "links": {
+      "about": "Tietoa meistä",
       "security": "Turvallisuus",
       "privacy": "Tietosuojakäytäntö",
       "cookies": "Evästekäytäntö"
@@ -151,6 +152,15 @@
     "businessId": "Y-tunnus",
     "vat": "ALV-nro",
     "rights": "© Kaikki oikeudet pidätetään"
+  },
+  "about": {
+    "title": "Tietoa Plademysta",
+    "description": "Plademy Oy — tekoälyyn pohjautuva alusta mentorointi-, valmennus- ja organisaation kehittämisohjelmille. Helsinki, Suomi.",
+    "lead": "Ihmiskeskeinen, tekoälyllä tuettu oppiminen ja kehitys organisaatioille ja yhteisöille.",
+    "body1": "Plademy on tekoälyyn pohjautuva alusta, joka auttaa organisaatioita suunnittelemaan, toteuttamaan ja mittaamaan mentorointi-, valmennus-, koulutus-, perehdytys- ja muita kehittämisohjelmia — ilman taulukoita ja hajallaan olevia työkaluja.",
+    "body2": "Rakennamme tuotteita kuten Mentorship Center, Membership Center ja ERG Center, sekä turvallisia integraatioita HR-, LMS- ja yhteistyötyökaluihin.",
+    "companyHeading": "Yritys",
+    "founded": "Perustettu"
   },
   "solutions": {
     "title": "Ratkaisut",

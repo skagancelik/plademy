@@ -1,0 +1,71 @@
+---
+import PageLayout from '@layouts/PageLayout.astro';
+import type { Language } from '@lib/i18n';
+import { getLanguageFromCookie } from '@lib/i18n';
+
+export const prerender = true;
+
+const lang = getLanguageFromCookie(Astro.cookies, Astro.url) || 'en';
+---
+
+<PageLayout
+  title="Cookie Policy"
+  description="How Plademy Oy uses cookies and similar technologies on plademy.com."
+  lang={lang}
+>
+  <div class="container py-12">
+    <article class="max-w-4xl mx-auto prose prose-lg privacy-page">
+      <h1>Cookie Policy</h1>
+
+      <p><strong>Effective Date:</strong> 15 Sep 2026</p>
+      <p><strong>Last Updated:</strong> 15 Sep 2026</p>
+
+      <p>
+        This Cookie Policy explains how Plademy Oy ("we," "our," or "us") uses cookies and similar technologies on <a href="https://plademy.com">plademy.com</a>.
+        It should be read together with our <a href="/privacy">Privacy Policy</a>.
+      </p>
+
+      <h2>1. What Are Cookies?</h2>
+      <p>
+        Cookies are small text files stored on your device when you visit a website. They help the site function, remember preferences, and understand how visitors use the site.
+      </p>
+
+      <h2>2. Cookies We Use</h2>
+      <ul>
+        <li>
+          <strong>Essential cookies:</strong> Required for core site functions such as language preference (<code>lang</code>), security, and form protection (including Cloudflare Turnstile challenges).
+        </li>
+        <li>
+          <strong>Analytics cookies:</strong> Used via Google Tag Manager / Google Analytics (when enabled) to measure traffic and improve the website. These may set first- or third-party cookies depending on your browser settings and consent tools.
+        </li>
+      </ul>
+
+      <h2>3. How Long Cookies Last</h2>
+      <p>
+        Session cookies expire when you close your browser. Persistent cookies (for example language preference) may remain for up to one year or until you delete them.
+      </p>
+
+      <h2>4. Managing Cookies</h2>
+      <p>
+        You can control or delete cookies through your browser settings. Blocking essential cookies may affect site functionality (for example language selection or form submission).
+      </p>
+
+      <h2>5. Contact</h2>
+      <p>
+        Questions about cookies or privacy: <a href="mailto:info@plademy.com">info@plademy.com</a><br />
+        Plademy Oy · Maria 01, Lapinlahdenkatu 16, 00180 Helsinki, Finland · Business ID 3386328-3
+      </p>
+    </article>
+  </div>
+</PageLayout>
+
+<style>
+  .privacy-page h1 {
+    margin-bottom: 30px !important;
+  }
+
+  .privacy-page h2 {
+    margin-top: 2rem !important;
+    margin-bottom: 1rem !important;
+  }
+</style>

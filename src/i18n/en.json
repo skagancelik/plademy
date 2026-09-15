@@ -143,6 +143,7 @@
     "description": "Plademy is an AI-driven integration hub tailored for both employee and community development programs.",
     "stayConnected": "Stay Connected on Social Media",
     "links": {
+      "about": "About",
       "security": "Security",
       "privacy": "Privacy Policy",
       "cookies": "Cookie Policy"
@@ -151,6 +152,15 @@
     "businessId": "Business-ID",
     "vat": "VAT NO",
     "rights": "© All rights reserved"
+  },
+  "about": {
+    "title": "About Plademy",
+    "description": "Plademy Oy — AI-powered platform for mentoring, coaching, and organizational development programs, based in Helsinki, Finland.",
+    "lead": "Human-centered, AI-powered learning and development for organizations and communities.",
+    "body1": "Plademy is an AI-driven platform that helps organizations design, run, and measure mentoring, coaching, training, onboarding, and other development programs — without relying on spreadsheets and scattered tools.",
+    "body2": "We build product experiences such as Mentorship Center, Membership Center, and ERG Center, with secure integrations into HR, LMS, and collaboration tools.",
+    "companyHeading": "Company",
+    "founded": "Founded"
   },
   "solutions": {
     "title": "Solutions",
