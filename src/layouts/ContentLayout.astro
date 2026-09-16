@@ -22,6 +22,8 @@ interface Props {
   programGoal?: string;
   programDuration?: string;
   programAudience?: string;
+  /** Hide the default H1 (e.g. when title is rendered inside ProgramPattern hero). */
+  hideTitle?: boolean;
 }
 
 const {
@@ -41,6 +43,7 @@ const {
   programGoal,
   programDuration,
   programAudience,
+  hideTitle = false,
 } = Astro.props;
 
 const siteUrl = import.meta.env.PUBLIC_SITE_URL || 'https://plademy.com';
@@ -82,14 +85,14 @@ breadcrumbs.push({ name: title, url: canonicalUrl });
   <article class="container py-12 overflow-x-hidden">
     <div class="flex flex-col lg:flex-row gap-8 justify-between">
       <div class={`${tableOfContents.length > 0 || relatedResources.length > 0 || relatedPrograms.length > 0 || programGoal || programDuration || programAudience ? 'max-w-[800px]' : 'max-w-[800px] mx-auto'} flex-1 w-full`}>
-        <header class="mb-8">
-          <h1 class="text-4xl md:text-5xl font-bold mb-4">{title}</h1>
-          {description && <p class="text-xl text-black mb-4">{description}</p>}
-          <slot name="after-description" />
-        </header>
         <slot name="before-content">
           <!-- Default content if slot is not provided -->
         </slot>
+        <header class="mb-8">
+          {!hideTitle && <h1 class="text-4xl md:text-5xl font-bold mb-4">{title}</h1>}
+          {description && <p class="text-xl text-black mb-4">{description}</p>}
+          <slot name="after-description" />
+        </header>
         <div class="prose prose-lg max-w-none content-prose">
           <slot />
         </div>
