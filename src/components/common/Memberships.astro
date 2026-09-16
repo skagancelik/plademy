@@ -1,0 +1,93 @@
+---
+import { getTranslations, type Language } from '@lib/i18n';
+
+interface Props {
+  lang: Language;
+  variant?: 'homepage' | 'footer';
+}
+
+const { lang, variant = 'homepage' } = Astro.props;
+const t = getTranslations(lang);
+const isFooter = variant === 'footer';
+
+/**
+ * NVIDIA Inception badge usage (official guidelines):
+ * - Use only the provided official asset
+ * - Do not recolor, distort, crop, or apply effects
+ * - Place on a clean, light background (not busy)
+ * - Keep clear space on all sides (≥ height of the “n” in NVIDIA)
+ * - Keep logo at or above minimum digital size (~60px wide)
+ */
+---
+
+<section
+  class={isFooter ? '' : 'bg-white'}
+  data-testid="memberships"
+  aria-label={t.memberships.ariaLabel}
+>
+  <div class={isFooter ? '' : 'container py-8 md:py-10'}>
+    <div
+      class={`flex flex-col md:flex-row md:items-center gap-6 md:gap-10 ${
+        isFooter ? 'justify-center md:justify-start' : 'items-center md:justify-center'
+      }`}
+    >
+      <!-- NVIDIA Inception: isolated on white with clear space -->
+      <div class="inline-flex bg-white shrink-0 mx-auto md:mx-0" style="padding: 1.25rem;">
+        <a
+          href="https://www.nvidia.com/en-us/startups/"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-flex focus:outline-none focus-visible:ring-2 focus-visible:ring-[#76B900] focus-visible:ring-offset-2"
+          aria-label={t.memberships.nvidiaAlt}
+        >
+          <img
+            src="/nvidia-inception-program-badge.png"
+            alt={t.memberships.nvidiaAlt}
+            width="300"
+            height="129"
+            class="block"
+            style="height: 48px; width: auto; min-width: 120px;"
+            loading={isFooter ? 'lazy' : 'eager'}
+            decoding="async"
+            data-testid="nvidia-inception-badge"
+          />
+        </a>
+      </div>
+
+      <ul
+        class={`text-sm space-y-3 max-w-2xl ${
+          isFooter
+            ? 'text-white/90 text-center md:text-left'
+            : 'text-gray-700 text-center md:text-left'
+        }`}
+      >
+        <li>
+          <a
+            href="https://maria.io/"
+            target="_blank"
+            rel="noopener noreferrer"
+            class={isFooter
+              ? 'text-white/90 hover:text-white underline-offset-2 hover:underline transition-colors'
+              : 'text-gray-700 hover:text-[#2841CF] underline-offset-2 hover:underline transition-colors'}
+            data-testid="maria01-membership-link"
+          >
+            {t.memberships.maria}
+          </a>
+        </li>
+        <li>
+          <a
+            href="https://www.yrittajat.fi/en/about-us/information-about-yrittajat/"
+            target="_blank"
+            rel="noopener noreferrer"
+            class={isFooter
+              ? 'text-white/90 hover:text-white underline-offset-2 hover:underline transition-colors'
+              : 'text-gray-700 hover:text-[#2841CF] underline-offset-2 hover:underline transition-colors'}
+            data-testid="yrittajat-membership-link"
+          >
+            {t.memberships.yrittajat}
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>

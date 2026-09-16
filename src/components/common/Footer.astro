@@ -2,6 +2,7 @@
 import { supabase, type Category, type Program, type Resource } from '@lib/supabase';
 import { getTranslations, type Language } from '@lib/i18n';
 import { slugify } from '@lib/utils';
+import Memberships from './Memberships.astro';
 
 interface Props {
   lang: Language;
@@ -292,7 +293,11 @@ try {
       </div>
     </div>
 
-    <div class="border-t border-gray-800 mt-[62px] pt-[62px] pb-[92px] text-sm text-center">
+    <div class="border-t border-white/20 mt-[62px] pt-10">
+      <Memberships lang={lang} variant="footer" />
+    </div>
+
+    <div class="border-t border-gray-800 mt-10 pt-[62px] pb-[92px] text-sm text-center">
       <p class="text-white mb-6 text-lg font-semibold">
         {t.footer.stayConnected || 'Stay Connected on Social Media'}
       </p>
