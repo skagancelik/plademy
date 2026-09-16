@@ -1,0 +1,37 @@
+---
+import { getProgramPatternClass } from '@lib/programPattern';
+
+interface Props {
+  seed: string;
+  title?: string;
+  size?: 'card' | 'hero' | 'compact';
+  class?: string;
+}
+
+const { seed, title, size = 'card', class: className = '' } = Astro.props;
+const patternClass = getProgramPatternClass(seed);
+
+const sizeClass =
+  size === 'hero'
+    ? 'program-pattern-hero min-h-[14rem] md:min-h-[22rem] rounded-3xl mb-8'
+    : size === 'compact'
+      ? 'program-pattern-compact min-h-[5.5rem] rounded-lg'
+      : 'program-pattern-card min-h-[11rem] rounded-2xl mb-4';
+---
+
+<div
+  class={`${patternClass} ${sizeClass} ${className} relative overflow-hidden flex items-end`}
+  role={title ? 'img' : undefined}
+  aria-label={title ? undefined : 'Decorative program background'}
+  data-testid="program-pattern"
+  data-pattern-seed={seed}
+>
+  <div class="program-pattern__overlay absolute inset-0 pointer-events-none" aria-hidden="true"></div>
+  {title && (
+    <h3 class={`relative z-10 text-white font-bold leading-snug drop-shadow-sm ${
+      size === 'compact' ? 'text-sm p-3' : 'text-lg md:text-xl p-5 md:p-6'
+    }`}>
+      {title}
+    </h3>
+  )}
+</div>

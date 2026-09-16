@@ -36,6 +36,12 @@
     "latestResources": "Uusimmat resurssit",
     "latestPrograms": "Uusimmat ohjelmat"
   },
+  "memberships": {
+    "ariaLabel": "Jäsenyydet ja kumppanuudet",
+    "nvidiaAlt": "NVIDIA Inception Program",
+    "maria": "Plademy on Maria 01:n jäsen — Pohjoismaiden johtava startup-kampus",
+    "yrittajat": "Plademy on Suomen Yrittäjien jäsen"
+  },
   "programs": {
     "title": "Ohjelmat",
     "description": "Tutustu kattaviin ohjelmiimme, jotka on suunniteltu muuttamaan organisaatiosi.",

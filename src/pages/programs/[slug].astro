@@ -1,5 +1,6 @@
 ---
 import ContentLayout from '@layouts/ContentLayout.astro';
+import ProgramPattern from '@components/programs/ProgramPattern.astro';
 import { supabase, type Program, type Category, CATEGORY_FULL_FIELDS } from '@lib/supabase';
 import { getTranslations, getLocalizedPath, type Language, getLanguageFromCookie } from '@lib/i18n';
 import { marked } from 'marked';
@@ -274,18 +275,10 @@ if (program && (program.goal || program.duration || program.audience)) {
     )}
   </div>
 
-  {program.cover_image_url && (
-    <img
-      src={program.cover_image_url}
-      alt={program.title}
-      class="w-full h-96 object-cover rounded-3xl mb-8"
-      loading="eager"
-      width="1200"
-      height="600"
-      decoding="async"
-      fetchpriority="high"
-    />
-  )}
+  <ProgramPattern
+    seed={program.slug || program.id || program.title}
+    size="hero"
+  />
 
   {mobileCardsHTML && (
     <div set:html={mobileCardsHTML}></div>

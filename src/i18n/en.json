@@ -36,6 +36,12 @@
     "latestResources": "Latest Resources",
     "latestPrograms": "Latest Programs"
   },
+  "memberships": {
+    "ariaLabel": "Memberships and partnerships",
+    "nvidiaAlt": "NVIDIA Inception Program",
+    "maria": "Plademy is a member of Maria 01 — The Nordics’ Leading Startup Campus",
+    "yrittajat": "Plademy is a member of the Federation of Finnish Enterprises (Suomen Yrittäjät)"
+  },
   "programs": {
     "title": "Programs",
     "description": "Discover our comprehensive programs designed to transform your organization.",

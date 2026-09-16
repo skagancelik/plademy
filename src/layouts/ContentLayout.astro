@@ -3,6 +3,7 @@ import PageLayout from './PageLayout.astro';
 import type { Language } from '@lib/i18n';
 import { formatDate } from '@lib/utils';
 import type { Resource, Program } from '@lib/supabase';
+import ProgramPattern from '@components/programs/ProgramPattern.astro';
 
 interface Props {
   title: string;
@@ -218,16 +219,13 @@ breadcrumbs.push({ name: title, url: canonicalUrl });
               </h2>
               <div class="space-y-4">
                 {relatedPrograms.map((relatedProgram) => (
-                  <a href={`/programs/${relatedProgram.slug}`} class="card block transition-opacity hover:opacity-80">
-                    <h3 class="text-base font-semibold mb-2">{relatedProgram.title}</h3>
-                    {relatedProgram.cover_image_url && (
-                      <img
-                        src={relatedProgram.cover_image_url}
-                        alt={relatedProgram.title}
-                        class="w-full h-24 object-cover rounded-lg"
-                        loading="lazy"
-                      />
-                    )}
+                  <a href={`/programs/${relatedProgram.slug}`} class="card block transition-opacity hover:opacity-80 p-0 overflow-hidden">
+                    <ProgramPattern
+                      seed={relatedProgram.slug || relatedProgram.id || relatedProgram.title}
+                      title={relatedProgram.title}
+                      size="compact"
+                      class="mb-0 rounded-none"
+                    />
                   </a>
                 ))}
               </div>
@@ -245,16 +243,13 @@ breadcrumbs.push({ name: title, url: canonicalUrl });
         </h2>
         <div class="space-y-4">
           {relatedPrograms.map((relatedProgram) => (
-            <a href={`/programs/${relatedProgram.slug}`} class="card block transition-opacity hover:opacity-80">
-              <h3 class="text-base font-semibold mb-2">{relatedProgram.title}</h3>
-              {relatedProgram.cover_image_url && (
-                <img
-                  src={relatedProgram.cover_image_url}
-                  alt={relatedProgram.title}
-                  class="w-full h-24 object-cover rounded-lg"
-                  loading="lazy"
-                />
-              )}
+            <a href={`/programs/${relatedProgram.slug}`} class="card block transition-opacity hover:opacity-80 p-0 overflow-hidden">
+              <ProgramPattern
+                seed={relatedProgram.slug || relatedProgram.id || relatedProgram.title}
+                title={relatedProgram.title}
+                size="compact"
+                class="mb-0 rounded-none"
+              />
             </a>
           ))}
         </div>

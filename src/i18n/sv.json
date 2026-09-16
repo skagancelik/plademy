@@ -36,6 +36,12 @@
     "latestResources": "Senaste resurser",
     "latestPrograms": "Senaste program"
   },
+  "memberships": {
+    "ariaLabel": "Medlemskap och partnerskap",
+    "nvidiaAlt": "NVIDIA Inception Program",
+    "maria": "Plademy är medlem i Maria 01 — Nordens ledande startupcampus",
+    "yrittajat": "Plademy är medlem i Finlands Företagare (Suomen Yrittäjät)"
+  },
   "programs": {
     "title": "Program",
     "description": "Upptäck våra omfattande program designade för att förvandla din organisation.",

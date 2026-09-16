@@ -457,3 +457,159 @@ div.content-prose.prose ul.keypoints-list {
   animation-delay: -5s;
 }
 
+/* -------------------------------------------------------------------------- */
+/* Program pattern backgrounds (CSS-only, brand-aligned, no cover images)     */
+/* -------------------------------------------------------------------------- */
+
+.program-pattern {
+  background-color: #2841CF;
+  background-size: cover;
+  background-position: center;
+}
+
+.program-pattern h3 {
+  color: #ffffff;
+  font-family: 'Bricolage Grotesque', sans-serif;
+}
+
+.program-pattern__overlay {
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.45) 0%,
+    rgba(0, 0, 0, 0.12) 45%,
+    rgba(0, 0, 0, 0.05) 100%
+  );
+}
+
+/* 0 — deep blue diagonal stripes */
+.program-pattern--0 {
+  background-color: #1e2e9a;
+  background-image:
+    repeating-linear-gradient(
+      -45deg,
+      transparent,
+      transparent 12px,
+      rgba(255, 255, 255, 0.07) 12px,
+      rgba(255, 255, 255, 0.07) 24px
+    ),
+    linear-gradient(135deg, #2841CF 0%, #1a237e 100%);
+}
+
+/* 1 — soft radial orbs on brand blue */
+.program-pattern--1 {
+  background-color: #2841CF;
+  background-image:
+    radial-gradient(circle at 20% 30%, rgba(255, 140, 90, 0.45) 0%, transparent 42%),
+    radial-gradient(circle at 80% 70%, rgba(255, 255, 255, 0.18) 0%, transparent 38%),
+    radial-gradient(circle at 60% 20%, rgba(56, 189, 248, 0.35) 0%, transparent 40%),
+    linear-gradient(160deg, #2841CF 0%, #15206e 100%);
+}
+
+/* 2 — dot grid */
+.program-pattern--2 {
+  background-color: #2036b5;
+  background-image:
+    radial-gradient(rgba(255, 255, 255, 0.22) 1.5px, transparent 1.5px),
+    linear-gradient(145deg, #2841CF 0%, #0f1a5c 100%);
+  background-size: 18px 18px, cover;
+}
+
+/* 3 — coral → blue diagonal wash */
+.program-pattern--3 {
+  background-color: #2841CF;
+  background-image:
+    linear-gradient(120deg, rgba(255, 107, 74, 0.55) 0%, transparent 50%),
+    linear-gradient(300deg, rgba(14, 165, 233, 0.4) 0%, transparent 45%),
+    linear-gradient(160deg, #2841CF, #16206a);
+}
+
+/* 4 — large soft rings */
+.program-pattern--4 {
+  background-color: #1c2fa8;
+  background-image:
+    radial-gradient(circle at 10% 90%, transparent 28%, rgba(255, 255, 255, 0.1) 29%, rgba(255, 255, 255, 0.1) 32%, transparent 33%),
+    radial-gradient(circle at 90% 10%, transparent 22%, rgba(255, 255, 255, 0.12) 23%, rgba(255, 255, 255, 0.12) 27%, transparent 28%),
+    radial-gradient(circle at 70% 75%, transparent 18%, rgba(255, 140, 90, 0.25) 19%, rgba(255, 140, 90, 0.25) 24%, transparent 25%),
+    linear-gradient(180deg, #3350e0 0%, #1a237e 100%);
+}
+
+/* 5 — chevron / zigzag */
+.program-pattern--5 {
+  background-color: #2438c0;
+  background-image:
+    repeating-linear-gradient(
+      60deg,
+      transparent,
+      transparent 16px,
+      rgba(255, 255, 255, 0.06) 16px,
+      rgba(255, 255, 255, 0.06) 32px
+    ),
+    repeating-linear-gradient(
+      -60deg,
+      transparent,
+      transparent 16px,
+      rgba(0, 0, 0, 0.08) 16px,
+      rgba(0, 0, 0, 0.08) 32px
+    ),
+    linear-gradient(200deg, #3b57e8 0%, #15206e 100%);
+}
+
+/* 6 — horizontal band weave */
+.program-pattern--6 {
+  background-color: #1f35b8;
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 10px,
+      rgba(255, 255, 255, 0.05) 10px,
+      rgba(255, 255, 255, 0.05) 20px
+    ),
+    linear-gradient(90deg, #ff6b4a 0%, #2841CF 45%, #0ea5e9 100%);
+  background-blend-mode: soft-light, normal;
+}
+
+/* 7 — isometric diamond lattice */
+.program-pattern--7 {
+  background-color: #2841CF;
+  background-image:
+    linear-gradient(30deg, rgba(255, 255, 255, 0.08) 12%, transparent 12.5%, transparent 87%, rgba(255, 255, 255, 0.08) 87.5%),
+    linear-gradient(150deg, rgba(255, 255, 255, 0.08) 12%, transparent 12.5%, transparent 87%, rgba(255, 255, 255, 0.08) 87.5%),
+    linear-gradient(30deg, rgba(255, 255, 255, 0.08) 12%, transparent 12.5%, transparent 87%, rgba(255, 255, 255, 0.08) 87.5%),
+    linear-gradient(150deg, rgba(255, 255, 255, 0.08) 12%, transparent 12.5%, transparent 87%, rgba(255, 255, 255, 0.08) 87.5%),
+    linear-gradient(135deg, #2841CF 0%, #101a55 100%);
+  background-size: 40px 70px, 40px 70px, 40px 70px, 40px 70px, cover;
+  background-position: 0 0, 0 0, 20px 35px, 20px 35px, center;
+}
+
+/* 8 — scattered glow blobs */
+.program-pattern--8 {
+  background-color: #16206a;
+  background-image:
+    radial-gradient(ellipse at 15% 40%, rgba(255, 140, 90, 0.5) 0%, transparent 50%),
+    radial-gradient(ellipse at 85% 25%, rgba(56, 189, 248, 0.45) 0%, transparent 48%),
+    radial-gradient(ellipse at 50% 90%, rgba(255, 255, 255, 0.15) 0%, transparent 45%),
+    linear-gradient(200deg, #2841CF 0%, #0c1340 100%);
+}
+
+/* 9 — fine cross-hatch on navy */
+.program-pattern--9 {
+  background-color: #15206e;
+  background-image:
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 7px,
+      rgba(255, 255, 255, 0.045) 7px,
+      rgba(255, 255, 255, 0.045) 8px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      transparent,
+      transparent 7px,
+      rgba(255, 255, 255, 0.045) 7px,
+      rgba(255, 255, 255, 0.045) 8px
+    ),
+    linear-gradient(160deg, #3350e0 0%, #121a4f 100%);
+}
+
