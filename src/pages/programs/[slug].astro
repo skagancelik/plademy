@@ -256,12 +256,21 @@ if (program && (program.goal || program.duration || program.audience)) {
   lang={lang}
   publishedTime={program.published_at}
   canonical={canonical}
-    relatedPrograms={relatedPrograms}
-    relatedProgramsLabel={relatedProgramsLabel}
-    programGoal={program.goal || undefined}
-    programDuration={program.duration || undefined}
-    programAudience={program.audience || undefined}
+  relatedPrograms={relatedPrograms}
+  relatedProgramsLabel={relatedProgramsLabel}
+  programGoal={program.goal || undefined}
+  programDuration={program.duration || undefined}
+  programAudience={program.audience || undefined}
+  hideTitle={true}
 >
+  <div slot="before-content">
+    <ProgramPattern
+      seed={program.slug || program.id || program.title}
+      title={program.title}
+      size="hero"
+    />
+  </div>
+
   <div slot="after-description">
     {category && (
       <div class="mb-6">
@@ -274,11 +283,6 @@ if (program && (program.goal || program.duration || program.audience)) {
       </div>
     )}
   </div>
-
-  <ProgramPattern
-    seed={program.slug || program.id || program.title}
-    size="hero"
-  />
 
   {mobileCardsHTML && (
     <div set:html={mobileCardsHTML}></div>

@@ -27,7 +27,15 @@ const sizeClass =
   data-pattern-seed={seed}
 >
   <div class="program-pattern__overlay absolute inset-0 pointer-events-none" aria-hidden="true"></div>
-  {title && (
+  {title && size === 'hero' && (
+    <h1
+      class="relative z-10 text-white font-bold leading-tight drop-shadow-sm text-3xl md:text-4xl lg:text-5xl p-6 md:p-8 lg:p-10 max-w-4xl"
+      data-testid="program-pattern-title"
+    >
+      {title}
+    </h1>
+  )}
+  {title && size !== 'hero' && (
     <h3 class={`relative z-10 text-white font-bold leading-snug drop-shadow-sm ${
       size === 'compact' ? 'text-sm p-3' : 'text-lg md:text-xl p-5 md:p-6'
     }`}>

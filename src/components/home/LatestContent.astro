@@ -1,8 +1,6 @@
 ---
-import { supabase, type Resource, type Program, type Category, CATEGORY_FULL_FIELDS } from '@lib/supabase';
-import { getTranslations, type Language } from '@lib/i18n';
-import { truncate } from '@lib/utils';
-import ResourceCard from '@components/resources/ResourceCard.astro';
+import { supabase, type Program, type Category, CATEGORY_FULL_FIELDS } from '@lib/supabase';
+import type { Language } from '@lib/i18n';
 import ProgramCard from '@components/programs/ProgramCard.astro';
 
 interface Props {
@@ -10,33 +8,12 @@ interface Props {
 }
 
 const { lang } = Astro.props;
-const t = getTranslations(lang);
 
-let resourceCategories: Category[] = [];
 let programCategories: Category[] = [];
-let resourcesByCategory: Map<string, Resource[]> = new Map();
 let programsByCategory: Map<string, Program[]> = new Map();
-let resourceCategoryMap: Map<string, Category> = new Map();
 let programCategoryMap: Map<string, Category> = new Map();
 
 try {
-  // Get resource categories (full fields needed for descriptions)
-  const { data: resourceCategoriesData } = await supabase
-    .from('categories')
-    .select(CATEGORY_FULL_FIELDS)
-    .eq('type', 'resource')
-    .order('sort_order', { ascending: true });
-
-  resourceCategories = resourceCategoriesData || [];
-  
-  // Create resource category map for quick lookup
-  resourceCategories.forEach((cat) => {
-    resourceCategoryMap.set(cat.id, cat);
-    resourceCategoryMap.set(cat.slug, cat);
-    resourceCategoryMap.set(cat.name_en, cat);
-  });
-
-  // Get program categories (full fields needed for descriptions)
   const { data: programCategoriesData } = await supabase
     .from('categories')
     .select(CATEGORY_FULL_FIELDS)
@@ -44,36 +21,13 @@ try {
     .order('sort_order', { ascending: true });
 
   programCategories = programCategoriesData || [];
-  
-  // Create program category map for quick lookup
+
   programCategories.forEach((cat) => {
     programCategoryMap.set(cat.id, cat);
     programCategoryMap.set(cat.slug, cat);
     programCategoryMap.set(cat.name_en, cat);
   });
 
-  // Get resources by category (optimized: separate query per category with selective fields)
-  // Resources.category stores category NAME, so match by category name
-  // Limit 2: Only fetch what we display (desktop: 2, mobile: 1)
-  for (const category of resourceCategories) {
-    const categoryName = category[`name_${lang}` as keyof Category] || category.name_en;
-    const { data: categoryResources } = await supabase
-      .from('resources')
-      .select('id, slug, title, excerpt, cover_image_url, category, published_at')
-      .eq('language', lang)
-      .eq('is_published', true)
-      .eq('category', categoryName)
-      .order('published_at', { ascending: false })
-      .limit(2); // Only fetch what we display
-    
-    if (categoryResources && categoryResources.length > 0) {
-      resourcesByCategory.set(category.id, categoryResources as Resource[]);
-    }
-  }
-
-  // Get programs by category (optimized: separate query per category with selective fields)
-  // Programs.category stores category NAME, so match by category name
-  // Limit 2: Only fetch what we display (desktop: 2, mobile: 1)
   for (const category of programCategories) {
     const categoryName = category[`name_${lang}` as keyof Category] || category.name_en;
     const { data: categoryPrograms } = await supabase
@@ -83,8 +37,8 @@ try {
       .eq('is_published', true)
       .eq('category', categoryName)
       .order('published_at', { ascending: false })
-      .limit(2); // Only fetch what we display
-    
+      .limit(2);
+
     if (categoryPrograms && categoryPrograms.length > 0) {
       programsByCategory.set(category.id, categoryPrograms as Program[]);
     }
@@ -93,41 +47,6 @@ try {
   console.error('Error fetching latest content:', error);
 }
 
-// Fallback descriptions if category description is empty
-const fallbackDescriptions: Record<string, Record<Language, string>> = {
-  'mentoring-coaching': {
-    en: 'Discover proven strategies for building effective mentoring programs that drive retention, development, and organizational growth.',
-    fi: 'Löydä toimivat strategiat tehokkaiden mentorointiohjelmien rakentamiseen, jotka edistävät säilyttämistä, kehitystä ja organisaation kasvua.',
-    sv: 'Upptäck beprövade strategier för att bygga effektiva mentorprogram som driver retention, utveckling och organisatorisk tillväxt.'
-  },
-  'career-talent': {
-    en: 'Explore frameworks and tools for developing talent, managing careers, and creating pathways for professional growth.',
-    fi: 'Tutustu viitekehyksiin ja työkaluihin talenttien kehittämiseen, urien hallintaan ja ammatillisen kasvun polkujen luomiseen.',
-    sv: 'Utforska ramverk och verktyg för att utveckla talanger, hantera karriärer och skapa vägar för professionell tillväxt.'
-  },
-  'employee-experience': {
-    en: 'Learn how to create exceptional employee experiences that boost engagement, satisfaction, and organizational culture.',
-    fi: 'Opi luomaan poikkeuksellisia työntekijäkokemuksia, jotka lisäävät sitoutumista, tyytyväisyyttä ja organisaatiokulttuuria.',
-    sv: 'Lär dig hur du skapar exceptionella medarbetarupplevelser som ökar engagemang, tillfredsställelse och organisationskultur.'
-  },
-  'hr-tech': {
-    en: 'Stay ahead with the latest HR technology trends, tools, and innovations that transform people management.',
-    fi: 'Pysy ajan tasalla uusimmista HR-teknologian trendeistä, työkaluista ja innovaatioista, jotka muuttavat henkilöstöhallintaa.',
-    sv: 'Håll dig före med de senaste HR-tekniktrenderna, verktygen och innovationerna som förvandlar personalhantering.'
-  },
-  'entrepreneurship': {
-    en: 'Get practical guidance for building, scaling, and growing your startup or entrepreneurial venture.',
-    fi: 'Saa käytännön ohjeita startupin tai yrittäjäyrityksen rakentamiseen, skaalaukseen ja kasvattamiseen.',
-    sv: 'Få praktisk vägledning för att bygga, skala och växa ditt startup eller entreprenörsprojekt.'
-  },
-  'community-management': {
-    en: 'Master the art of building and nurturing thriving communities that drive engagement and create lasting value.',
-    fi: 'Hallitse taito rakentaa ja hoitaa kukoistavia yhteisöjä, jotka lisäävät sitoutumista ja luovat kestävää arvoa.',
-    sv: 'Bemästra konsten att bygga och vårda blomstrande gemenskaper som driver engagemang och skapar varaktigt värde.'
-  }
-};
-
-// Fallback descriptions for program categories
 const programFallbackDescriptions: Record<string, Record<Language, string>> = {
   'mentoring-program': {
     en: 'Build structured mentoring relationships that accelerate professional development, knowledge transfer, and career growth.',
@@ -217,84 +136,8 @@ const programFallbackDescriptions: Record<string, Record<Language, string>> = {
 };
 ---
 
-<section class="py-16">
+<section class="py-16" data-testid="homepage-programs">
   <div class="container">
-    <!-- Latest Resources by Category -->
-    {resourcesByCategory.size > 0 && (
-      <div class="mb-12">
-        <div class="text-center mb-[94px]">
-          <h2 class="text-4xl font-bold mb-4">Resources</h2>
-          <p class="text-xl text-gray-600">Explore insights, guides, and tools to enhance your employee or community programs.</p>
-        </div>
-        <div class="space-y-[70px]">
-          {resourceCategories
-            .filter((category) => {
-              const categoryResources = resourcesByCategory.get(category.id);
-              return categoryResources && categoryResources.length > 0;
-            })
-            .map((category, index) => {
-            const categoryResources = resourcesByCategory.get(category.id)!;
-            
-            const categoryName = category[`name_${lang}` as keyof Category] || category.name_en;
-            const categoryDescription = (category[`description_${lang}` as keyof Category] || category.description_en) as string | undefined;
-            const displayDescription = categoryDescription || fallbackDescriptions[category.id]?.[lang] || '';
-            
-            // Use all resources (already limited to 2 in query)
-            const displayResources = categoryResources;
-            
-            // Alternate layout: even index = left-right, odd index = right-left
-            const isReversed = index % 2 === 1;
-            
-            return (
-              <div>
-                <div class="grid md:grid-cols-2 gap-8 items-center">
-                  {/* Left/Right: Text Content */}
-                  <div class={`${isReversed ? 'md:order-2' : ''} text-center md:text-left`}>
-                    <h3 class="text-4xl md:text-5xl font-bold mb-4">{categoryName}</h3>
-                    {displayDescription && (
-                      <p class="text-xl text-black mb-6">{displayDescription}</p>
-                    )}
-                    <div class="mt-6 flex justify-center md:justify-start">
-                      <a
-                        href={`/resources/${category.slug}`}
-                        class="inline-flex items-center justify-center px-6 py-3 rounded-full bg-[#2841CF] text-white font-bold transition-colors hover:bg-black hover:text-white"
-                        style="font-family: 'Bricolage Grotesque', sans-serif;"
-                      >
-                        See More
-                      </a>
-                    </div>
-                  </div>
-                  
-                  {/* Right/Left: Resource Cards */}
-                  <div class={isReversed ? 'md:order-1' : ''}>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {displayResources.slice(0, 1).map((resource) => {
-                        const resourceCategory = resource.category ? resourceCategoryMap.get(resource.category) || null : null;
-                        return (
-                          <div class="h-full">
-                            <ResourceCard resource={resource} lang={lang} category={resourceCategory} hideCategory={true} homepageStyle={true} />
-                          </div>
-                        );
-                      })}
-                      {displayResources.slice(1, 2).map((resource) => {
-                        const resourceCategory = resource.category ? resourceCategoryMap.get(resource.category) || null : null;
-                        return (
-                          <div class="hidden md:block h-full">
-                            <ResourceCard resource={resource} lang={lang} category={resourceCategory} hideCategory={true} homepageStyle={true} />
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-      </div>
-    )}
-
-    <!-- Latest Programs by Category -->
     {programsByCategory.size > 0 && (
       <div class="mb-12">
         <div class="text-center mb-[94px]">
@@ -309,21 +152,17 @@ const programFallbackDescriptions: Record<string, Record<Language, string>> = {
             })
             .map((category, index) => {
             const categoryPrograms = programsByCategory.get(category.id)!;
-            
+
             const categoryName = category[`name_${lang}` as keyof Category] || category.name_en;
             const categoryDescription = (category[`description_${lang}` as keyof Category] || category.description_en) as string | undefined;
             const displayDescription = categoryDescription || programFallbackDescriptions[category.id]?.[lang] || '';
-            
-            // Use all programs (already limited to 2 in query)
+
             const displayPrograms = categoryPrograms;
-            
-            // Alternate layout: even index = left-right, odd index = right-left
             const isReversed = index % 2 === 1;
-            
+
             return (
               <div>
                 <div class="grid md:grid-cols-2 gap-8 items-center">
-                  {/* Left/Right: Text Content */}
                   <div class={`${isReversed ? 'md:order-2' : ''} text-center md:text-left`}>
                     <h3 class="text-4xl md:text-5xl font-bold mb-4">{categoryName}</h3>
                     {displayDescription && (
@@ -339,8 +178,7 @@ const programFallbackDescriptions: Record<string, Record<Language, string>> = {
                       </a>
                     </div>
                   </div>
-                  
-                  {/* Right/Left: Program Cards */}
+
                   <div class={isReversed ? 'md:order-1' : ''}>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                       {displayPrograms.slice(0, 1).map((program) => {
