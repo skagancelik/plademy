@@ -30,12 +30,20 @@ export type SolutionSectionId =
   | 'operations'
   | 'enterprise';
 
+export interface SolutionCapability {
+  title: string;
+  detail: string;
+}
+
 export interface SolutionItem {
   id: string;
   icon: SolutionIconName;
   title: string;
   pitch: string;
+  /** Simple bullet list for standard cards */
   highlights?: string[];
+  /** Compact capability tiles (used for dense features like AI Agent) */
+  capabilities?: SolutionCapability[];
   featured?: boolean;
   homepage?: boolean;
   section: SolutionSectionId;
@@ -56,7 +64,7 @@ export const SOLUTION_SECTIONS: Array<{
     id: 'mentoring',
     title: 'Mentoring programs',
     description:
-      'From application to matching, sessions, health scoring, and certificates — built for serious program operations.',
+      'From application to matching, sessions, health scoring, and certificates. Built for serious program operations.',
   },
   {
     id: 'community',
@@ -88,22 +96,55 @@ export const SOLUTIONS: SolutionItem[] = [
     icon: 'bot',
     title: 'AI Agent',
     pitch:
-      'Not a chatbot — an operational AI agent that co-runs your community and mentoring programs with your admin.',
+      'Not a chatbot. An operational agent that co-runs your community and mentoring programs with your admin.',
     featured: true,
     homepage: true,
     section: 'platform',
-    highlights: [
-      'Proposal-first actions: write operations start as suggestions until an admin approves; low-risk work can run autonomously',
-      'Morning and weekly briefings covering engagement, pending approvals, risks, and recommended next steps',
-      'Content drafting for posts, surveys, and announcements that keep the agenda alive',
-      'Quiet-member re-engagement with personalized outreach suggestions and campaign drafts',
-      'New-member orientation into the right channels, topics, and first interactions',
-      'AI-assisted moderation that prioritizes report queues and recommends warn, hide, or block',
-      'Mentoring agent support for application screening, match suggestions, stalled-relationship alerts, session reminders, and program health reports',
-      'Campaign assistance for email and push copy, audience targeting, and timing',
-      'Scheduled and recurring jobs — for example, a Monday program health report',
-      'Analytics and insights on trends, low-engagement areas, and member segments',
-      'Policy-aware by design: respects opt-outs; destructive actions such as bans remain suggestions only',
+    capabilities: [
+      {
+        title: 'Proposal-first actions',
+        detail: 'Write operations start as suggestions until an admin approves. Low-risk work can run on its own.',
+      },
+      {
+        title: 'Daily & weekly briefings',
+        detail: 'Engagement, pending approvals, risks, and recommended next steps in one digest.',
+      },
+      {
+        title: 'Content drafting',
+        detail: 'Posts, surveys, and announcements that keep the agenda moving.',
+      },
+      {
+        title: 'Quiet-member recovery',
+        detail: 'Personalized re-engagement ideas and campaign drafts for inactive members.',
+      },
+      {
+        title: 'New-member orientation',
+        detail: 'Routes people into the right channels, topics, and first interactions.',
+      },
+      {
+        title: 'Moderation assist',
+        detail: 'Prioritizes report queues and recommends warn, hide, or block.',
+      },
+      {
+        title: 'Mentoring support',
+        detail: 'Application screening, match suggestions, stalled-pair alerts, session reminders, health reports.',
+      },
+      {
+        title: 'Campaign assist',
+        detail: 'Email and push copy, audience targeting, and send timing.',
+      },
+      {
+        title: 'Scheduled jobs',
+        detail: 'One-off or recurring tasks, such as a Monday program health report.',
+      },
+      {
+        title: 'Analytics & insight',
+        detail: 'Trends, low-engagement areas, and member segments.',
+      },
+      {
+        title: 'Policy-aware',
+        detail: 'Respects opt-outs. Destructive actions like bans stay as suggestions only.',
+      },
     ],
   },
   {
@@ -114,7 +155,7 @@ export const SOLUTIONS: SolutionItem[] = [
     homepage: true,
     section: 'platform',
     highlights: [
-      'Closed social feed with posts, comments, reactions, and polls — invite-gated entry',
+      'Closed social feed with posts, comments, reactions, and polls. Invite-gated entry.',
       'Topics and tags for discovery by interest',
       'Rich member profiles with roles, skills, and custom questions',
       'Pages for companies, teams, and projects',
@@ -129,7 +170,7 @@ export const SOLUTIONS: SolutionItem[] = [
     id: 'mentoring-programs',
     icon: 'graduation-cap',
     title: 'Academy-grade mentoring',
-    pitch: 'End-to-end mentoring from application to report — with AI support where it helps most.',
+    pitch: 'End-to-end mentoring from application to report, with AI support where it helps most.',
     homepage: true,
     section: 'platform',
     highlights: [
@@ -161,7 +202,7 @@ export const SOLUTIONS: SolutionItem[] = [
     id: 'membership-revenue',
     icon: 'credit-card',
     title: 'Membership & revenue',
-    pitch: 'Free and paid tiers with plan-gated access — payments go to your Stripe Connect account at 0% platform commission.',
+    pitch: 'Free and paid tiers with plan-gated access. Payments go to your Stripe Connect account at 0% platform commission.',
     homepage: true,
     section: 'platform',
     highlights: [
@@ -203,7 +244,7 @@ export const SOLUTIONS: SolutionItem[] = [
     id: 'white-label',
     icon: 'palette',
     title: 'White-label',
-    pitch: 'Your domain, logo, colors, and branded email — the platform disappears into your brand.',
+    pitch: 'Your domain, logo, colors, and branded email. The platform disappears into your brand.',
     homepage: true,
     section: 'platform',
     highlights: [
@@ -233,7 +274,7 @@ export const SOLUTIONS: SolutionItem[] = [
     id: 'program-health',
     icon: 'activity',
     title: 'Program Health',
-    pitch: 'Eleven health dimensions rolled into one score — plus plain-language interventions your team can act on.',
+    pitch: 'Eleven health dimensions rolled into one score, plus plain-language interventions your team can act on.',
     section: 'mentoring',
     highlights: [
       'Dimensions spanning activation, login, coverage, kickoff, momentum, stalled pairs, forward motion, pipeline, supply, curriculum, and reliability',
@@ -245,7 +286,7 @@ export const SOLUTIONS: SolutionItem[] = [
     id: 'structured-curriculum',
     icon: 'clipboard-list',
     title: 'Structured programs & content',
-    pitch: 'Sessions, goals, forms, shared notes, and task checklists in one content hub — including templates you can clone.',
+    pitch: 'Sessions, goals, forms, shared notes, and task checklists in one content hub, including templates you can clone.',
     section: 'mentoring',
     highlights: [
       'Sessions and meeting goals with topics, date windows, role briefs, and attachments',
@@ -329,7 +370,7 @@ export const SOLUTIONS: SolutionItem[] = [
     id: 'certificates-reports',
     icon: 'file-badge',
     title: 'Certificates & reports',
-    pitch: 'Rule-based certificates with public verification — plus exportable operational reports.',
+    pitch: 'Rule-based certificates with public verification, plus exportable operational reports.',
     section: 'operations',
     highlights: [
       'Certificate rules, branding, public verify links, and LinkedIn-ready sharing',

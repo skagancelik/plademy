@@ -10,6 +10,10 @@ interface Props {
 const { item, variant = 'page' } = Astro.props;
 const isHome = variant === 'home';
 const isFeatured = Boolean(item.featured);
+const capabilities = item.capabilities ?? [];
+const highlights = item.highlights ?? [];
+const showCapabilities = !isHome && capabilities.length > 0;
+const showHighlights = !isHome && !showCapabilities && highlights.length > 0;
 ---
 
 <article
@@ -42,17 +46,47 @@ const isFeatured = Boolean(item.featured);
     {item.title}
   </h3>
 
-  <p class={`leading-relaxed flex-1 ${
+  <p class={`leading-relaxed ${showCapabilities || showHighlights ? '' : 'flex-1'} ${
     isHome ? 'text-base' : 'text-lg'
-  } ${isFeatured ? 'text-white/90' : 'text-gray-700'}`}>
+  } ${isFeatured ? 'text-white/90' : 'text-gray-700'} ${
+    showCapabilities ? 'max-w-3xl' : ''
+  }`}>
     {item.pitch}
   </p>
 
-  {!isHome && item.highlights && item.highlights.length > 0 && (
+  {showCapabilities && (
+    <ul
+      class="mt-8 grid sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 list-none p-0 m-0"
+      data-testid={`solution-capabilities-${item.id}`}
+    >
+      {capabilities.map((cap) => (
+        <li
+          class={`rounded-2xl p-4 md:p-5 ${
+            isFeatured
+              ? 'bg-white/10 border border-white/15'
+              : 'bg-[#F6F7FB] border border-transparent'
+          }`}
+        >
+          <p class={`font-semibold text-sm md:text-base mb-1.5 leading-snug ${
+            isFeatured ? 'text-white' : 'text-black'
+          }`}>
+            {cap.title}
+          </p>
+          <p class={`text-sm leading-relaxed ${
+            isFeatured ? 'text-white/80' : 'text-gray-600'
+          }`}>
+            {cap.detail}
+          </p>
+        </li>
+      ))}
+    </ul>
+  )}
+
+  {showHighlights && (
     <ul class={`mt-6 space-y-2.5 text-sm md:text-base ${
       isFeatured ? 'text-white/90' : 'text-gray-700'
     }`}>
-      {item.highlights.map((point) => (
+      {highlights.map((point) => (
         <li class="flex gap-2 items-start">
           <span class={`mt-1.5 inline-block w-1.5 h-1.5 rounded-full shrink-0 ${
             isFeatured ? 'bg-white' : 'bg-[#2841CF]'
