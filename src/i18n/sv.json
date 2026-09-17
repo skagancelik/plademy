@@ -39,8 +39,11 @@
   "memberships": {
     "ariaLabel": "Medlemskap och partnerskap",
     "nvidiaAlt": "NVIDIA Inception Program",
-    "maria": "Plademy är medlem i Maria 01 — Nordens ledande startupcampus",
-    "yrittajat": "Plademy är medlem i Finlands Företagare (Suomen Yrittäjät)"
+    "intro": "Plademy är medlem i",
+    "nvidia": "Plademy är medlem i NVIDIA Inception Program",
+    "nvidiaName": "NVIDIA Inception Program",
+    "maria": "Maria 01 (Nordens ledande startupcampus)",
+    "yrittajat": "Suomen Yrittäjät (Federation of Finnish Enterprises)"
   },
   "programs": {
     "title": "Program",
@@ -170,31 +173,12 @@
   },
   "solutions": {
     "title": "Lösningar",
-    "description": "Upptäck våra omfattande lösningar för din organisation.",
-    "viewAll": "Visa alla lösningar",
-    "mentorshipCenter": {
-      "title": "Mentorskapcenter",
-      "description": "AI-driven mentor- och coachingsplattform som kopplar samman mentorer och mentees för effektiv professionell utveckling.",
-      "shortDescription": "AI-driven mentor- och coachingsplattform.",
-      "ctaText": "Läs mer",
-      "ctaLink": "/solutions",
-      "image": ""
-    },
-    "membershipCenter": {
-      "title": "Medlemskapcenter",
-      "description": "Omfattande medlemskapshanteringsplattform för att bygga och engagera gemenskaper.",
-      "shortDescription": "Omfattande medlemskapshanteringsplattform.",
-      "ctaText": "Läs mer",
-      "ctaLink": "/solutions",
-      "image": ""
-    },
+    "description": "Designa, driv och mät mentor- och communityprogram med en AI-assisterad plattform — privat social yta, matching, event, medlemskap och en komplett adminpanel.",
+    "viewAll": "Utforska alla lösningar",
+    "ctaTitle": "Redo att driva bättre program?",
+    "ctaDescription": "Berätta om din organisation och de program du vill starta eller förbättra.",
+    "ctaButton": "Starta",
     "ergCenter": {
-      "title": "ERG-center",
-      "description": "Plattform för hantering av medarbetarresursgrupper för att stödja mångfald, jämlikhet och inkluderingsinitiativ.",
-      "shortDescription": "Plattform för hantering av medarbetarresursgrupper.",
-      "ctaText": "Läs mer",
-      "ctaLink": "/solutions",
-      "image": "",
       "page": {
         "title": "ERG-center - Lösningar för medarbetarresursgrupper",
         "description": "Omfattande lösningar för medarbetarresursgrupper (ERG) för att stödja mångfald, jämlikhet och inkluderingsinitiativ.",
@@ -236,14 +220,6 @@
         "ctaDescription": "Upptäck hur våra omfattande lösningar kan hjälpa dig bygga starkare, mer inflytelserika medarbetarresursgrupper.",
         "ctaButton": "Kom igång"
       }
-    },
-    "securedIntegrations": {
-      "title": "Säkra integrationer",
-      "description": "Säkra och sömlösa integrationer med dina befintliga verktyg och plattformar.",
-      "shortDescription": "Säkra och sömlösa integrationer.",
-      "ctaText": "Läs mer",
-      "ctaLink": "/solutions",
-      "image": ""
     }
   },
   "common": {
@@ -255,4 +231,3 @@
     "error": "Ett fel uppstod"
   }
 }
-

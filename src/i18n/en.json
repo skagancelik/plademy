@@ -39,8 +39,11 @@
   "memberships": {
     "ariaLabel": "Memberships and partnerships",
     "nvidiaAlt": "NVIDIA Inception Program",
-    "maria": "Plademy is a member of Maria 01 — The Nordics’ Leading Startup Campus",
-    "yrittajat": "Plademy is a member of the Federation of Finnish Enterprises (Suomen Yrittäjät)"
+    "intro": "Plademy is a member of",
+    "nvidia": "Plademy is a member of NVIDIA Inception Program",
+    "nvidiaName": "NVIDIA Inception Program",
+    "maria": "Maria 01 (The Nordics’ Leading Startup Campus)",
+    "yrittajat": "Suomen Yrittäjät (Federation of Finnish Enterprises)"
   },
   "programs": {
     "title": "Programs",
@@ -170,31 +173,12 @@
   },
   "solutions": {
     "title": "Solutions",
-    "description": "Discover our comprehensive solutions for your organization.",
-    "viewAll": "View All Solutions",
-    "mentorshipCenter": {
-      "title": "Mentorship Center",
-      "description": "AI-powered mentoring and coaching platform that connects mentors and mentees for impactful professional development.",
-      "shortDescription": "AI-powered mentoring and coaching platform.",
-      "ctaText": "Learn More",
-      "ctaLink": "/solutions",
-      "image": ""
-    },
-    "membershipCenter": {
-      "title": "Membership Center",
-      "description": "Comprehensive membership management platform for building and engaging communities.",
-      "shortDescription": "Comprehensive membership management platform.",
-      "ctaText": "Learn More",
-      "ctaLink": "/solutions",
-      "image": ""
-    },
+    "description": "Design, run, and measure mentoring and community programs with an AI-assisted platform — private social, matching, events, memberships, and a full admin console.",
+    "viewAll": "Explore all solutions",
+    "ctaTitle": "Ready to run better programs?",
+    "ctaDescription": "Tell us about your organization and the programs you want to launch or improve.",
+    "ctaButton": "Start",
     "ergCenter": {
-      "title": "ERG Center",
-      "description": "Employee Resource Group management platform to support diversity, equity, and inclusion initiatives.",
-      "shortDescription": "Employee Resource Group management platform.",
-      "ctaText": "Learn More",
-      "ctaLink": "/solutions",
-      "image": "",
       "page": {
         "title": "ERG Center - Employee Resource Group Solutions",
         "description": "Comprehensive solutions for Employee Resource Groups (ERGs) to support diversity, equity, and inclusion initiatives.",
@@ -236,14 +220,6 @@
         "ctaDescription": "Discover how our comprehensive solutions can help you build stronger, more impactful Employee Resource Groups.",
         "ctaButton": "Get Started"
       }
-    },
-    "securedIntegrations": {
-      "title": "Secured Integrations",
-      "description": "Secure and seamless integrations with your existing tools and platforms.",
-      "shortDescription": "Secure and seamless integrations.",
-      "ctaText": "Learn More",
-      "ctaLink": "/solutions",
-      "image": ""
     }
   },
   "common": {
@@ -255,4 +231,3 @@
     "error": "An error occurred"
   }
 }
-

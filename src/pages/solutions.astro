@@ -1,97 +1,64 @@
 ---
 import PageLayout from '@layouts/PageLayout.astro';
-import { getTranslations, type Language, getLanguageFromCookie } from '@lib/i18n';
+import { getTranslations, getLanguageFromCookie } from '@lib/i18n';
+import { SOLUTION_SECTIONS, getSolutionsBySection } from '@/data/solutions';
+import SolutionCard from '@components/solutions/SolutionCard.astro';
 
-export const prerender = true; // Static page
+export const prerender = true;
 
 const lang = getLanguageFromCookie(Astro.cookies, Astro.url) || 'en';
 const t = getTranslations(lang);
 ---
 
 <PageLayout
-  title={t.solutions.title || 'Solutions'}
-  description={t.solutions.description || 'Discover our comprehensive solutions for your organization.'}
+  title={t.solutions.title}
+  description={t.solutions.description}
   lang={lang}
 >
-  <div class="container py-12">
-    <div class="mb-12 text-center">
-      <h1 class="text-4xl md:text-5xl font-bold mb-4">{t.solutions.title || 'Solutions'}</h1>
-      <p class="text-xl text-black max-w-3xl mx-auto">
-        {t.solutions.description || 'Discover our comprehensive solutions for your organization.'}
+  <div class="container py-12" data-testid="solutions-page">
+    <div class="mb-14 text-center max-w-3xl mx-auto">
+      <h1 class="text-4xl md:text-5xl font-bold mb-4">{t.solutions.title}</h1>
+      <p class="text-xl text-black">
+        {t.solutions.description}
       </p>
     </div>
 
-    <div class="grid md:grid-cols-2 gap-8">
-      <!-- Mentorship Center -->
-      <a href="https://mentorship.center" target="_blank" rel="noopener noreferrer" class="card hover:shadow-lg transition-shadow block rounded-[30px]">
-        <div class="mb-6">
-          <div class="mt-5 mb-[40px] flex justify-center">
-            <img 
-              src="/mentorship.center logo.svg" 
-              alt="Mentorship Center" 
-              class="h-16 object-contain"
-            />
-          </div>
-          <h2 class="text-3xl font-bold mb-4 text-center">{t.solutions.mentorshipCenter.title}</h2>
-          <p class="text-black text-lg mb-6 text-center">
-            {t.solutions.mentorshipCenter.description}
-          </p>
-        </div>
-      </a>
+    <div class="space-y-20">
+      {SOLUTION_SECTIONS.map((section) => {
+        const items = getSolutionsBySection(section.id);
+        if (items.length === 0) return null;
 
-      <!-- Membership Center -->
-      <a href="https://membership.center" target="_blank" rel="noopener noreferrer" class="card hover:shadow-lg transition-shadow block rounded-[30px]">
-        <div class="mb-6">
-          <div class="mt-5 mb-[40px] flex justify-center">
-            <img 
-              src="/membership-center-logo.svg" 
-              alt="Membership Center" 
-              class="h-16 object-contain"
-            />
-          </div>
-          <h2 class="text-3xl font-bold mb-4 text-center">{t.solutions.membershipCenter.title}</h2>
-          <p class="text-black text-lg mb-6 text-center">
-            {t.solutions.membershipCenter.description}
-          </p>
-        </div>
-      </a>
+        return (
+          <section aria-labelledby={`solutions-${section.id}`}>
+            <div class="mb-8 max-w-3xl">
+              <h2 id={`solutions-${section.id}`} class="text-3xl md:text-4xl font-bold mb-3">
+                {section.title}
+              </h2>
+              <p class="text-lg text-gray-700">{section.description}</p>
+            </div>
 
-      <!-- ERG Center -->
-      <a href="/erg-center" class="card hover:shadow-lg transition-shadow block rounded-[30px]">
-        <div class="mb-6">
-          <div class="mt-5 mb-[40px] flex justify-center">
-            <img 
-              src="/erg-center-logo.svg" 
-              alt="ERG Center" 
-              class="h-16 object-contain"
-            />
-          </div>
-          <h2 class="text-3xl font-bold mb-4 text-center">{t.solutions.ergCenter.title}</h2>
-          <p class="text-black text-lg mb-6 text-center">
-            {t.solutions.ergCenter.description}
-          </p>
-        </div>
-      </a>
+            <div class="grid md:grid-cols-2 gap-6 lg:gap-8">
+              {items.map((item) => (
+                <div class={item.featured ? 'md:col-span-2' : ''}>
+                  <SolutionCard item={item} variant="page" />
+                </div>
+              ))}
+            </div>
+          </section>
+        );
+      })}
+    </div>
 
-      <!-- Secured Integrations -->
-      <a href="https://securedintegration.com" target="_blank" rel="noopener noreferrer" class="card hover:shadow-lg transition-shadow block rounded-[30px]">
-        <div class="mb-6">
-          <div class="mt-5 mb-[40px] flex justify-center">
-            <img 
-              src="/secured-integration-logo.svg" 
-              alt="Secured Integrations" 
-              class="h-16 object-contain"
-            />
-          </div>
-          <h2 class="text-3xl font-bold mb-4 text-center">{t.solutions.securedIntegrations.title}</h2>
-          <p class="text-black text-lg mb-6 text-center">
-            {t.solutions.securedIntegrations.description}
-          </p>
-        </div>
+    <div class="mt-20 text-center rounded-[30px] bg-[#F6F7FB] px-8 py-12">
+      <h2 class="text-3xl font-bold mb-3">{t.solutions.ctaTitle}</h2>
+      <p class="text-lg text-gray-700 mb-8 max-w-2xl mx-auto">{t.solutions.ctaDescription}</p>
+      <a
+        href="/start"
+        class="inline-flex items-center justify-center px-8 py-3 rounded-full bg-[#2841CF] text-white font-bold transition-colors hover:bg-black"
+        style="font-family: 'Bricolage Grotesque', sans-serif;"
+      >
+        {t.solutions.ctaButton}
       </a>
     </div>
   </div>
 </PageLayout>
-
-
-
