@@ -39,8 +39,11 @@
   "memberships": {
     "ariaLabel": "Jäsenyydet ja kumppanuudet",
     "nvidiaAlt": "NVIDIA Inception Program",
-    "maria": "Plademy on Maria 01:n jäsen — Pohjoismaiden johtava startup-kampus",
-    "yrittajat": "Plademy on Suomen Yrittäjien jäsen"
+    "intro": "Plademy on jäsenenä",
+    "nvidia": "Plademy on NVIDIA Inception Program -jäsen",
+    "nvidiaName": "NVIDIA Inception Program",
+    "maria": "Maria 01 (Pohjoismaiden johtava startup-kampus)",
+    "yrittajat": "Suomen Yrittäjät (Federation of Finnish Enterprises)"
   },
   "programs": {
     "title": "Ohjelmat",
@@ -170,31 +173,12 @@
   },
   "solutions": {
     "title": "Ratkaisut",
-    "description": "Tutustu kattaviin ratkaisuihimme organisaatiolle.",
-    "viewAll": "Näytä kaikki ratkaisut",
-    "mentorshipCenter": {
-      "title": "Mentorointikeskus",
-      "description": "Tekoälyllä toteutettu mentorointi- ja valmennusalusta, joka yhdistää mentorit ja mentoreitavat vaikuttavaa ammatillista kehitystä varten.",
-      "shortDescription": "Tekoälyllä toteutettu mentorointi- ja valmennusalusta.",
-      "ctaText": "Lue lisää",
-      "ctaLink": "/solutions",
-      "image": ""
-    },
-    "membershipCenter": {
-      "title": "Jäsenyyskeskus",
-      "description": "Kattava jäsenyyden hallinta-alusta yhteisöjen rakentamiseen ja sitouttamiseen.",
-      "shortDescription": "Kattava jäsenyyden hallinta-alusta.",
-      "ctaText": "Lue lisää",
-      "ctaLink": "/solutions",
-      "image": ""
-    },
+    "description": "Suunnittele, toteuta ja mittaa mentorointi- ja yhteisöohjelmia tekoälyavusteisella alustalla — yksityinen sosiaalinen tila, matching, tapahtumat, jäsenyydet ja täysi hallintapaneeli.",
+    "viewAll": "Tutustu kaikkiin ratkaisuihin",
+    "ctaTitle": "Valmis parantamaan ohjelmiasi?",
+    "ctaDescription": "Kerro organisaatiostasi ja ohjelmista, joita haluat käynnistää tai kehittää.",
+    "ctaButton": "Aloita",
     "ergCenter": {
-      "title": "ERG-keskus",
-      "description": "Työntekijöiden resurssiryhmien hallinta-alusta monimuotoisuuden, tasa-arvon ja osallisuuden aloitteiden tukemiseen.",
-      "shortDescription": "Työntekijöiden resurssiryhmien hallinta-alusta.",
-      "ctaText": "Lue lisää",
-      "ctaLink": "/solutions",
-      "image": "",
       "page": {
         "title": "ERG-keskus - Työntekijöiden resurssiryhmien ratkaisut",
         "description": "Kattavat ratkaisut työntekijöiden resurssiryhmille (ERG) monimuotoisuuden, tasa-arvon ja osallisuuden aloitteiden tukemiseen.",
@@ -236,14 +220,6 @@
         "ctaDescription": "Löydä, kuinka kattavat ratkaisumme voivat auttaa rakentamaan vahvempia, vaikuttavampia työntekijöiden resurssiryhmiä.",
         "ctaButton": "Aloita"
       }
-    },
-    "securedIntegrations": {
-      "title": "Turvalliset integraatiot",
-      "description": "Turvalliset ja saumattomat integraatiot olemassa oleviin työkaluihisi ja alustoihisi.",
-      "shortDescription": "Turvalliset ja saumattomat integraatiot.",
-      "ctaText": "Lue lisää",
-      "ctaLink": "/solutions",
-      "image": ""
     }
   },
   "common": {
@@ -255,4 +231,3 @@
     "error": "Tapahtui virhe"
   }
 }
-

@@ -1,0 +1,67 @@
+---
+import type { SolutionIconName } from '@/data/solutions';
+import bot from '../../../node_modules/lucide-static/icons/bot.svg?raw';
+import users from '../../../node_modules/lucide-static/icons/users.svg?raw';
+import graduationCap from '../../../node_modules/lucide-static/icons/graduation-cap.svg?raw';
+import video from '../../../node_modules/lucide-static/icons/video.svg?raw';
+import creditCard from '../../../node_modules/lucide-static/icons/credit-card.svg?raw';
+import layoutDashboard from '../../../node_modules/lucide-static/icons/layout-dashboard.svg?raw';
+import gamepad2 from '../../../node_modules/lucide-static/icons/gamepad-2.svg?raw';
+import palette from '../../../node_modules/lucide-static/icons/palette.svg?raw';
+import gitCompareArrows from '../../../node_modules/lucide-static/icons/git-compare-arrows.svg?raw';
+import activity from '../../../node_modules/lucide-static/icons/activity.svg?raw';
+import clipboardList from '../../../node_modules/lucide-static/icons/clipboard-list.svg?raw';
+import calendarClock from '../../../node_modules/lucide-static/icons/calendar-clock.svg?raw';
+import bellRing from '../../../node_modules/lucide-static/icons/bell-ring.svg?raw';
+import shieldCheck from '../../../node_modules/lucide-static/icons/shield-check.svg?raw';
+import messagesSquare from '../../../node_modules/lucide-static/icons/messages-square.svg?raw';
+import mail from '../../../node_modules/lucide-static/icons/mail.svg?raw';
+import smartphone from '../../../node_modules/lucide-static/icons/smartphone.svg?raw';
+import tags from '../../../node_modules/lucide-static/icons/tags.svg?raw';
+import megaphone from '../../../node_modules/lucide-static/icons/megaphone.svg?raw';
+import fileBadge from '../../../node_modules/lucide-static/icons/file-badge.svg?raw';
+import settings2 from '../../../node_modules/lucide-static/icons/settings-2.svg?raw';
+import userCheck from '../../../node_modules/lucide-static/icons/user-check.svg?raw';
+import globe from '../../../node_modules/lucide-static/icons/globe.svg?raw';
+
+interface Props {
+  name: SolutionIconName;
+  class?: string;
+}
+
+const { name, class: className = 'w-8 h-8' } = Astro.props;
+
+const rawByName: Record<SolutionIconName, string> = {
+  bot,
+  users,
+  'graduation-cap': graduationCap,
+  video,
+  'credit-card': creditCard,
+  'layout-dashboard': layoutDashboard,
+  'gamepad-2': gamepad2,
+  palette,
+  'git-compare-arrows': gitCompareArrows,
+  activity,
+  'clipboard-list': clipboardList,
+  'calendar-clock': calendarClock,
+  'bell-ring': bellRing,
+  'shield-check': shieldCheck,
+  'messages-square': messagesSquare,
+  mail,
+  smartphone,
+  tags,
+  megaphone,
+  'file-badge': fileBadge,
+  'settings-2': settings2,
+  'user-check': userCheck,
+  globe,
+};
+
+const svg = rawByName[name]
+  .replace(/<!--[\s\S]*?-->/g, '')
+  .replace(/width="24"/, 'width="100%"')
+  .replace(/height="24"/, 'height="100%"')
+  .replace('<svg', `<svg class="${className}" aria-hidden="true" focusable="false"`);
+---
+
+<span class="inline-flex shrink-0" set:html={svg} />

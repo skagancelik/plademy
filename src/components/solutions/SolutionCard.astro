@@ -1,0 +1,65 @@
+---
+import type { SolutionItem } from '@/data/solutions';
+import SolutionIcon from './SolutionIcon.astro';
+
+interface Props {
+  item: SolutionItem;
+  variant?: 'home' | 'page';
+}
+
+const { item, variant = 'page' } = Astro.props;
+const isHome = variant === 'home';
+const isFeatured = Boolean(item.featured);
+---
+
+<article
+  class={`card rounded-[30px] h-full flex flex-col ${
+    isFeatured
+      ? 'bg-[#2841CF] text-white border border-[#2841CF]'
+      : 'bg-white'
+  } ${isHome ? 'p-6' : 'p-7 md:p-8'}`}
+  data-testid={`solution-card-${item.id}`}
+  data-featured={isFeatured ? 'true' : 'false'}
+>
+  <div class={`mb-5 inline-flex items-center justify-center rounded-2xl ${
+    isFeatured ? 'bg-white/15' : 'bg-[#F6F7FB]'
+  } ${isHome ? 'w-14 h-14' : 'w-16 h-16'} ${isFeatured ? 'text-white' : 'text-[#2841CF]'}`}>
+    <SolutionIcon
+      name={item.icon}
+      class={isHome ? 'w-7 h-7' : 'w-8 h-8'}
+    />
+  </div>
+
+  {isFeatured && (
+    <p class="text-xs font-semibold uppercase tracking-wider text-white/80 mb-2">
+      Featured
+    </p>
+  )}
+
+  <h3 class={`font-bold mb-3 leading-snug ${
+    isHome ? 'text-xl' : 'text-2xl'
+  } ${isFeatured ? 'text-white' : 'text-black'}`}>
+    {item.title}
+  </h3>
+
+  <p class={`leading-relaxed flex-1 ${
+    isHome ? 'text-base' : 'text-lg'
+  } ${isFeatured ? 'text-white/90' : 'text-gray-700'}`}>
+    {item.pitch}
+  </p>
+
+  {!isHome && item.highlights && item.highlights.length > 0 && (
+    <ul class={`mt-6 space-y-2.5 text-sm md:text-base ${
+      isFeatured ? 'text-white/90' : 'text-gray-700'
+    }`}>
+      {item.highlights.map((point) => (
+        <li class="flex gap-2 items-start">
+          <span class={`mt-1.5 inline-block w-1.5 h-1.5 rounded-full shrink-0 ${
+            isFeatured ? 'bg-white' : 'bg-[#2841CF]'
+          }`} />
+          <span>{point}</span>
+        </li>
+      ))}
+    </ul>
+  )}
+</article>
