@@ -29,43 +29,72 @@ const badgeMinWidth = isFooter ? '120px' : '200px';
 >
   <div class={isFooter ? '' : 'container py-8 md:py-10'}>
     {isFooter ? (
-      <div class="text-center md:text-left max-w-2xl mx-auto md:mx-0" data-testid="footer-memberships">
-        <p class="text-sm text-white/90 mb-3">{t.memberships.intro}</p>
-        <ul class="text-sm space-y-2 text-white/90">
-          <li>
+      <div
+        class="flex flex-col md:flex-row md:items-end md:justify-between gap-8"
+        data-testid="footer-memberships"
+      >
+        <div class="text-center md:text-left max-w-2xl mx-auto md:mx-0">
+          <p class="text-sm text-white/90 mb-3">{t.memberships.intro}</p>
+          <ul class="text-sm space-y-2 text-white/90">
+            <li>
+              <a
+                href="https://www.nvidia.com/en-us/startups/"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-white/90 hover:text-white underline-offset-2 hover:underline transition-colors"
+                data-testid="nvidia-membership-link"
+              >
+                {t.memberships.nvidiaName}
+              </a>
+            </li>
+            <li>
+              <a
+                href="https://maria.io/"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-white/90 hover:text-white underline-offset-2 hover:underline transition-colors"
+                data-testid="maria01-membership-link"
+              >
+                {t.memberships.maria}
+              </a>
+            </li>
+            <li>
+              <a
+                href="https://www.yrittajat.fi/en/about-us/information-about-yrittajat/"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="text-white/90 hover:text-white underline-offset-2 hover:underline transition-colors"
+                data-testid="yrittajat-membership-link"
+              >
+                {t.memberships.yrittajat}
+              </a>
+            </li>
+          </ul>
+        </div>
+
+        <div class="self-center md:self-end shrink-0">
+          <div class="inline-flex bg-white" style="padding: 0.75rem;">
             <a
               href="https://www.nvidia.com/en-us/startups/"
               target="_blank"
               rel="noopener noreferrer"
-              class="text-white/90 hover:text-white underline-offset-2 hover:underline transition-colors"
-              data-testid="nvidia-membership-link"
+              class="inline-flex focus:outline-none focus-visible:ring-2 focus-visible:ring-[#76B900] focus-visible:ring-offset-2"
+              aria-label={t.memberships.nvidiaAlt}
             >
-              {t.memberships.nvidiaName}
+              <img
+                src="/nvidia-inception-program-badge.svg"
+                alt={t.memberships.nvidiaAlt}
+                width="500"
+                height="216"
+                class="block"
+                style={`height: ${badgeHeight}; width: auto; min-width: ${badgeMinWidth};`}
+                loading="lazy"
+                decoding="async"
+                data-testid="footer-nvidia-inception-badge"
+              />
             </a>
-          </li>
-          <li>
-            <a
-              href="https://maria.io/"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="text-white/90 hover:text-white underline-offset-2 hover:underline transition-colors"
-              data-testid="maria01-membership-link"
-            >
-              {t.memberships.maria}
-            </a>
-          </li>
-          <li>
-            <a
-              href="https://www.yrittajat.fi/en/about-us/information-about-yrittajat/"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="text-white/90 hover:text-white underline-offset-2 hover:underline transition-colors"
-              data-testid="yrittajat-membership-link"
-            >
-              {t.memberships.yrittajat}
-            </a>
-          </li>
-        </ul>
+          </div>
+        </div>
       </div>
     ) : (
       <div class="flex flex-col md:flex-row md:items-center gap-6 md:gap-10 items-center md:justify-center">

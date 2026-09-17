@@ -15,7 +15,7 @@
   "home": {
     "hero": {
       "title": "Dina program förtjänar bättre än kalkylblad",
-      "subtitle": "Designa, kör och mät mentorskaps-, coachnings- och utbildningsprogram—allt i en AI-driven plattform."
+      "subtitle": "Designa, kör och mät mentorskaps-, coachnings- och utbildningsprogram. Allt i en AI-driven plattform."
     },
     "features": {
       "title": "Din plattform med de bästa verktygen!",
@@ -164,16 +164,16 @@
   },
   "about": {
     "title": "Om Plademy",
-    "description": "Plademy Oy — AI-driven plattform för mentor-, coachnings- och organisationsutvecklingsprogram, baserad i Helsingfors, Finland.",
+    "description": "Plademy Oy - AI-driven plattform för mentor-, coachnings- och organisationsutvecklingsprogram, baserad i Helsingfors, Finland.",
     "lead": "Människocentrerad, AI-driven lärande och utveckling för organisationer och gemenskaper.",
-    "body1": "Plademy är en AI-driven plattform som hjälper organisationer att designa, driva och mäta mentor-, coachnings-, utbildnings-, onboarding- och andra utvecklingsprogram — utan kalkylblad och utspridda verktyg.",
+    "body1": "Plademy är en AI-driven plattform som hjälper organisationer att designa, driva och mäta mentor-, coachnings-, utbildnings-, onboarding- och andra utvecklingsprogram, utan kalkylblad och utspridda verktyg.",
     "body2": "Vi bygger produktupplevelser som Mentorship Center, Membership Center och ERG Center, med säkra integrationer mot HR-, LMS- och samarbetsverktyg.",
     "companyHeading": "Företag",
     "founded": "Grundat"
   },
   "solutions": {
     "title": "Lösningar",
-    "description": "Designa, driv och mät mentor- och communityprogram med en AI-assisterad plattform — privat social yta, matching, event, medlemskap och en komplett adminpanel.",
+    "description": "Designa, driv och mät mentor- och communityprogram med en AI-assisterad plattform: privat social yta, matching, event, medlemskap och en komplett adminpanel.",
     "viewAll": "Utforska alla lösningar",
     "ctaTitle": "Redo att driva bättre program?",
     "ctaDescription": "Berätta om din organisation och de program du vill starta eller förbättra.",

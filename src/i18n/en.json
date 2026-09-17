@@ -15,7 +15,7 @@
   "home": {
     "hero": {
       "title": "Your Programs Deserve Better Than Spreadsheets",
-      "subtitle": "Design, run, and measure mentoring, coaching, and training programs—all in one AI-powered platform."
+      "subtitle": "Design, run, and measure mentoring, coaching, and training programs. All in one AI-powered platform."
     },
     "features": {
       "title": "Your Platform With The Best Tools!",
@@ -164,16 +164,16 @@
   },
   "about": {
     "title": "About Plademy",
-    "description": "Plademy Oy — AI-powered platform for mentoring, coaching, and organizational development programs, based in Helsinki, Finland.",
+    "description": "Plademy Oy - AI-powered platform for mentoring, coaching, and organizational development programs, based in Helsinki, Finland.",
     "lead": "Human-centered, AI-powered learning and development for organizations and communities.",
-    "body1": "Plademy is an AI-driven platform that helps organizations design, run, and measure mentoring, coaching, training, onboarding, and other development programs — without relying on spreadsheets and scattered tools.",
+    "body1": "Plademy is an AI-driven platform that helps organizations design, run, and measure mentoring, coaching, training, onboarding, and other development programs, without relying on spreadsheets and scattered tools.",
     "body2": "We build product experiences such as Mentorship Center, Membership Center, and ERG Center, with secure integrations into HR, LMS, and collaboration tools.",
     "companyHeading": "Company",
     "founded": "Founded"
   },
   "solutions": {
     "title": "Solutions",
-    "description": "Design, run, and measure mentoring and community programs with an AI-assisted platform — private social, matching, events, memberships, and a full admin console.",
+    "description": "Design, run, and measure mentoring and community programs with an AI-assisted platform: private social, matching, events, memberships, and a full admin console.",
     "viewAll": "Explore all solutions",
     "ctaTitle": "Ready to run better programs?",
     "ctaDescription": "Tell us about your organization and the programs you want to launch or improve.",
