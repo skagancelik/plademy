@@ -10,7 +10,30 @@
     "resources": "Resurser",
     "integrations": "Integrationer",
     "start": "Starta",
-    "contact": "Kontakt"
+    "contact": "Kontakt",
+    "login": "Logga in",
+    "startFree": "Kom igång gratis",
+    "featuresLabel": "Funktioner",
+    "featuresOverview": "Översikt",
+    "featuresMentorship": "Mentorskap",
+    "featuresAi": "AI",
+    "featuresFaq": "Vanliga frågor",
+    "solutionsAll": "Alla lösningar",
+    "solutionsCompanies": "Företag",
+    "solutionsCommunities": "Communities",
+    "solutionsAssociations": "Föreningar",
+    "solutionsUniversities": "Universitet",
+    "solutionsMentorshipPrograms": "Mentorskapsprogram",
+    "solutionsStartupEcosystems": "Startup-ekosystem",
+    "mentorshipLabel": "Mentorskap",
+    "mentorshipCorporate": "Företag",
+    "mentorshipStartup": "Startup",
+    "mentorshipCommunity": "Community",
+    "mentorshipStudents": "Studenter",
+    "resourcesArticles": "Artiklar",
+    "pricing": "Priser",
+    "menu": "Meny",
+    "close": "Stäng"
   },
   "home": {
     "hero": {
@@ -155,7 +178,8 @@
       "about": "Om oss",
       "security": "Säkerhet",
       "privacy": "Integritetspolicy",
-      "cookies": "Cookiepolicy"
+      "cookies": "Cookiepolicy",
+      "terms": "Villkor"
     },
     "address": "Maria 01, Lapinlahdenkatu 16, 00180 Helsingfors, Finland",
     "businessId": "Företags-ID",

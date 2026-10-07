@@ -9,229 +9,305 @@ interface Props {
 
 const { lang, currentPath } = Astro.props;
 const t = getTranslations(lang);
-const isHomepage = currentPath === '/' || currentPath === '';
+
+// Astro-owned pages use getLocalizedPath (FI has real /ohjelmat, /resurssit
+// routes). Next-owned pages (/, /#features, /mentorship/*, /trial,
+// /auth/login) are plain absolute paths — Next has no URL-prefix i18n.
+type NavLink = { label: string; href: string };
+type NavGroup = { label: string; links: NavLink[] };
+
+const groups: NavGroup[] = [
+  {
+    label: t.nav.featuresLabel,
+    links: [
+      { label: t.nav.featuresOverview, href: '/#features' },
+      { label: t.nav.featuresMentorship, href: '/#mentorship' },
+      { label: t.nav.featuresAi, href: '/#ai' },
+      { label: t.nav.featuresFaq, href: '/#faq' },
+    ],
+  },
+  {
+    label: t.nav.solutions,
+    links: [
+      { label: t.nav.solutionsAll, href: getLocalizedPath('/solutions', lang) },
+      { label: t.nav.solutionsCompanies, href: '/use-cases/companies' },
+      { label: t.nav.solutionsCommunities, href: '/use-cases/communities' },
+      { label: t.nav.solutionsAssociations, href: '/use-cases/associations' },
+      { label: t.nav.solutionsUniversities, href: '/use-cases/universities' },
+      { label: t.nav.solutionsMentorshipPrograms, href: '/use-cases/mentorship-programs' },
+      { label: t.nav.solutionsStartupEcosystems, href: '/use-cases/startup-ecosystems' },
+    ],
+  },
+  {
+    label: t.nav.mentorshipLabel,
+    links: [
+      { label: t.nav.mentorshipCorporate, href: '/mentorship/corporate' },
+      { label: t.nav.mentorshipStartup, href: '/mentorship/startup' },
+      { label: t.nav.mentorshipCommunity, href: '/mentorship/community' },
+      { label: t.nav.mentorshipStudents, href: '/mentorship/students' },
+    ],
+  },
+  {
+    label: t.nav.resources,
+    links: [
+      { label: t.nav.programs, href: getLocalizedPath('/programs', lang) },
+      { label: t.nav.resourcesArticles, href: getLocalizedPath('/resources', lang) },
+      { label: t.nav.integrations, href: getLocalizedPath('/integrations', lang) },
+      { label: t.nav.contact, href: getLocalizedPath('/contact', lang) },
+    ],
+  },
+];
+
+const pricingHref = '/pricing';
+const loginHref = '/auth/login';
+const startFreeHref = '/trial';
 ---
 
-<header 
-  id="main-header" 
-  class={`z-50 transition-all duration-300 ${isHomepage ? 'absolute top-0 left-0 right-0' : 'sticky top-0 bg-white border-b border-gray-200'}`}
-  style={isHomepage ? 'background-color: transparent !important; border-bottom: none !important;' : ''}
-  data-homepage={String(isHomepage)}
->
-  <nav class="container py-4" aria-label="Main navigation">
-    <div class="flex items-center justify-between">
-      <a href="/" class="flex items-center">
-        <img id="header-logo" src={isHomepage ? '/plademy-white-logo.svg' : '/plademy-black-logo.svg'} alt="Plademy" class="h-8 transition-opacity duration-300" />
+<header id="main-header" class="sticky top-0 z-50 bg-white border-b border-gray-100">
+  <nav class="container py-3" aria-label="Main navigation">
+    <div class="flex items-center justify-between gap-4">
+      <a href="/" class="flex items-center gap-2.5 flex-shrink-0">
+        <img src="/logo.svg" alt="Plademy" class="h-9 w-9" />
+        <span class="hidden sm:inline font-bold text-lg tracking-tight text-black">Plademy</span>
       </a>
 
-      <div class="flex items-center gap-6">
-            <ul class="hidden md:flex gap-6 nav-links">
-              <li>
-                <a
-                  href={getLocalizedPath('/programs', lang)}
-                  class={`transition-colors ${
-                    currentPath.startsWith('/programs') || currentPath.startsWith('/ohjelmat') || currentPath.startsWith('/program')
-                      ? 'text-primary font-semibold'
-                      : isHomepage ? 'text-white hover:text-white/60' : 'text-black hover:text-primary'
-                  }`}
-                >
-                  {t.nav.programs}
-                </a>
-              </li>
-              <li>
-                <a
-                  href={getLocalizedPath('/solutions', lang)}
-                  class={`transition-colors ${
-                    currentPath.startsWith('/solutions')
-                      ? 'text-primary font-semibold'
-                      : isHomepage ? 'text-white hover:text-white/60' : 'text-black hover:text-primary'
-                  }`}
-                >
-                  {t.nav.solutions}
-                </a>
-              </li>
-              <li>
-                <a
-                  href={getLocalizedPath('/resources', lang)}
-                  class={`transition-colors ${
-                    currentPath.startsWith('/resources') || currentPath.startsWith('/resurssit') || currentPath.startsWith('/resurser')
-                      ? 'text-primary font-semibold'
-                      : isHomepage ? 'text-white hover:text-white/60' : 'text-black hover:text-primary'
-                  }`}
-                >
-                  {t.nav.resources}
-                </a>
-              </li>
-              <li>
-                <a
-                  href={getLocalizedPath('/integrations', lang)}
-                  class={`transition-colors ${
-                    currentPath.startsWith('/integrations') || currentPath.startsWith('/integraatiot') || currentPath.startsWith('/integrationer')
-                      ? 'text-primary font-semibold'
-                      : isHomepage ? 'text-white hover:text-white/60' : 'text-black hover:text-primary'
-                  }`}
-                >
-                  {t.nav.integrations}
-                </a>
-              </li>
-              <li>
-                <a
-                  href={getLocalizedPath('/contact', lang)}
-                  class={`transition-colors ${
-                    currentPath.startsWith('/contact') || currentPath.startsWith('/yhteystiedot') || currentPath.startsWith('/kontakt')
-                      ? 'text-primary font-semibold'
-                      : isHomepage ? 'text-white hover:text-white/60' : 'text-black hover:text-primary'
-                  }`}
-                >
-                  {t.nav.contact}
-                </a>
-              </li>
-            </ul>
-
-        <div class="flex items-center gap-4">
-          <LanguageSwitcher currentLang={lang} currentPath={currentPath} />
-          <a
-            href={getLocalizedPath('/start', lang)}
-            id="header-start-btn"
-            class={`btn transition-colors ${isHomepage ? 'bg-white text-[#2841CF] hover:bg-[#2841CF] hover:text-white' : 'bg-black text-white hover:bg-[#2841CF] hover:text-white'}`}
-            style={isHomepage ? 'background-color: white !important; color: #2841CF !important; border: none !important;' : 'background-color: black !important; color: white !important; border: none !important;'}
-          >
-            {t.nav.start}
+      <div class="flex items-center gap-1.5">
+        <div class="hidden lg:flex items-center gap-1 nav-groups">
+          {groups.map((group, i) => (
+            <div class="relative nav-dropdown" data-group-index={i}>
+              <button
+                type="button"
+                class="nav-dropdown-trigger flex items-center gap-1.5 px-3 py-2 rounded-full text-sm font-medium text-black hover:bg-[#F6F7FB] transition-colors"
+                aria-expanded="false"
+                aria-haspopup="true"
+              >
+                {group.label}
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </button>
+              <div
+                class={`nav-dropdown-panel hidden absolute top-full left-1/2 -translate-x-1/2 pt-2 z-50 ${group.links.length > 5 ? 'min-w-[520px]' : 'min-w-[260px]'}`}
+              >
+                <div class={`bg-white border border-gray-100 rounded-2xl shadow-lg p-2 ${group.links.length > 5 ? 'grid grid-cols-2 gap-1' : ''}`}>
+                  {group.links.map((link) => (
+                    <a href={link.href} class="block px-3 py-2.5 rounded-xl text-sm font-medium text-black hover:bg-[#F6F7FB] transition-colors">
+                      {link.label}
+                    </a>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ))}
+          <a href={pricingHref} class="px-3 py-2 rounded-full text-sm font-medium text-black hover:bg-[#F6F7FB] transition-colors">
+            {t.nav.pricing}
           </a>
         </div>
+
+        <LanguageSwitcher currentLang={lang} currentPath={currentPath} />
+
+        <a
+          href={loginHref}
+          class="hidden sm:inline-flex bg-[#F6F7FB] text-black text-sm font-semibold rounded-full px-4 py-2.5 hover:bg-gray-200 transition-colors whitespace-nowrap"
+        >
+          {t.nav.login}
+        </a>
+        <a
+          href={startFreeHref}
+          class="inline-flex bg-black text-white text-sm font-semibold rounded-full px-4 sm:px-5 py-2.5 hover:bg-[#2841CF] transition-colors whitespace-nowrap"
+        >
+          {t.nav.startFree}
+        </a>
+
+        <button
+          type="button"
+          id="mobile-menu-button"
+          class="lg:hidden p-2 rounded-full hover:bg-[#F6F7FB] text-black"
+          aria-label={t.nav.menu}
+          aria-expanded="false"
+        >
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
+          </svg>
+        </button>
       </div>
     </div>
   </nav>
+
+  <!-- Mobile menu panel -->
+  <div id="mobile-menu-panel" class="hidden lg:hidden fixed inset-0 z-[60] bg-white overflow-y-auto">
+    <div class="sticky top-0 bg-white flex items-center justify-between p-4 border-b border-gray-100">
+      <a href="/" class="flex items-center gap-2.5">
+        <img src="/logo.svg" alt="Plademy" class="h-8 w-8" />
+        <span class="font-bold text-lg tracking-tight text-black">Plademy</span>
+      </a>
+      <button
+        type="button"
+        id="mobile-menu-close"
+        class="p-2 rounded-full hover:bg-[#F6F7FB] text-black"
+        aria-label={t.nav.close}
+      >
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+    <div class="px-6 py-6 space-y-8">
+      {groups.map((group) => (
+        <div>
+          <div class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">
+            {group.label}
+          </div>
+          <div class="flex flex-col gap-1">
+            {group.links.map((link) => (
+              <a href={link.href} class="block px-3 py-2.5 rounded-xl font-semibold text-black hover:bg-[#F6F7FB] transition-colors">
+                {link.label}
+              </a>
+            ))}
+          </div>
+        </div>
+      ))}
+      <div class="pt-4 flex flex-col gap-2">
+        <a
+          href={pricingHref}
+          class="block w-full text-center text-black font-semibold rounded-full px-6 py-3 hover:bg-[#F6F7FB] transition-colors"
+        >
+          {t.nav.pricing}
+        </a>
+        <a
+          href={startFreeHref}
+          class="block w-full text-center bg-black text-white font-semibold rounded-full px-6 py-3.5"
+        >
+          {t.nav.startFree}
+        </a>
+        <a
+          href={loginHref}
+          class="block w-full text-center text-black font-semibold rounded-full px-6 py-3 hover:bg-[#F6F7FB] transition-colors"
+        >
+          {t.nav.login}
+        </a>
+      </div>
+    </div>
+  </div>
 </header>
 
-{isHomepage && (
-  <script is:inline>
-    (function() {
-      function initHeader() {
-        const header = document.getElementById('main-header');
-        const logo = document.getElementById('header-logo');
-        const navLinks = document.querySelectorAll('.nav-links a');
-        const startBtn = document.getElementById('header-start-btn');
-        const languageBtn = document.getElementById('language-button');
-        
-        if (!header || !logo || !startBtn) {
-          // Retry if elements not ready
-          setTimeout(initHeader, 100);
-          return;
-        }
-        
-        function updateHeader() {
-          const isScrolled = window.scrollY > 50;
-          const isHomepage = header.dataset.homepage === 'true';
-          
-          // Add/remove scrolled class for CSS targeting
-          if (isScrolled) {
-            header.classList.add('scrolled');
-          } else {
-            header.classList.remove('scrolled');
+<script>
+  // Desktop dropdowns: hover (desktop pointer), click/tap and keyboard
+  // toggle, Esc closes, click-outside closes. Pure vanilla JS, no framework.
+  function initDropdowns() {
+    const dropdowns = document.querySelectorAll<HTMLElement>('.nav-dropdown');
+    const canHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+    dropdowns.forEach((dropdown) => {
+      const trigger = dropdown.querySelector<HTMLButtonElement>('.nav-dropdown-trigger');
+      const panel = dropdown.querySelector<HTMLElement>('.nav-dropdown-panel');
+      if (!trigger || !panel) return;
+
+      let closeTimer: ReturnType<typeof setTimeout> | null = null;
+
+      const open = () => {
+        if (closeTimer) clearTimeout(closeTimer);
+        panel.classList.remove('hidden');
+        trigger.setAttribute('aria-expanded', 'true');
+      };
+      const close = () => {
+        panel.classList.add('hidden');
+        trigger.setAttribute('aria-expanded', 'false');
+      };
+      const scheduleClose = () => {
+        closeTimer = setTimeout(close, 120);
+      };
+
+      dropdown.addEventListener('mouseenter', open);
+      dropdown.addEventListener('mouseleave', scheduleClose);
+
+      trigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isOpen = trigger.getAttribute('aria-expanded') === 'true';
+        dropdowns.forEach((d) => {
+          const t = d.querySelector<HTMLButtonElement>('.nav-dropdown-trigger');
+          const p = d.querySelector<HTMLElement>('.nav-dropdown-panel');
+          if (t && p && d !== dropdown) {
+            p.classList.add('hidden');
+            t.setAttribute('aria-expanded', 'false');
           }
-          
-          if (isHomepage && !isScrolled) {
-            // Header inside hero section - absolute positioning
-            header.style.setProperty('position', 'absolute', 'important');
-            header.style.setProperty('top', '0', 'important');
-            header.style.setProperty('left', '0', 'important');
-            header.style.setProperty('right', '0', 'important');
-            header.style.setProperty('background-color', 'transparent', 'important');
-            header.style.setProperty('border-bottom', 'none', 'important');
-            header.style.setProperty('backdrop-filter', 'none', 'important');
-            header.classList.remove('sticky', 'bg-white', 'border-b', 'border-gray-200');
-            
-            // White logo
-            logo.src = '/plademy-white-logo.svg';
-            
-            // White text for nav links
-            navLinks.forEach(link => {
-              if (!link.classList.contains('text-primary')) {
-                link.classList.remove('text-black');
-                link.classList.add('text-white');
-              }
-            });
-            
-            // White background for start button in hero
-            if (startBtn) {
-              startBtn.style.setProperty('background-color', 'white', 'important');
-              startBtn.style.setProperty('color', '#2841CF', 'important');
-              startBtn.style.setProperty('border', 'none', 'important');
-            }
-            
-            // White border and text for language switcher
-            if (languageBtn) {
-              languageBtn.classList.remove('bg-white', 'border-gray-200', 'text-black');
-              languageBtn.classList.add('bg-transparent', 'border-white', 'text-white');
-            }
-          } else {
-            // Sticky header (scrolled or not homepage)
-            header.style.setProperty('position', 'sticky', 'important');
-            header.style.setProperty('top', '0', 'important');
-            header.style.removeProperty('left');
-            header.style.removeProperty('right');
-            header.style.removeProperty('background-color');
-            header.style.removeProperty('border-bottom');
-            header.style.removeProperty('backdrop-filter');
-            header.classList.remove('absolute', 'bg-transparent');
-            header.classList.add('sticky', 'bg-white', 'border-b', 'border-gray-200');
-            
-            // Black logo
-            logo.src = '/plademy-black-logo.svg';
-            
-            // Black text for nav links with blue hover
-            navLinks.forEach(link => {
-              if (!link.classList.contains('text-primary')) {
-                link.classList.remove('text-white', 'hover:text-white/60');
-                link.classList.add('text-black', 'hover:text-primary');
-              }
-            });
-            
-            // Black background for start button when scrolled
-            if (startBtn) {
-              startBtn.style.setProperty('background-color', 'black', 'important');
-              startBtn.style.setProperty('color', 'white', 'important');
-              startBtn.style.setProperty('border', 'none', 'important');
-            }
-            
-            // Normal language switcher
-            if (languageBtn) {
-              languageBtn.classList.remove('bg-transparent', 'border-white', 'text-white');
-              languageBtn.classList.add('bg-white', 'border-gray-200', 'text-black');
-            }
+        });
+        // On hover-capable pointers mouseenter already opened the panel, so a
+        // click must not toggle it shut again; touch/keyboard still toggle.
+        const hoverOpened = canHover && e.detail > 0;
+        if (isOpen && !hoverOpened) {
+          close();
+        } else {
+          open();
+        }
+      });
+    });
+
+    document.addEventListener('click', (e) => {
+      const target = e.target as Node;
+      dropdowns.forEach((d) => {
+        if (!d.contains(target)) {
+          const t = d.querySelector<HTMLButtonElement>('.nav-dropdown-trigger');
+          const p = d.querySelector<HTMLElement>('.nav-dropdown-panel');
+          if (t && p) {
+            p.classList.add('hidden');
+            t.setAttribute('aria-expanded', 'false');
           }
         }
-        
-        // Initial state
-        updateHeader();
-        
-        // Update on scroll
-        let ticking = false;
-        window.addEventListener('scroll', function() {
-          if (!ticking) {
-            window.requestAnimationFrame(function() {
-              updateHeader();
-              ticking = false;
-            });
-            ticking = true;
+      });
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        dropdowns.forEach((d) => {
+          const t = d.querySelector<HTMLButtonElement>('.nav-dropdown-trigger');
+          const p = d.querySelector<HTMLElement>('.nav-dropdown-panel');
+          if (t && p) {
+            p.classList.add('hidden');
+            t.setAttribute('aria-expanded', 'false');
           }
         });
       }
-      
-      // Run immediately and also on DOM ready
-      if (document.readyState === 'loading') {
-        // Run immediately for faster initial state
-        initHeader();
-        // Also run on DOMContentLoaded as backup
-        document.addEventListener('DOMContentLoaded', initHeader);
-      } else {
-        initHeader();
-      }
-      
-      // Also run after a short delay to ensure all styles are applied
-      setTimeout(initHeader, 50);
-    })();
-  </script>
-)}
+    });
+  }
 
+  function initMobileMenu() {
+    const button = document.getElementById('mobile-menu-button');
+    const closeButton = document.getElementById('mobile-menu-close');
+    const panel = document.getElementById('mobile-menu-panel');
+    if (!button || !panel) return;
+
+    const open = () => {
+      panel.classList.remove('hidden');
+      button.setAttribute('aria-expanded', 'true');
+      document.body.style.overflow = 'hidden';
+    };
+    const close = () => {
+      panel.classList.add('hidden');
+      button.setAttribute('aria-expanded', 'false');
+      document.body.style.overflow = '';
+    };
+
+    button.addEventListener('click', open);
+    closeButton?.addEventListener('click', close);
+    panel.querySelectorAll('a').forEach((a) => a.addEventListener('click', close));
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && !panel.classList.contains('hidden')) close();
+    });
+  }
+
+  function init() {
+    initDropdowns();
+    initMobileMenu();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+</script>

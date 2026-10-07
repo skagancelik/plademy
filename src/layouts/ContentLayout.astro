@@ -1,7 +1,7 @@
 ---
 import PageLayout from './PageLayout.astro';
 import type { Language } from '@lib/i18n';
-import { formatDate } from '@lib/utils';
+import { formatDate, publicUrl } from '@lib/utils';
 import type { Resource, Program } from '@lib/supabase';
 import ProgramPattern from '@components/programs/ProgramPattern.astro';
 
@@ -47,10 +47,10 @@ const {
 } = Astro.props;
 
 const siteUrl = import.meta.env.PUBLIC_SITE_URL || 'https://plademy.com';
-const canonicalUrl = canonical || Astro.url.href;
+const canonicalUrl = canonical || publicUrl(Astro.url);
 // Ensure ogImage is always an absolute URL
 // If image is empty/undefined, use default logo
-const defaultImage = `${siteUrl}/plademy-white-logo.svg`;
+const defaultImage = `${siteUrl}/logo.svg`;
 const ogImage = !image || image.trim() === '' 
   ? defaultImage 
   : image.startsWith('http') || image.startsWith('https')
@@ -322,7 +322,7 @@ breadcrumbs.push({ name: title, url: canonicalUrl });
       "url": siteUrl,
       "logo": {
         "@type": "ImageObject",
-        "url": `${siteUrl}/plademy-white-logo.svg`
+        "url": `${siteUrl}/logo.svg`
       }
     },
     "mainEntityOfPage": {

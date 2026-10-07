@@ -96,7 +96,7 @@ try {
 }
 ---
 
-<footer class="bg-[#2841CF] text-white mt-16 overflow-hidden">
+<footer class="bg-[#F6F7FB] text-black mt-16 overflow-hidden">
   <style>
     .footer-container {
       max-width: 1280px;
@@ -146,39 +146,45 @@ try {
     <div class="footer-grid-custom grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12 lg:gap-16">
       <!-- About (16%) -->
       <div class="md:col-span-2 lg:col-span-1 text-center md:text-left">
-        <div class="mb-4 flex justify-center md:justify-start">
-          <img src="/plademy-white-logo.svg" alt="Plademy" class="h-8" />
+        <div class="mb-4 flex items-center justify-center md:justify-start gap-2.5">
+          <img src="/logo.svg" alt="" class="h-8 w-8" />
+          <span class="font-bold text-lg tracking-tight text-black">Plademy</span>
         </div>
-        <p class="text-sm text-white/90 mb-4">{t.footer.description}</p>
-        <div class="text-sm text-white/80">
+        <p class="text-sm text-gray-600 mb-4">{t.footer.description}</p>
+        <div class="text-sm text-gray-600">
           <p class="mb-2">Maria 01, Lapinlahdenkatu 16, 00180 Helsinki, Finland</p>
           <p class="mb-2">Business-ID: 3386328-3</p>
           <p class="mb-2">VAT NO: FI33863283</p>
           <p class="mb-2">Plademy Oy</p>
           <p class="mb-2">
-            <a href="mailto:info@plademy.com" class="text-white/80 hover:text-white transition-colors">
+            <a href="mailto:info@plademy.com" class="text-gray-600 hover:text-black transition-colors">
               info@plademy.com
             </a>
           </p>
           <p class="mb-4"><span class="text-base">&copy;</span> All Rights Reserved</p>
           <ul class="space-y-2">
             <li>
-              <a href="/about" class="text-white/80 hover:text-white transition-colors">
+              <a href="/about" class="text-gray-600 hover:text-black transition-colors">
                 {t.footer.links.about || 'About'}
               </a>
             </li>
             <li>
-              <a href="/privacy" class="text-white/80 hover:text-white transition-colors">
+              <a href="/privacy" class="text-gray-600 hover:text-black transition-colors">
                 {t.footer.links.privacy}
               </a>
             </li>
             <li>
-              <a href="/cookies" class="text-white/80 hover:text-white transition-colors">
+              <a href="/terms" class="text-gray-600 hover:text-black transition-colors">
+                {t.footer.links.terms}
+              </a>
+            </li>
+            <li>
+              <a href="/cookies" class="text-gray-600 hover:text-black transition-colors">
                 {t.footer.links.cookies}
               </a>
             </li>
             <li>
-              <a href="/contact" class="text-white/80 hover:text-white transition-colors">
+              <a href="/contact" class="text-gray-600 hover:text-black transition-colors">
                 {t.nav.contact}
               </a>
             </li>
@@ -188,45 +194,45 @@ try {
 
       <!-- Latest Programs + Latest Resources (25%) - Combined column -->
       <div class="min-w-0 text-center md:text-left">
-        <h4 class="text-white font-semibold mb-4 text-sm">{t.home.latestPrograms}</h4>
+        <h4 class="text-black font-semibold mb-4 text-sm">{t.home.latestPrograms}</h4>
         <ul class="space-y-4 text-sm mb-8">
           {latestPrograms.length > 0 ? (
             latestPrograms.map((program) => (
               <li>
                 <a
                   href={`/programs/${program.slug}`}
-                  class="text-white/80 hover:text-white transition-colors break-words"
+                  class="text-gray-600 hover:text-black transition-colors break-words"
                 >
                   {program.title}
                 </a>
               </li>
             ))
           ) : (
-            <li class="text-white/70">{t.programs.noPrograms}</li>
+            <li class="text-gray-500">{t.programs.noPrograms}</li>
           )}
         </ul>
-        <h4 class="text-white font-semibold mb-4 text-sm">{t.home.latestResources}</h4>
+        <h4 class="text-black font-semibold mb-4 text-sm">{t.home.latestResources}</h4>
         <ul class="space-y-4 text-sm">
           {latestResources.length > 0 ? (
             latestResources.map((resource) => (
               <li>
                 <a
                   href={`/${resource.slug}`}
-                  class="text-white/80 hover:text-white transition-colors break-words"
+                  class="text-gray-600 hover:text-black transition-colors break-words"
                 >
                   {resource.title}
                 </a>
               </li>
             ))
           ) : (
-            <li class="text-white/70">{t.resources.noResources}</li>
+            <li class="text-gray-500">{t.resources.noResources}</li>
           )}
         </ul>
       </div>
 
       <!-- Resource Categories + Programs by Audience (25%) - Combined column -->
       <div class="min-w-0 text-center md:text-left">
-        <h4 class="text-white font-semibold mb-4 text-sm">Resource Categories</h4>
+        <h4 class="text-black font-semibold mb-4 text-sm">Resource Categories</h4>
         <ul class="space-y-4 text-sm mb-8">
           {resourceCategories.length > 0 ? (
             resourceCategories.map((category) => {
@@ -235,7 +241,7 @@ try {
                 <li>
                   <a
                     href={`/resources/${category.slug}`}
-                    class="text-white/80 hover:text-white transition-colors break-words"
+                    class="text-gray-600 hover:text-black transition-colors break-words"
                   >
                     {categoryName}
                   </a>
@@ -243,10 +249,10 @@ try {
               );
             })
           ) : (
-            <li class="text-white/70">No categories found.</li>
+            <li class="text-gray-500">No categories found.</li>
           )}
         </ul>
-        <h4 class="text-white font-semibold mb-4 text-sm">Programs by Audience</h4>
+        <h4 class="text-black font-semibold mb-4 text-sm">Programs by Audience</h4>
         <ul class="space-y-4 text-sm">
           {uniqueAudiences.length > 0 ? (
             uniqueAudiences.map((audience) => {
@@ -255,7 +261,7 @@ try {
                 <li>
                   <a
                     href={`/programs/all-categories/${audienceSlug}`}
-                    class="text-white/80 hover:text-white transition-colors break-words"
+                    class="text-gray-600 hover:text-black transition-colors break-words"
                   >
                     {audience}
                   </a>
@@ -263,14 +269,14 @@ try {
               );
             })
           ) : (
-            <li class="text-white/70">No audiences found.</li>
+            <li class="text-gray-500">No audiences found.</li>
           )}
         </ul>
       </div>
 
       <!-- Program Categories (25%) -->
       <div class="min-w-0 text-center md:text-left">
-        <h4 class="text-white font-semibold mb-4 text-sm">Program Categories</h4>
+        <h4 class="text-black font-semibold mb-4 text-sm">Program Categories</h4>
         <ul class="space-y-4 text-sm">
           {programCategories.length > 0 ? (
             programCategories.map((category) => {
@@ -279,7 +285,7 @@ try {
                 <li>
                   <a
                     href={`/programs/${category.slug}/all-audiences`}
-                    class="text-white/80 hover:text-white transition-colors break-words"
+                    class="text-gray-600 hover:text-black transition-colors break-words"
                   >
                     {categoryName}
                   </a>
@@ -287,18 +293,18 @@ try {
               );
             })
           ) : (
-            <li class="text-white/70">No categories found.</li>
+            <li class="text-gray-500">No categories found.</li>
           )}
         </ul>
       </div>
     </div>
 
-    <div class="border-t border-white/20 mt-[62px] pt-10">
+    <div class="border-t border-gray-200 mt-[62px] pt-10">
       <Memberships lang={lang} variant="footer" />
     </div>
 
-    <div class="border-t border-gray-800 mt-10 pt-[62px] pb-[92px] text-sm text-center">
-      <p class="text-white mb-6 text-lg font-semibold">
+    <div class="border-t border-gray-200 mt-10 pt-[62px] pb-[92px] text-sm text-center">
+      <p class="text-black mb-6 text-lg font-semibold">
         {t.footer.stayConnected || 'Stay Connected on Social Media'}
       </p>
       <div class="flex justify-center items-center gap-4">
@@ -306,7 +312,7 @@ try {
           href="https://x.com/plademyoy"
           target="_blank"
           rel="noopener noreferrer"
-          class="text-white/80 hover:text-white transition-colors"
+          class="text-gray-600 hover:text-black transition-colors"
           aria-label="X (Twitter)"
         >
           <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -317,7 +323,7 @@ try {
           href="https://www.facebook.com/plademycom"
           target="_blank"
           rel="noopener noreferrer"
-          class="text-white/80 hover:text-white transition-colors"
+          class="text-gray-600 hover:text-black transition-colors"
           aria-label="Facebook"
         >
           <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -328,7 +334,7 @@ try {
           href="https://www.linkedin.com/company/plademy"
           target="_blank"
           rel="noopener noreferrer"
-          class="text-white/80 hover:text-white transition-colors"
+          class="text-gray-600 hover:text-black transition-colors"
           aria-label="LinkedIn"
         >
           <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -339,7 +345,7 @@ try {
           href="https://www.instagram.com/plademycom"
           target="_blank"
           rel="noopener noreferrer"
-          class="text-white/80 hover:text-white transition-colors"
+          class="text-gray-600 hover:text-black transition-colors"
           aria-label="Instagram"
         >
           <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
