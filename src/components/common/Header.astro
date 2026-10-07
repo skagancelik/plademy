@@ -199,6 +199,7 @@ const startFreeHref = '/trial';
   // toggle, Esc closes, click-outside closes. Pure vanilla JS, no framework.
   function initDropdowns() {
     const dropdowns = document.querySelectorAll<HTMLElement>('.nav-dropdown');
+    const canHover = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
 
     dropdowns.forEach((dropdown) => {
       const trigger = dropdown.querySelector<HTMLButtonElement>('.nav-dropdown-trigger');
@@ -234,7 +235,10 @@ const startFreeHref = '/trial';
             t.setAttribute('aria-expanded', 'false');
           }
         });
-        if (isOpen) {
+        // On hover-capable pointers mouseenter already opened the panel, so a
+        // click must not toggle it shut again; touch/keyboard still toggle.
+        const hoverOpened = canHover && e.detail > 0;
+        if (isOpen && !hoverOpened) {
           close();
         } else {
           open();
