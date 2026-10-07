@@ -1,0 +1,16 @@
+# Interim (until plademy.com DNS → AWS edge-1): the header/footer link to pages the
+# Ekosistem Next app serves on plademy.com. While Netlify still answers plademy.com,
+# send them to the same pages on ecosystem.page. After the cutover these paths never
+# reach Netlify (the Next middleware only proxies content paths), so this is inert.
+/pricing                 https://ecosystem.page/pricing                 302
+/trial                   https://ecosystem.page/trial                   302
+/terms                   https://ecosystem.page/terms                   302
+/community-guidelines    https://ecosystem.page/community-guidelines    302
+/auth/*                  https://ecosystem.page/auth/:splat             302
+/use-cases/*             https://ecosystem.page/use-cases/:splat        302
+/mentorship/*            https://ecosystem.page/mentorship/:splat       302
+/features/*              https://ecosystem.page/features/:splat         302
+/security                https://ecosystem.page/security                302
+/security/*              https://ecosystem.page/security/:splat         302
+/support                 https://ecosystem.page/support                 302
+/support/*               https://ecosystem.page/support/:splat          302
