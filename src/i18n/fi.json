@@ -10,7 +10,30 @@
     "resources": "Resurssit",
     "integrations": "Integraatiot",
     "start": "Aloita",
-    "contact": "Yhteystiedot"
+    "contact": "Yhteystiedot",
+    "login": "Kirjaudu sisään",
+    "startFree": "Aloita ilmaiseksi",
+    "featuresLabel": "Ominaisuudet",
+    "featuresOverview": "Yleiskatsaus",
+    "featuresMentorship": "Mentorointi",
+    "featuresAi": "Tekoäly",
+    "featuresFaq": "UKK",
+    "solutionsAll": "Kaikki ratkaisut",
+    "solutionsCompanies": "Yritykset",
+    "solutionsCommunities": "Yhteisöt",
+    "solutionsAssociations": "Yhdistykset",
+    "solutionsUniversities": "Yliopistot",
+    "solutionsMentorshipPrograms": "Mentorointiohjelmat",
+    "solutionsStartupEcosystems": "Startup-ekosysteemit",
+    "mentorshipLabel": "Mentorointi",
+    "mentorshipCorporate": "Yritykset",
+    "mentorshipStartup": "Startupit",
+    "mentorshipCommunity": "Yhteisöt",
+    "mentorshipStudents": "Opiskelijat",
+    "resourcesArticles": "Artikkelit",
+    "pricing": "Hinnoittelu",
+    "menu": "Valikko",
+    "close": "Sulje"
   },
   "home": {
     "hero": {
@@ -155,7 +178,8 @@
       "about": "Tietoa meistä",
       "security": "Turvallisuus",
       "privacy": "Tietosuojakäytäntö",
-      "cookies": "Evästekäytäntö"
+      "cookies": "Evästekäytäntö",
+      "terms": "Käyttöehdot"
     },
     "address": "Maria 01, Lapinlahdenkatu 16, 00180 Helsinki, Suomi",
     "businessId": "Y-tunnus",

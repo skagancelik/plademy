@@ -1,6 +1,7 @@
 ---
 import type { Language } from '@lib/i18n';
 import { getHreflangPath } from '@lib/i18n';
+import { publicUrl } from '@lib/utils';
 
 interface Props {
   title: string;
@@ -26,10 +27,10 @@ const {
 
 const siteUrl = import.meta.env.PUBLIC_SITE_URL || 'https://plademy.com';
 const fullTitle = title.includes('Plademy') ? title : `${title} | Plademy`;
-const canonicalUrl = canonical || Astro.url.href;
+const canonicalUrl = canonical || publicUrl(Astro.url);
 // Ensure ogImage is always an absolute URL
 // If image is empty/undefined, use default logo
-const defaultImage = `${siteUrl}/plademy-white-logo.svg`;
+const defaultImage = `${siteUrl}/logo.svg`;
 const ogImage = !image || image.trim() === '' 
   ? defaultImage 
   : image.startsWith('http') || image.startsWith('https')
@@ -119,7 +120,7 @@ const hreflangUrls = {
     "url": siteUrl,
     "logo": {
       "@type": "ImageObject",
-      "url": `${siteUrl}/plademy-white-logo.svg`
+      "url": `${siteUrl}/logo.svg`
     },
     "sameAs": [
       "https://x.com/plademyoy",
@@ -148,7 +149,7 @@ const hreflangUrls = {
   "name": "Plademy Oy",
   "legalName": "Plademy Oy",
   "url": siteUrl,
-  "logo": `${siteUrl}/plademy-white-logo.svg`,
+  "logo": `${siteUrl}/logo.svg`,
   "description": "AI-driven integration hub tailored for both employee and community development programs.",
   "foundingDate": "2023",
   "taxID": "3386328-3",

@@ -33,14 +33,22 @@ export const onRequest = defineMiddleware(async (context, next) => {
     const basePath = pathInfo?.path || pathname;
     const localizedPath = getLocalizedPath(basePath, langParam as Language);
     
-    // Remove lang parameter and redirect to localized path
+    // Remove lang parameter and redirect to localized path.
+    // IMPORTANT: build a RELATIVE Location (path + search only). Under the
+    // Next.js reverse proxy this request is served from plademy.netlify.app,
+    // so an absolute Location built from `url` would send the browser (which
+    // only ever sees plademy.com) to the upstream Netlify host directly.
     const newUrl = new URL(url);
     newUrl.pathname = localizedPath;
     newUrl.searchParams.delete('lang');
-    
-    return Response.redirect(newUrl.toString(), 302);
+    const relativeLocation = `${newUrl.pathname}${newUrl.search}`;
+
+    return new Response(null, {
+      status: 302,
+      headers: { Location: relativeLocation },
+    });
   }
-  
+
   // Detect language from path and set cookie if needed
   const pathInfo = getPathFromLocalizedPath(pathname);
   if (pathInfo) {
@@ -54,7 +62,47 @@ export const onRequest = defineMiddleware(async (context, next) => {
       });
     }
   }
-  
-  return next();
+
+  const response = await next();
+
+  // Rewrite any absolute Location header that points at this upstream host
+  // (plademy.netlify.app) or at the request's own host to a relative one.
+  // Astro.redirect('/some/path') can end up with an absolute Location built
+  // from the request origin, which — behind the Next.js proxy — is the
+  // Netlify host, not the public plademy.com host the browser is on.
+  const location = response.headers.get('Location');
+  if (location) {
+    let locUrl: URL | null = null;
+    try {
+      locUrl = new URL(location, url);
+    } catch {
+      locUrl = null;
+    }
+
+    if (locUrl) {
+      const siteOrigin = (() => {
+        try {
+          return new URL(import.meta.env.PUBLIC_SITE_URL || 'https://plademy.com').origin;
+        } catch {
+          return 'https://plademy.com';
+        }
+      })();
+
+      const isUpstreamOrSameHost = locUrl.host.endsWith('netlify.app') || locUrl.host === url.host;
+
+      if (locUrl.origin !== siteOrigin && isUpstreamOrSameHost) {
+        const relative = `${locUrl.pathname}${locUrl.search}${locUrl.hash}`;
+        const newHeaders = new Headers(response.headers);
+        newHeaders.set('Location', relative);
+        return new Response(response.body, {
+          status: response.status,
+          statusText: response.statusText,
+          headers: newHeaders,
+        });
+      }
+    }
+  }
+
+  return response;
 });
 

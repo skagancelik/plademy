@@ -10,7 +10,30 @@
     "resources": "Resources",
     "integrations": "Integrations",
     "start": "Start",
-    "contact": "Contact"
+    "contact": "Contact",
+    "login": "Log In",
+    "startFree": "Start Free",
+    "featuresLabel": "Features",
+    "featuresOverview": "Overview",
+    "featuresMentorship": "Mentorship",
+    "featuresAi": "AI",
+    "featuresFaq": "FAQ",
+    "solutionsAll": "All solutions",
+    "solutionsCompanies": "Companies",
+    "solutionsCommunities": "Communities",
+    "solutionsAssociations": "Associations",
+    "solutionsUniversities": "Universities",
+    "solutionsMentorshipPrograms": "Mentorship Programs",
+    "solutionsStartupEcosystems": "Startup Ecosystems",
+    "mentorshipLabel": "Mentorship",
+    "mentorshipCorporate": "Corporate",
+    "mentorshipStartup": "Startup",
+    "mentorshipCommunity": "Community",
+    "mentorshipStudents": "Students",
+    "resourcesArticles": "Articles",
+    "pricing": "Pricing",
+    "menu": "Menu",
+    "close": "Close"
   },
   "home": {
     "hero": {
@@ -155,7 +178,8 @@
       "about": "About",
       "security": "Security",
       "privacy": "Privacy Policy",
-      "cookies": "Cookie Policy"
+      "cookies": "Cookie Policy",
+      "terms": "Terms"
     },
     "address": "Maria 01, Lapinlahdenkatu 16, 00180 Helsinki, Finland",
     "businessId": "Business-ID",
